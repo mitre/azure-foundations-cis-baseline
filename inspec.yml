@@ -1,0 +1,10 @@
+name: azure-foundations-cis-baseline
+title: Azure Foundations CIS Benchmark
+maintainer: MITRE SAF Team
+copyright: The MITRE Corporation 
+copyright_email: saf@groups.mitre.org
+license: Apache-2.0
+summary: An InSpec Compliance Profile
+version: 0.1.0
+supports:
+  platform: os
