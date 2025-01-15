@@ -72,7 +72,6 @@ control 'azure-foundations-cis-2.1.14' do
         }"
 
     impact 0.5
-    ref 'link'
     tag nist: ['tag']
     tag severity: 'medium'
     tag cis_controls: [{ '8' => ['control'] }]

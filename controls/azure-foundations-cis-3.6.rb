@@ -1,23 +1,35 @@
-control 'azure-foundations-cis-1.1.1' do
-    title 'title here'
-    desc "description"
+control 'azure-foundations-cis-3.6' do
+    title "Ensure that Shared Access Signature Tokens Expire Within an Hour"
+    desc "Expire shared access signature tokens within an hour."
 
     desc 'rationale',
-        "description"
+        "A shared access signature (SAS) is a URI that grants restricted access rights to Azure
+        Storage resources. A shared access signature can be provided to clients who should
+        not be trusted with the storage account key but for whom it may be necessary to
+        delegate access to certain storage account resources. Providing a shared access
+        signature URI to these clients allows them access to a resource for a specified period of
+        time. This time should be set as low as possible and preferably no longer than an hour."
 
     desc 'check',
-       "description"
+       "Currently, SAS token expiration times cannot be audited. Until Microsoft makes token
+        expiration time a setting rather than a token creation parameter, this recommendation
+        would require a manual verification."
 
     desc 'fix',
-       "description"
-
-    
+       "When generating shared access signature tokens, use start and end time such that it
+        falls within an hour.
+        From Azure Portal
+        1. Go to Storage Accounts
+        2. For each storage account, go to Shared access signature
+        3. Set Start and expiry date/time within an hour"
 
     impact 0.5
-    ref 'link'
-    tag nist: ['tag']
+    tag nist: ['AC-1','AC-2','AC-2(1)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['6.2'] }]
+
+    ref 'https://docs.microsoft.com/en-us/rest/api/storageservices/delegating-access-with-a-shared-access-signature'
+    ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview'
 
     describe 'benchmark' do
         skip 'configure'

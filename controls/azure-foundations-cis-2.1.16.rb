@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-2.1.16' do
     title "Ensure that Auto provisioning of 'Microsoft Defender for Containers components' is Set to 'On'"
     desc "Enable automatic provisioning of the Microsoft Defender for Containers components."
 

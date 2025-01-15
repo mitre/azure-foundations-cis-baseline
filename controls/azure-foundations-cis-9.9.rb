@@ -1,5 +1,5 @@
 control 'azure-foundations-cis-1.1.1' do
-    title 'title here'
+    title "title"
     desc "description"
 
     desc 'rationale',
@@ -14,7 +14,6 @@ control 'azure-foundations-cis-1.1.1' do
     
 
     impact 0.5
-    ref 'link'
     tag nist: ['tag']
     tag severity: 'medium'
     tag cis_controls: [{ '8' => ['control'] }]
