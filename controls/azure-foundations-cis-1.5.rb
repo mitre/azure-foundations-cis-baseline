@@ -34,9 +34,9 @@ control 'azure-foundations-cis-1.1.1' do
         6. Set the Number of methods required to reset to 2"
 
     impact 0.5
-    tag nist: ['check NIST SP 800-53, Revision 5']
-    tag severity: 'low, medium, or high '
-    tag cis_controls: [{ '8.1' => ['check cis controls navigator'] }]
+    tag nist: ['tag']
+    tag severity: 'medium'
+    tag cis_controls: [{ '8' => ['control'] }]
 
     ref "https://docs.microsoft.com/en-us/azure/active-directory/authentication/tutorial-enable-sspr"
     ref "https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-registration-mfa-sspr-combined"

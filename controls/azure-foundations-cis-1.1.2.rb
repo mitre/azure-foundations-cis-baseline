@@ -95,9 +95,9 @@ control 'azure-foundations-cis-1.1.1' do
         mfasettings"
 
     impact 0.5
-    tag nist: ['check NIST SP 800-53, Revision 5']
-    tag severity: 'low, medium, or high '
-    tag cis_controls: [{ '8.1' => ['check cis controls navigator'] }]
+    tag nist: ['tag']
+    tag severity: 'medium'
+    tag cis_controls: [{ '8' => ['control'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/multi-factor-authentication/multi-factor-authentication'
     ref 'https://stackoverflow.com/questions/41156206/azure-active-directory-premium-mfa-attributes-via-graph-api' 

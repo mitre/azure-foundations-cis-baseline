@@ -63,9 +63,9 @@ control 'azure-foundations-cis-1.1.1' do
         administrator privileges."
 
     impact 0.5
-    tag nist: ['check NIST SP 800-53, Revision 5']
-    tag severity: 'low, medium, or high '
-    tag cis_controls: [{ '8.1' => ['check cis controls navigator'] }]
+    tag nist: ['tag']
+    tag severity: 'medium'
+    tag cis_controls: [{ '8' => ['control'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/billing/billing-add-change-azure-subscription-administrator'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-1-separate-and-limit-highly-privilegedadministrative-users'

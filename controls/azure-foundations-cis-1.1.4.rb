@@ -34,9 +34,9 @@ control 'azure-foundations-cis-1.1.1' do
         authentication on devices they trust"
 
     impact 0.5
-    tag nist: ['check NIST SP 800-53, Revision 5']
-    tag severity: 'low, medium, or high '
-    tag cis_controls: [{ '8.1' => ['check cis controls navigator'] }]
+    tag nist: ['tag']
+    tag severity: 'medium'
+    tag cis_controls: [{ '8' => ['control'] }]
 
     ref 'https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-mfasettings#remember-multi-factor-authentication-for-devices-that-users-trust'
     ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/security-controls-v3-identity-management#im-4-use-strong-authentication-controls-for-all-azure-active-directory-based-access'

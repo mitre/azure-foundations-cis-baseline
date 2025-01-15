@@ -1,24 +1,23 @@
 control 'azure-foundations-cis-1.1.1' do
     title 'title here'
-    desc "mandatory description"
+    desc "description"
 
     desc 'rationale',
-        "mandatory rationale description"
+        "description"
 
     desc 'check',
-       "mandatory check description"
+       "description"
 
     desc 'fix',
-       "optional fix description"
+       "description"
 
-    desc 'other descriptions',
-        "check aws baseline for examples"
+    
 
     impact 0.5
-    ref 'mandatory reference link'
-    tag nist: ['check NIST SP 800-53, Revision 5']
-    tag severity: 'low, medium, or high '
-    tag cis_controls: [{ '8.1' => ['check cis controls navigator'] }]
+    ref 'link'
+    tag nist: ['tag']
+    tag severity: 'medium'
+    tag cis_controls: [{ '8' => ['control'] }]
 
     describe 'benchmark' do
         skip 'configure'

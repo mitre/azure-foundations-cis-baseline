@@ -74,9 +74,9 @@ control 'azure-foundations-cis-1.1.1' do
         Report-only to On."
 
     impact 0.5
-    tag nist: ['check NIST SP 800-53, Revision 5']
-    tag severity: 'low, medium, or high '
-    tag cis_controls: [{ '8.1' => ['check cis controls navigator'] }]
+    tag nist: ['tag']
+    tag severity: 'medium'
+    tag cis_controls: [{ '8' => ['control'] }]
 
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-users-groups'

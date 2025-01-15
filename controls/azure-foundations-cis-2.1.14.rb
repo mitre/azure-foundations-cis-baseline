@@ -72,10 +72,10 @@ control 'azure-foundations-cis-2.1.14' do
         }"
 
     impact 0.5
-    ref 'mandatory reference link'
-    tag nist: ['check NIST SP 800-53, Revision 5']
-    tag severity: 'low, medium, or high '
-    tag cis_controls: [{ '8.1' => ['check cis controls navigator'] }]
+    ref 'link'
+    tag nist: ['tag']
+    tag severity: 'medium'
+    tag cis_controls: [{ '8' => ['control'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-data-security'
     ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-enable-data-collection'

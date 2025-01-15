@@ -42,9 +42,9 @@ control 'azure-foundations-cis-1.1.1' do
         7. Double click the custom banned password list to add a string."
 
     impact 0.5
-    tag nist: ['check NIST SP 800-53, Revision 5']
-    tag severity: 'low, medium, or high '
-    tag cis_controls: [{ '8.1' => ['check cis controls navigator'] }]
+    tag nist: ['tag']
+    tag severity: 'medium'
+    tag cis_controls: [{ '8' => ['control'] }]
 
     ref 'https://learn.microsoft.com/en-us/entra/identity/authentication/concept-password-ban-bad-combined-policy'
     ref 'https://learn.microsoft.com/en-us/entra/identity/authentication/concept-password-ban-bad'

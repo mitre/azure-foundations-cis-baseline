@@ -51,9 +51,9 @@ control 'azure-foundations-cis-2.1.2' do
         Set-AzSecurityPricing -Name 'AppServices' -PricingTier 'Standard'"
 
     impact 0.5
-    tag nist: ['check NIST SP 800-53, Revision 5']
-    tag severity: 'low, medium, or high '
-    tag cis_controls: [{ '8.1' => ['check cis controls navigator'] }]
+    tag nist: ['tag']
+    tag severity: 'medium'
+    tag cis_controls: [{ '8' => ['control'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
     ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/list'
