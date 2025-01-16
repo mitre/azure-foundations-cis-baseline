@@ -144,9 +144,9 @@ control 'azure-foundations-cis-1.2.2' do
         <enabled|disabled> -Conditions $conditions -GrantControls $controls"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['AC-2(1)','AC-3']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['6.7'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-location'
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-report-only'

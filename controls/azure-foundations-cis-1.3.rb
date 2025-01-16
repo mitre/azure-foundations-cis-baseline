@@ -46,9 +46,9 @@ control 'azure-foundations-cis-1.3' do
         $params"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['6.8'] }]
 
     ref 'https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions'
     ref 'https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#tenant-creator'

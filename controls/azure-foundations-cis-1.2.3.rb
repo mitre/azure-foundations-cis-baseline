@@ -49,9 +49,9 @@ control 'azure-foundations-cis-1.2.3' do
         Report-only to On"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['IA-2(1)','IA-2(2)','AC-19','IA-2(1)','IA-2(2)','IA-2(1)','AC-2(1)','AC-3']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['6.3','6.4','6.5','6.7'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-admin-mfa'
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/roles/security-emergency-access'

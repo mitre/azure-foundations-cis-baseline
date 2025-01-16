@@ -74,9 +74,9 @@ control 'azure-foundations-cis-1.2.1' do
         '#microsoft.graph.ipNamedLocation' -IsTrusted $true"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['AC-2(1)','AC-3']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['6.7'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/location-condition'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'

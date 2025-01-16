@@ -79,9 +79,9 @@ control 'azure-foundations-cis-1.4' do
         PS C:\>Remove-AzureADUser -ObjectId <exampleaccountid@domain.com>"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['AC-2','AC-2(3)','AC-1','AC-2','AC-2(1)','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['5.1','5.3','6.2','6.8'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/b2b/user-properties'
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/add-users-azure-active-directory#delete-a-user'
