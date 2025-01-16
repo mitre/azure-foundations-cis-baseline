@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.22' do
     title 'Ensure That No Custom Subscription Administrator Roles Exist'
     desc "The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access."
 

@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.4' do
     title 'Ensure Guest Users Are Reviewed on a Regular Basis'
     desc "Microsoft Entra ID is extended to include Azure AD B2B collaboration, allowing you to
         invite people from outside your organization to be guest users in your cloud account and

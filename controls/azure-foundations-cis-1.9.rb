@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.19' do
     title "Ensure That 'Notify all admins when other admins reset their password?' is set to 'Yes'"
     desc "Ensure that all Global Administrators are notified if any other administrator resets their password."
 

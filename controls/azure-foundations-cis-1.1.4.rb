@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.1.4' do
     title "Ensure that 'Allow users to remember multi-factor authentication on devices they trust' is Disabled"
     desc "Do not allow users to remember multi-factor authentication on devices"
 

@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.19' do
     title "Ensure that 'Owners can manage group membership requests in the Access Panel' is set to 'No'"
     desc "Restrict security group management to administrators only."
 

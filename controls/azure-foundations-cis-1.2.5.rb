@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.2.5' do
     title 'Ensure Multi-factor Authentication is Required for Risky Sign-ins'
     desc "For designated users, they will be prompted to use their multi-factor authentication (MFA) process on login."
 

@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.1.2' do
     title "Ensure that 'Multi-Factor Auth Status' is 'Enabled' for allPrivileged Users"
     desc "Enable multi-factor authentication for all roles, groups, and users that have write access
         or permissions to Azure resources. These include custom created objects or built-in
@@ -95,9 +95,9 @@ control 'azure-foundations-cis-1.1.1' do
         mfasettings"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['IA-2(1)','IA-2(2)','AC-19','IA-2(1)','IA-2(2)','IA-2(1)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['6.3','6.4','6.5'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/multi-factor-authentication/multi-factor-authentication'
     ref 'https://stackoverflow.com/questions/41156206/azure-active-directory-premium-mfa-attributes-via-graph-api' 

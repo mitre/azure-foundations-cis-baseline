@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.13' do
     title "Ensure That 'Users Can Register Applications' Is Set to 'No'"
     desc "Require administrators or appropriately delegated users to register third-party applications."
 

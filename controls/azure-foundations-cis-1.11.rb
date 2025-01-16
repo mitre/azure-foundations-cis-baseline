@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.11' do
     title "Ensure 'User consent for applications’ Is Set To ‘Allow for Verified Publishers'"
     desc "Allow users to provide consent for selected permissions when a request is coming from
         a verified publisher."

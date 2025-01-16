@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.10' do
     title "Ensure `User consent for applications` is set to `Do not allow user consent`"
     desc "Require administrators to provide consent for applications before use."
 

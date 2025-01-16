@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.16' do
     title "Ensure That 'Restrict access to Microsoft Entra admin center' is Set to 'Yes'"
     desc "Restrict access to the Microsoft Entra ID administration center to administrators only."
 

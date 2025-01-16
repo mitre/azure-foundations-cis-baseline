@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.15' do
     title "Ensure that 'Guest invite restrictions' is set to 'Only users assigned to specific admin roles can invite guest users'"
     desc "Restrict invitations to users with specific administrative roles only."
 

@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.2.6' do
     title 'Ensure Multifactor Authentication is Required for Windows Azure Service Management API'
     desc "This recommendation ensures that users accessing the Windows Azure Service
         Management API (i.e. Azure Powershell, Azure CLI, Azure Resource Manager API,

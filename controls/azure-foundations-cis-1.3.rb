@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.3' do
     title "Ensure that 'Restrict non-admin users from creating tenants' is set to 'Yes'"
     desc "Require administrators or appropriately delegated users to create new tenants."
 

@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.2.7' do
     title 'Ensure Multifactor Authentication is Required to access Microsoft Admin Portals'
     desc "This recommendation ensures that users accessing Microsoft Admin Portals (i.e.
         Microsoft 365 Admin, Microsoft 365 Defender, Exchange Admin Center, Azure Portal,

@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.8' do
     title "Ensure that 'Notify users on password resets?' is set to 'Yes'"
     desc "Ensure that users are notified on their primary and secondary emails on password resets."
 

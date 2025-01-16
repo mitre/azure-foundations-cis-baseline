@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.12' do
     title "Ensure that 'Users can add gallery apps to My Apps' is set to 'No'"
     desc "Require administrators to provide consent for the apps before use."
 

@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.1.3' do
     title "Ensure that 'Multi-Factor Auth Status' is 'Enabled' for all Non-Privileged Users"
     desc "Enable multi-factor authentication for all non-privileged users."
 
@@ -76,9 +76,9 @@ control 'azure-foundations-cis-1.1.1' do
         https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-mfasettings"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['IA-2(1)','IA-2(2)','AC-19','IA-2(1)','IA-2(2)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['6.3','6.4'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/multi-factor-authentication/multi-factor-authentication'
     ref 'https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates'

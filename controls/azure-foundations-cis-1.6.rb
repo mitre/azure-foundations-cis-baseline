@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.6' do
     title "Ensure that a Custom Bad Password List is set to 'Enforce' foryour Organization"
     desc "Microsoft Azure provides a Global Banned Password policy that applies to Azure
         administrative and normal user accounts. This is not applied to user accounts that are

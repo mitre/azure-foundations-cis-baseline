@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.2.4' do
     title 'Ensure that A Multi-factor Authentication Policy Exists for All Users'
     desc "For designated users, they will be prompted to use their multi-factor authentication (MFA) process on logins."
 

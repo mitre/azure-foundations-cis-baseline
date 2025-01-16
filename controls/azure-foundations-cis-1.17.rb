@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.17' do
     title "Ensure that 'Restrict user ability to access groups features in the Access Pane' is Set to 'Yes'"
     desc "Restrict access to group web interface in the Access Panel portal."
 

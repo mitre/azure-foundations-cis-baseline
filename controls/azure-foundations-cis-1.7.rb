@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.7' do
     title "Ensure that 'Number of days before users are asked to re-confirm their authentication information' is not set to '0'"
     desc "Ensure that the number of days before users are asked to re-confirm their
         authentication information is not set to 0."

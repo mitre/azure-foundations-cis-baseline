@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.2.1' do
     title 'Ensure Trusted Locations Are Defined'
     desc "Microsoft Entra ID Conditional Access allows an organization to configure Named
         locations and configure whether those locations are trusted or untrusted. These

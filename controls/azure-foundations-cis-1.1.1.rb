@@ -41,9 +41,9 @@ control 'azure-foundations-cis-1.1.1' do
         5. Select Save"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['CM-1','CM-2','CM-6','CM-7','CM-7(1)','CM-9','SA-3','SA-8','SA-10']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['4.1'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/concept-fundamentals-security-defaults'
     ref 'https://techcommunity.microsoft.com/t5/azure-active-directory-identity/introducing-security-defaults/ba-p/1061414'

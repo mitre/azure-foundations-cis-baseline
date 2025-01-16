@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-1.1.1' do
+control 'azure-foundations-cis-1.2.2' do
     title 'Ensure that an exclusionary Geographic Access Policy is considered'
     desc "CAUTION: If these policies are created without first auditing and testing the result,
         misconfiguration can potentially lock out administrators or create undesired access
