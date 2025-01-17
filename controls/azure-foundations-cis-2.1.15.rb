@@ -33,9 +33,9 @@ control 'azure-foundations-cis-2.1.15' do
         Repeat the above for any additional subscriptions."
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['RA-5']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['7.5','7.6'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-data-collection?tabs=autoprovision-va'
     ref 'https://msdn.microsoft.com/en-us/library/mt704062.aspx'

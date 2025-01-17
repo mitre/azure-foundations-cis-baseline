@@ -33,9 +33,9 @@ control 'azure-foundations-cis-1.24' do
         entering Microsoft Entra ID directory select Permit no one"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['AC-6(2)','AC-6(5)','IA-4','IA-5','AC-1','AC-2','AC-2(1)','AC-1','AC-2','AC-2(1)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['5.4','6.1','6.2'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/cost-management-billing/manage/manage-azure-subscription-policy'
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-how-subscriptions-associated-directory'

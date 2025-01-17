@@ -28,9 +28,9 @@ control 'azure-foundations-cis-1.12' do
         5. Set Users can add gallery apps to My Apps to No"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['CM-7(2)','CM-8(3)','CM-10','CM-11','CM-8(3)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['2.3','2.4'] }]
 
     ref 'https://blogs.msdn.microsoft.com/exchangedev/2014/06/05/managing-user-consent-for-applications-using-office-365-apis/'
     ref 'https://nicksnettravels.builttoroam.com/post/2017/01/24/Admin-Consent-for-Permissions-in-Azure-Active-Directory.aspx'

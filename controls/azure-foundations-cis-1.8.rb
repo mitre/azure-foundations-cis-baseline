@@ -29,9 +29,9 @@ control 'azure-foundations-cis-1.8' do
         6. Set Notify users on password resets? to Yes"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['AC-2(1)','AC-3']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['6.7'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/authentication/tutorial-enable-sspr#set-up-notifications-and-customizations'
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/active-directory-passwords-how-it-works#notifications'

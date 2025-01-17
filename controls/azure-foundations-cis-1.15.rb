@@ -46,9 +46,9 @@ control 'azure-foundations-cis-1.15' do
         users assigned to specific admin roles can invite guest users is selected"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['IA-4','IA-5','AC-1','AC-2','AC-2(1)','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['6.1','6.8'] }]
     
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/active-directory-b2b-delegate-invitations'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'

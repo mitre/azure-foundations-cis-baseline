@@ -63,9 +63,9 @@ control 'azure-foundations-cis-1.23' do
         Get-AzureRmRoleDefinition 'Resource Lock Administrator'"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['AC-3','AC-5','AC-6','MP-2','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['3.3','6.8'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles'
     ref 'https://docs.microsoft.com/en-us/azure/role-based-access-control/check-access'

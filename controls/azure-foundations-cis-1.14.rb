@@ -69,9 +69,9 @@ control 'azure-foundations-cis-1.14' do
         2af84b1e-32c8-42b7-82bc-daa82404023b."
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['AC-3','AC-5','AC-6','MP-2','RA-2','AC-2(1)','AC-3','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['3.3','3.7','6.7','6.8'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions#member-and-guest-users'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'

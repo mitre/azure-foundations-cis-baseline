@@ -37,9 +37,9 @@ control 'azure-foundations-cis-1.10' do
         7. Click save"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['CM-7(2)','CM-8(3)','CM-10','CM-11','IA-4','IA-5','AC-1','AC-2','AC-2(1)','AC-2(1)','AC-3']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['2.3','6.1','6.7'] }]
 
     ref 'https://nicksnettravels.builttoroam.com/post/2017/01/24/Admin-Consent-for-Permissions-in-Azure-Active-Directory.aspx'
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/configure-user-consent#configure-user-consent-to-applications'

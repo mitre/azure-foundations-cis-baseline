@@ -50,9 +50,9 @@ control 'azure-foundations-cis-2.1.11' do
         Set-AzSecurityPricing -Name 'Arm' -PricingTier 'Standard'"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['AC-6(2)','AC-6(5)','RA-5']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['5.4','7.5'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security'
     ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-resource-manager-introduction'

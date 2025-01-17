@@ -43,9 +43,9 @@ control 'azure-foundations-cis-1.11' do
         Set-MsolCompanyInformation --UsersPermissionToUserConsentToAppEnabled $False"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['CM-7(2)','CM-8(3)','CM-10','CM-11','CM-7(5)','CM-10','IA-4','IA-5','AC-1','AC-2','AC-2(1)','AC-2(1)','AC-3']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['2.3','2.5','6.1','6.7'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/manage-apps/configure-user-consent#configure-user-consent-to-applications'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-1-separate-and-limit-highly-privilegedadministrative-users'

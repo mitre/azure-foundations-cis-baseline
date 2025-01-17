@@ -30,9 +30,9 @@ control 'azure-foundations-cis-1.20' do
         PowerShell to No"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['AC-2','AC-2(1)','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['6.8'] }]
 
     ref 'https://whitepages.unlimitedviz.com/2017/01/disable-office-365-groups-2/'
     ref 'https://support.office.com/en-us/article/Control-who-can-create-Office-365-Groups-4c46c8cb-17d0-44b5-9776-005fced8e618'

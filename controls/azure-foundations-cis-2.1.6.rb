@@ -54,9 +54,9 @@ control 'azure-foundations-cis-2.1.6' do
         Set-AzSecurityPricing -Name 'CosmosDbs' -PricingTier 'Standard"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['RA-5']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['7.5'] }]
 
     ref 'https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/'
     ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security'

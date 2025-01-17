@@ -59,9 +59,9 @@ control 'azure-foundations-cis-2.1.3' do
         Set-AzSecurityPricing -Name 'SqlServers' -PricingTier 'Standard'"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['RA-5']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['7.5'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
     ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/list'

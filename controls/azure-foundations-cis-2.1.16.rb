@@ -36,6 +36,14 @@ control 'azure-foundations-cis-2.1.16' do
     tag severity: 'medium'
     tag cis_controls: [{ '8' => ['7.5','7.6'] }]
 
+    ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-containers-introduction'
+    ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-data-collection?tabs=autoprovision-containers'
+    ref 'https://msdn.microsoft.com/en-us/library/mt704062.aspx'
+    ref 'https://msdn.microsoft.com/en-us/library/mt704063.aspx'
+    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/autoprovisioningsettings/list'
+    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/autoprovisioningsettings/create'
+    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
+
     describe 'benchmark' do
         skip 'configure'
     end

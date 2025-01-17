@@ -39,9 +39,9 @@ control 'azure-foundations-cis-2.1.12' do
         to periodically assess, report, and install the required security patches for your OS."
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['RA-5','RA-7','SI-2','SI-2(2)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['7.3'] }]
 
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-posture-vulnerability-management#pv-6-rapidly-and-automatically-remediate-vulnerabilities'
     ref 'https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/'

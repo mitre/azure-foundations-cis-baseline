@@ -35,9 +35,9 @@ control 'azure-foundations-cis-1.7' do
         authentication information to your organization-defined frequency."
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['AC-1','AC-2','AC-2(1)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['6.2'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/active-directory-passwords-how-it-works#registration'
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/authentication/howto-sspr-deployment'

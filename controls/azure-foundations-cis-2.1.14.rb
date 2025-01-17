@@ -72,9 +72,9 @@ control 'azure-foundations-cis-2.1.14' do
         }"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['RA-5']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['7.5','7.6'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-data-security'
     ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-enable-data-collection'

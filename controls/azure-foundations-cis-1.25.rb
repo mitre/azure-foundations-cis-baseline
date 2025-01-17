@@ -42,9 +42,9 @@ control 'azure-foundations-cis-1.25' do
         admin account."
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['AC-2']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['5.1'] }]
 
     ref 'https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/best-practices#5-limit-the-number-of-global-administrators-to-less-than-5'
     ref 'https://learn.microsoft.com/en-us/microsoft-365/admin/add-users/about-admin-roles?view=o365-worldwide#security-guidelines-for-assigning-roles'

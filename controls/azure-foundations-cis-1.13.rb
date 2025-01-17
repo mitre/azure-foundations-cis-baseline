@@ -41,9 +41,9 @@ control 'azure-foundations-cis-1.13' do
         Set-MsolCompanyInformation -UsersPermissionToCreateLOBAppsEnabled $False"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['CM-7(2)','CM-8(3)','CM-10','CM-11','CM-8(3)','AC-2(1)','AC-3']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['2.3','2.4','6.7'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/roles/delegate-app-roles#restrict-who-can-create-applications'
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-how-applications-are-added#who-has-permission-to-add-applications-to-my-azure-ad-instance'

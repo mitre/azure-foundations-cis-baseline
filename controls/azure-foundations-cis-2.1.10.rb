@@ -54,9 +54,9 @@ control 'azure-foundations-cis-2.1.10' do
         Set-AzSecurityPricing -Name 'DNS' -PricingTier 'Standard'"
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['SC-20','SC-21','SC-22','RA-5','SI-4','SI-4(4)']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['4.9','7.5','13.6'] }]
 
     ref 'https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/'
     ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/baselines/dns-security-baseline'

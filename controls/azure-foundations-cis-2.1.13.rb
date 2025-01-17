@@ -62,9 +62,9 @@ control 'azure-foundations-cis-2.1.13' do
         Repeat 'Part B - Remediate Policy Effect' until no more policies are listed."
 
     impact 0.5
-    tag nist: ['tag']
+    tag nist: ['CM-1','CM-2','CM-6','CM-7','CM-7(1)','CM-9','SA-3','SA-8','SA-10','AC-18,','AC-18(1)','AC-18(3)','CM-2','CM-6','CM-7','CM-7(1)','CM-9']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['control'] }]
+    tag cis_controls: [{ '8' => ['4.1','4.2'] }]
 
     ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-policies'
     ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-enable-transparent-data-encryption'
