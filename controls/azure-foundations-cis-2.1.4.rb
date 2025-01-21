@@ -1,75 +1,46 @@
 control 'azure-foundations-cis-2.1.4' do
-    title "Ensure That Microsoft Defender for SQL Servers on Machines Is Set To 'On'"
-    desc "Turning on Microsoft Defender for SQL servers on machines enables threat detection
-        for SQL servers on machines, providing threat intelligence, anomaly detection, and
-        behavior analytics in Microsoft Defender for Cloud."
+    title "Ensure that 'Allow users to remember multi-factor authentication on devices they trust' is Disabled"
+    desc "Do not allow users to remember multi-factor authentication on devices"
 
     desc 'rationale',
-        "Enabling Microsoft Defender for SQL servers on machines allows for greater defense-
-        in-depth, functionality for discovering and classifying sensitive data, surfacing and
-        mitigating potential database vulnerabilities, and detecting anomalous activities that
-        could indicate a threat to your database."
+        "Remembering Multi-Factor Authentication (MFA) for devices and browsers allows users
+        to have the option to bypass MFA for a set number of days after performing a
+        successful sign-in using MFA. This can enhance usability by minimizing the number of
+        times a user may need to perform two-step verification on the same device. However, if
+        an account or device is compromised, remembering MFA for trusted devices may affect
+        security. Hence, it is recommended that users not be allowed to bypass MFA."
 
     desc 'impact',
-        "Turning on Microsoft Defender for SQL servers on machines incurs an additional cost
-        per resource."
+        "For every login attempt, the user will be required to perform multi-factor authentication."
 
     desc 'check',
        "From Azure Portal
-        1. Go to Microsoft Defender for Cloud.
-        2. Select Environment Settings blade.
-        3. Click on the subscription name.
-        4. Select the Defender plans blade.
-        5. Click Select types > in the row for Databases.
-        6. Ensure the radio button next to SQL servers on machines is set to On.
-        From Azure CLI
-        Ensure Defender for SQL is licensed with the following command:
-        az security pricing show -n SqlServerVirtualMachines
-        Ensure the 'PricingTier' is set to 'Standard'
-        From PowerShell
-        Run the following command:
-        Get-AzSecurityPricing -Name 'SqlServerVirtualMachines' | Select-Object
-        Name,PricingTier
-        Ensure the 'PricingTier' is set to 'Standard'Page 124
-        From Azure Policy
-        If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
-        associated Policy definition in Azure.
-        If referencing a printed copy, you can search Policy IDs from this URL:
-        https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
-        • Policy ID: 6581d072-105e-4418-827f-bd446d56421b - Name: 'Azure Defender
-        for SQL servers on machines should be enabled'
-        • Policy ID: abfb4388-5bf4-4ad7-ba82-2cd2f41ceae9 - Name: 'Azure Defender for
-        SQL should be enabled for unprotected Azure SQL servers'"
+        1. From Azure Home select the Portal Menu
+        2. Select Microsoft Entra ID
+        3. Select Users
+        4. Click the Per-user MFA button on the top bar
+        5. Click on service settings
+        6. Ensure that Allow users to remember multi-factor authentication on
+        devices they trust is not enabled"
 
     desc 'fix',
        "From Azure Portal
-        1. Go to Microsoft Defender for Cloud.
-        2. Select Environment Settings blade.
-        3. Click on the subscription name.
-        4. Select the Defender plans blade.
-        5. Click Select types > in the row for Databases.
-        6. Set the radio button next to SQL servers on machines to On.
-        7. Select Continue.
-        8. Select Save.
-        From Azure CLI
-        Run the following command:
-        az security pricing create -n SqlServerVirtualMachines --tier 'standard'
-        From PowerShell
-        Run the following command:
-        Set-AzSecurityPricing -Name 'SqlServerVirtualMachines' -PricingTier
-        'Standard'"
+        1. From Azure Home select the Portal Menu
+        2. Select Microsoft Entra ID
+        3. Select Users
+        4. Click the Per-user MFA button on the top bar
+        5. Click on service settings
+        6. Uncheck the box next to Allow users to remember multi-factor
+        authentication on devices they trust"
 
     impact 0.5
-    tag nist: ['RA-5']
+    tag nist: ['IA-2(1)','IA-2(2)','AC-19']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.5'] }]
+    tag cis_controls: [{ '8' => ['6.3','6.4'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/security-center/defender-for-sql-usage'
-    ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
-    ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-2-monitor-anomalies-and-threats-targeting-sensitive-data'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
+    ref 'https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-mfasettings#remember-multi-factor-authentication-for-devices-that-users-trust'
+    ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/security-controls-v3-identity-management#im-4-use-strong-authentication-controls-for-all-azure-active-directory-based-access'
+    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-6-use-strong-authentication-controls'
 
     describe 'benchmark' do
         skip 'configure'

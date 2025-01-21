@@ -1,74 +1,88 @@
 control 'azure-foundations-cis-2.1.3' do
-    title "Ensure That Microsoft Defender for (Managed Instance) Azure SQL Databases Is Set To 'On'"
-    desc "Turning on Microsoft Defender for Azure SQL Databases enables threat detection for
-        Managed Instance Azure SQL databases, providing threat intelligence, anomaly
-        detection, and behavior analytics in Microsoft Defender for Cloud."
+    title "Ensure that 'Multi-Factor Auth Status' is 'Enabled' for all Non-Privileged Users"
+    desc "Enable multi-factor authentication for all non-privileged users."
 
     desc 'rationale',
-        "Enabling Microsoft Defender for Azure SQL Databases allows for greater defense-in-
-        depth, includes functionality for discovering and classifying sensitive data, surfacing and
-        mitigating potential database vulnerabilities, and detecting anomalous activities that
-        could indicate a threat to your database."
+        "Multi-factor authentication requires an individual to present a minimum of two separate
+        forms of authentication before access is granted. Multi-factor authentication provides
+        additional assurance that the individual attempting to gain access is who they claim to
+        be. With multi-factor authentication, an attacker would need to compromise at least two
+        different authentication mechanisms, increasing the difficulty of compromise and thus
+        reducing the risk."
 
     desc 'impact',
-        "Turning on Microsoft Defender for Azure SQL Databases incurs an additional cost per
-        resource."
+        "Users would require two forms of authentication before any access is granted. Also, this
+        requires an overhead for managing dual forms of authentication."
 
     desc 'check',
        "From Azure Portal
-        1. Go to Microsoft Defender for Cloud.
-        2. Select Environment Settings blade.
-        3. Click on the subscription name.
-        4. Select the Defender plans blade.
-        5. Click Select types > in the row for Databases.
-        6. Ensure the radio button next to Azure SQL Databases is set to On.
-        From Azure CLI
-        Run the following command:
-        az security pricing show -n SqlServers
-        Ensure -PricingTier is set to Standard
-        From PowerShell
-        Run the following command:
-        Get-AzSecurityPricing -Name 'SqlServers' | Select-Object Name,PricingTier
-        Ensure the -PricingTier is set to Standard
-        Page 121
+        1. From Azure Home select the Portal Menu
+        2. Select the Microsoft Entra ID blade
+        3. Select Users
+        4. Take note of all users with the role Service Co-Administrators, Owners or
+        Contributors
+        5. Click on the Per-User MFA button in the top row menu
+        6. Check the box next to each noted user
+        7. Click Enable under quick steps in the right-hand panel
+        8. Click enable multi-factor auth
+        9. Click close
+        From REST API
+        For Every Subscription, For Every Tenant
+        Step 1: Identify Users with non-administrative Access
+        1. List All Users Using Microsoft Graph API:
+        GET https://graph.microsoft.com/v1.0/users
+        Capture id and corresponding userPrincipalName ($uid, $userPrincipalName)
+        Page 28
+        2. List all Role Definitions Using Azure management API:
+        https://management.azure.com/subscriptions/<subscriptionId>/providers/Microso
+        ft.Authorization/roleDefinitions?api-version=2017-05-01
+        Capture Role Definition IDs/Name ($name) and role names ($properties/roleName)
+        where 'properties/roleName' does NOT contain (Owner or *contributor or admin )
+        3. List All Role Assignments (Mappings $A.uid to $B.name) Using Azure
+        Management API:
+        GET
+        https://management.azure.com/subscriptions/<subscriptionId>/providers/Microso
+        ft.Authorization/roleassignments?api-version=2017-10-01-preview
+        Find all non-administrative roles ($B.name) in 'Properties/roleDefinationId'  mapped
+        with user ids ($A.id) in 'Properties/principalId' where 'Properties/principalType'
+        == 'User'
+        D> Now Match ($CProperties/principalId) with $A.uid and get $A.userPrincipalName
+        save this as D.userPrincipleName
+        Step 2: Run MSOL PowerShell command:
+        Get-MsolUser -All | where {$_.StrongAuthenticationMethods.Count -eq 0} |
+        Select-Object -Property UserPrincipalName
+        If the output contains any of the $D.userPrincipleName, then this recommendation is
+        non-compliant.
         From Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
         https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
-        • Policy ID: 7fe3b40f-802b-4cdd-8bd4-fd799c948cc2 - Name: 'Azure Defender for
-        Azure SQL Database servers should be enabled'
-        • Policy ID: abfb7388-5bf4-4ad7-ba99-2cd2f41cebb9 - Name: 'Azure Defender for
-        SQL should be enabled for unprotected SQL Managed Instances'"
+        •
+        Policy ID: 81b3ccb4-e6e8-4e4a-8d05-5df25cd29fd4 - Name: 'Accounts with
+        read permissions on Azure resources should be MFA enabled'"
 
     desc 'fix',
-       "From Azure Portal
-        1. Go to Microsoft Defender for Cloud.
-        2. Select Environment Settings blade.
-        3. Click on the subscription name.
-        4. Select the Defender plans blade.
-        5. Click Select types > in the row for Databases.
-        6. Set the radio button next to Azure SQL Databases to On.
-        7. Select Continue.
-        8. Select Save.
-        From Azure CLI
-        Run the following command:
-        az security pricing create -n SqlServers --tier 'standard'
-        From PowerShell
-        Run the following command:
-        Set-AzSecurityPricing -Name 'SqlServers' -PricingTier 'Standard'"
+       "Follow Microsoft Azure documentation and enable multi-factor authentication in your
+        environment.
+        https://docs.microsoft.com/en-us/azure/active-directory/authentication/tutorial-enable-
+        azure-mfa
+        Enabling and configuring MFA is a multi-step process. Here are some additional
+        resources on the process within Microsoft Entra ID:
+        https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-
+        access-policy-admin-mfa
+        https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-
+        getstarted#enable-multi-factor-authentication-with-conditional-access
+        https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-mfasettings"
 
     impact 0.5
-    tag nist: ['RA-5']
+    tag nist: ['IA-2(1)','IA-2(2)','AC-19']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.5'] }]
+    tag cis_controls: [{ '8' => ['6.3','6.4'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/list'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
-    ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-2-monitor-anomalies-and-threats-targeting-sensitive-data'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
+    ref 'https://docs.microsoft.com/en-us/azure/multi-factor-authentication/multi-factor-authentication'
+    ref 'https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates'
+    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-4-authenticate-server-and-services'
 
     describe 'benchmark' do
         skip 'configure'
