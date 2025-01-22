@@ -12,35 +12,31 @@ control 'azure-foundations-cis-2.13' do
         "Enforcing this setting may create additional requests that administrators need to review."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Select Enterprise Applications
-        4. Select Consent and permissions
-        5. Select User consent settings
-        6. Under User consent for applications, ensure Allow user consent for apps
-        from verified publishers, for selected permissions is selected
-        From PowerShell
-        Connect-MsolService
-        Get-MsolCompanyInformation | Select-Object
-        UsersPermissionToUserConsentToAppEnabled
-        Command should return UsersPermissionToUserConsentToAppEnabled with the value of
-        False"
+        3. Under Manage, select Enterprise applications
+        4. Under Security, select Consent and permissions`
+        5. Under Manage, select User consent settings
+        6. Under User consent for applications, ensure Allow user consent for
+        apps from verified publishers, for selected permissions is selected
+        Audit from PowerShell
+        Connect-MgGraph
+        (Get-MgPolicyAuthorizationPolicy).DefaultUserRolePermissions | Select-Object
+        -ExpandProperty PermissionGrantPoliciesAssigned
+        The command should return either ManagePermissionGrantsForSelf.microsoft-
+        user-default-low or a custom app consent policy id if one is in use."
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Select Enterprise Applications
-        Page 76
-        4. Select Consent and permissions
-        5. Select User consent settings
-        6. Under User consent for applications, select Allow user consent for apps
-        from verified publishers, for selected permissions
-        7. Select Save
-        From PowerShell
-        Connect-MsolService
-        Set-MsolCompanyInformation --UsersPermissionToUserConsentToAppEnabled $False"
+        3. Under Manage, select Enterprise applications
+        4. Under Security, select Consent and permissions`
+        5. Under Manage, select User consent settings
+        6. Under User consent for applications, select Allow user consent for
+        apps from verified publishers, for selected permissions
+        7. Click Save"
 
     impact 0.5
     tag nist: ['CM-7(2)','CM-8(3)','CM-10','CM-11','CM-7(5)','CM-10','IA-4','IA-5','AC-1','AC-2','AC-2(1)','AC-2(1)','AC-3']

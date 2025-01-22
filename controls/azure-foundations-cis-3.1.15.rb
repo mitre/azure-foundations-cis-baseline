@@ -34,7 +34,6 @@ control 'azure-foundations-cis-3.1.15' do
         Estimated cost is not provided within the tool, and users are strongly advised to contact
         their Microsoft sales representative for pricing and set a calendar reminder for the end
         of the trial period.
-        Page 177
         For an EASM workspace having an Inventory of 5k-10k billable items (IP addresses,
         hostnames, SSL certificates, etc) a typical cost might be approximiately $85-170 per
         day or $2500-5000 USD/month at the time of publication.

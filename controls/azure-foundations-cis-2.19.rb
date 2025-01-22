@@ -22,13 +22,14 @@ control 'azure-foundations-cis-2.19' do
         PowerShell is set to No"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Select Groups
-        4. Select General under Settings
-        5. Set Users can create security groups in Azure portals, API or PowerShell
-        to No"
+        3. Under Manage, select Groups
+        4. Under Settings, select General
+        5. Under Security Groups, set Users can create security groups in Azure
+        portals, API or PowerShell to No
+        6. Click Save
 
     impact 0.5
     tag nist: ['AC-2','AC-2(1)','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']

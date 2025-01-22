@@ -12,20 +12,19 @@ control 'azure-foundations-cis-3.1.8.1' do
         "Turning on Microsoft Defender for Key Vault incurs an additional cost per resource."
 
     desc 'check',
-       "From Azure Portal
-        1. Go to Microsoft Defender for Cloud
-        2. Select Environment Settings blade
-        3. Click on the subscription name
-        4. Select the Defender plans blade
+       "Audit from Azure Portal
+        1. Go to Microsoft Defender for Cloud.
+        2. Under Management, select Environment Settings.
+        3. Click on the subscription name.
+        4. Select the Defender plans blade.
         5. Ensure Status is set to On for Key Vault.
-        From Azure CLI
+        Audit from Azure CLI
         Ensure the output of the below command is Standard
-        az security pricing show -n 'KeyVaults' --query 'PricingTier'
-        From PowerShell
+        az security pricing show -n 'KeyVaults' --query 'pricingTier'
+        Audit from PowerShell
         Get-AzSecurityPricing -Name 'KeyVaults' | Select-Object Name,PricingTier
         Ensure output for PricingTier is Standard
-        Page 139
-        From Azure Policy
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
@@ -34,17 +33,17 @@ control 'azure-foundations-cis-3.1.8.1' do
         for Key Vault should be enabled'"
 
     desc 'fix',
-       "From Azure Portal
-        1. Go to Microsoft Defender for Cloud
-        2. Select Environment Settings blade
-        3. Click on the subscription name
-        4. Select the Defender plans blade
+       "Remediate from Azure Portal
+        1. Go to Microsoft Defender for Cloud.
+        2. Under Management, select Environment Settings.
+        3. Click on the subscription name.
+        4. Select the Defender plans blade.
         5. Select On under Status for Key Vault.
         6. Select Save.
-        From Azure CLI
+        Remediate from Azure CLI
         Enable Standard pricing tier for Key Vault:
         az security pricing create -n 'KeyVaults' --tier 'Standard'
-        From PowerShell
+        Remediate from PowerShell
         Enable Standard pricing tier for Key Vault:
         Set-AzSecurityPricing -Name 'KeyVaults' -PricingTier 'Standard'"
 

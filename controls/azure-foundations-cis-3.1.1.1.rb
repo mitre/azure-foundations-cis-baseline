@@ -1,6 +1,11 @@
 control 'azure-foundations-cis-3.1.1.1' do
     title "Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs' is Set to 'On'"
-    desc "Enable automatic provisioning of the monitoring agent to collect security data."
+    desc "Enable automatic provisioning of the monitoring agent to collect security data.
+        DEPRECATION PLANNED: The Log Analytics Agent is slated for deprecation in
+        August 2024. The Microsoft Defender for Endpoint agent, in tandem with new agentless
+        capabilities will be providing replacement functionality. More detail is available here:
+        https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/microsoft-
+        defender-for-cloud-strategy-and-plan-towards-log/ba-p/3883341."
 
     desc 'rationale',
         "When Log Analytics agent for Azure VMs is turned on, Microsoft Defender for Cloud
@@ -32,7 +37,7 @@ control 'azure-foundations-cis-3.1.1.1' do
         Get-AzSecurityAutoProvisioningSetting | Select-Object Name, AutoProvision
         Ensure output for Id Name AutoProvision is
         /subscriptions//providers/Microsoft.Security/autoProvisioningSettings/default
-        defaultPage 153
+        default
         From Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
@@ -42,16 +47,20 @@ control 'azure-foundations-cis-3.1.1.1' do
         provisioning of the Log Analytics agent should be enabled on your subscription'"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Defender for Cloud
-        3. Select Environment Settings
+        3. Under Management, select Environment Settings
         4. Select a subscription
-        5. Click on Settings & Monitoring
-        6. Ensure that Log Analytics agent for Azure VMs is set to On
+        5. Click on Settings & monitoring
+        6. Set the Status of Log Analytics agent to On
+        7. Select a Workspace
+        8. Click Apply
+        9. Click Continue
         Repeat the above for any additional subscriptions.
-        From Azure CLI
-        Use the below command to set Automatic provisioning of monitoring agent to On.
+        Remediate from Azure CLI
+        Use the below command to set Automatic provisioning of monitoring agent to
+        On.
         az account get-access-token --query
         '{subscription:subscription,accessToken:accessToken}' --out tsv | xargs -L1
         bash -c 'curl -X PUT -H 'Authorization: Bearer $1' -H 'Content-Type:

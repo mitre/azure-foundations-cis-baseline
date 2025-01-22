@@ -1,6 +1,8 @@
 control 'azure-foundations-cis-2.7' do
     title "Ensure that account 'Lockout duration in seconds' is greater than or equal to '60'"
-    desc "Ensures that two alternate forms of identification are provided before allowing a password reset."
+    desc "The account lockout duration value determines how long an account retains the status
+        of lockout, and therefore how long before a user can continue to attempt to login after
+        passing the lockout threshold."
 
     desc 'rationale',
         "Account lockout is a method of protecting against brute-force and password spray
@@ -30,7 +32,6 @@ control 'azure-foundations-cis-2.7' do
         2. Select Microsoft Entra ID.
         3. Under Manage, select Security.
         4. Under Manage, select Authentication methods.
-        Page 77
         5. Under Manage, select Password protection.
         6. Set the Lockout duration in seconds to 60 or higher.
         7. Click Save."

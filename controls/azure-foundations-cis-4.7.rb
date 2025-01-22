@@ -29,7 +29,6 @@ control 'azure-foundations-cis-4.7' do
         Ensure defaultAction is not set to Allow.
         az storage account list --query '[*].networkRuleSet'
         From PowerShell
-        Page 203
         Connect-AzAccount
         Set-AzContext -Subscription <subscription ID>
         Get-AzStorageAccountNetworkRuleset -ResourceGroupName <resource group> -Name

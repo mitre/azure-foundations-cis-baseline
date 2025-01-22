@@ -25,15 +25,15 @@ control 'azure-foundations-cis-4.3' do
         key to access the storage account must be updated to use the new key."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. Go to Storage Accounts
-        2. For each Storage Account, go to Access keys
-        3. Click Set rotation reminder
-        If the checkbox for Enable key rotation reminders is already checked, that Storage
-        Account is compliant. Review the Remind me every field for a desirable periodic setting
-        that fits your security program's needs.
-        Page 189
-        From Powershell
+        2. For each Storage Account, under Security + networking, go to Access keys
+        3. If the button Edit rotation reminder is displayed, the Storage Account is
+        compliant. Click Edit rotation reminder and review the Remind me every
+        field for a desirable periodic setting that fits your security program's needs. If the
+        button Set rotation reminder is displayed, the Storage Account is not
+        compliant.
+        Audit from Powershell
         $rgName = <resource group name for the storage>
         $accountName = <storage account name>
         $account = Get-AzStorageAccount -ResourceGroupName $rgName -Name $accountName
@@ -44,21 +44,21 @@ control 'azure-foundations-cis-4.3' do
         $($account.KeyCreationTime.Key1.ToShortDateString())'
         Write-Output 'Key2 Last Rotated:
         $($account.KeyCreationTime.Key2.ToShortDateString())'
-        If any of the creation dates is empty, then remediation is required, due to the need of at
-        least one rotation of the keys.
-        If the reminder is set, the period in days will be returned. 90 days is the
-        recommendation."
+        Key rotation is recommended if the creation date for any key is empty.
+        If the reminder is set, the period in days will be returned. The recommended period is 90
+        days."
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. Go to Storage Accounts
-        2. For each Storage Account that is not compliant, go to Access keys
+        2. For each Storage Account that is not compliant, under Security +
+        networking, go to Access keys
         3. Click Set rotation reminder
         4. Check Enable key rotation reminders
-        5. In the Send reminders field select Custom, then set the Remind me every field to
-        90 and the period drop down to Days.
+        5. In the Send reminders field select Custom, then set the Remind me every field
+        to 90 and the period drop down to Days
         6. Click Save
-        From Powershell
+        Remediate from Powershell
         $rgName = <resource group name for the storage>
         $accountName = <storage account name>
         $account = Get-AzStorageAccount -ResourceGroupName $rgName -Name $accountName

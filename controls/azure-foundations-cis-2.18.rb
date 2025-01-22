@@ -29,14 +29,14 @@ control 'azure-foundations-cis-2.18' do
         is set to Yes"
 
     desc 'fix',
-        "From Azure Portal
+        "FRemediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Select Groups
-        Page 93
-        4. Select General under Settings
-        5. Ensure that Restrict user ability to access groups features in My Groups
-        is set to Yes"
+        3. Under Manage, select Groups
+        4. Under Settings, select General
+        5. Under Self Service Group Management, set Restrict user ability to
+        access groups features in My Groups to Yes
+        6. Click Save"
 
     impact 0.5
     tag nist: ['AC-2','AC-2(1)','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']

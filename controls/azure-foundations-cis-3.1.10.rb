@@ -12,6 +12,7 @@ control 'azure-foundations-cis-3.1.10' do
         which service is configured on a Windows VM. The security center also checks for the
         latest updates in Linux systems. If a VM is missing a system update, the security center
         will recommend system updates be applied."
+
     desc 'impact',
         "Running Microsoft Defender for Cloud incurs additional charges for each resource
         monitored. Please see attached reference for exact charges per hour."
@@ -24,7 +25,6 @@ control 'azure-foundations-cis-3.1.10' do
         4. Ensure that there are no recommendations for Apply system updates
         Alternatively, you can employ your own patch assessment and management tool to
         periodically assess, report and install the required security patches for your OS.
-        Page 148
         From Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.

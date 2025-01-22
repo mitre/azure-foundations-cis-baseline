@@ -20,28 +20,29 @@ control 'azure-foundations-cis-2.2.2' do
         geographic access policies."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. From Azure Home open the Portal menu in the top left, and select Microsoft
         Entra ID.
         2. Scroll down in the menu on the left, and select Security.
         3. Select on the left side Conditional Access.
-        4. Select the policy you wish to audit, then:
-        o Under Assignments, Review the Users and Groups for the personnel the
-        policy will apply to
-        o Under Assignments, Review the Cloud apps or actions for the systems
-        the policy will apply to
-        o Under Conditions, Review the Include locations for those that should be
-        blocked
-        Page 37
-        o Under Conditions, Review the Exclude locations for those that should be
-        allowed (Note: locations set up in the previous recommendation for
-        Trusted Location should be in the Exclude list.)
-        o Under Access Controls > Grant - Confirm that Block Access is selected.
-        From Azure CLI
-        As of this writing there are no subcommands for Conditional Access Policies within the
-        Azure CLI
-        From PowerShell
-        $conditionalAccessPolicies = Get-AzureADMSConditionalAccessPolicy
+        4. Select Policies.
+        5. Select the policy you wish to audit, then:
+        o Under Assignments > Users, review the users and groups for the
+        personnel the policy will apply to
+        o Under Assignments > Target resources, review the cloud apps or
+        actions for the systems the policy will apply to
+        o Under Conditions > Locations, Review the Include locations for those
+        that should be blocked
+        o Under Conditions > Locations, Review the Exclude locations for those
+        that should be allowed (Note: locations set up in the previous
+        recommendation for Trusted Location should be in the Exclude list.)
+        o Under Access Controls > Grant - Confirm that Block access is
+        selected.
+        Audit from Azure CLI
+        As of this writing there are no subcommands for Conditional Access Policies
+        within the Azure CLI
+        Audit from PowerShell
+        $conditionalAccessPolicies = Get-MgIdentityConditionalAccessPolicy
         foreach($policy in $conditionalAccessPolicies) {$policy | Select-Object
         @{N='Policy ID'; E={$policy.id}}, @{N='Included Locations';
         E={$policy.Conditions.Locations.IncludeLocations}}, @{N='Excluded Locations';
@@ -49,36 +50,40 @@ control 'azure-foundations-cis-2.2.2' do
         GrantControls'; E={$policy.GrantControls.BuiltInControls}}}
         Make sure there is at least 1 row in the output of the above PowerShell command that
         contains Block under the BuiltIn GrantControls column and location IDs under the
-        Included Locations and Excluded Locations columns. If not, a policy containing these
-        options has not been created and is considered a finding"
+        Included Locations and Excluded Locations columns. If not, a policy containing
+        these options has not been created and is considered a finding."
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         Part 1 of 2 - Create the policy and enable it in Report-only mode.
         1. From Azure Home open the portal menu in the top left, and select Microsoft
         Entra ID.
         2. Scroll down in the menu on the left, and select Security.
         3. Select on the left side Conditional Access.
-        4. Click the + New policy button, then:
-        5. Provide a name for the policy.
-        6. Under Assignments, select Users or workload identities then:
+        4. Select Policies.
+        5. Click the + New policy button, then:
+        6. Provide a name for the policy.
+        7. Under Assignments, select Users then:
         o Under Include, select All users
         o Under Exclude, check Users and groups and only select emergency
         access accounts and service accounts (NOTE: Service accounts are
         excluded here because service accounts are non-interactive and cannot
         complete MFA)
-        7. Under Assignments, select Cloud apps or actions then:
+        8. Under Assignments, select Target resources then:
         o Under Include, select All cloud apps
         o Leave Exclude blank unless you have a well defined exception
-        8. Under Conditions, select Locations then:
+        9. Under Conditions, select Locations then:
         o Select Include, then add entries for locations for those that should be
         blocked
         o Select Exclude, then add entries for those that should be allowed
         (IMPORTANT: Ensure that all Trusted Locations are in the Exclude list.)
-        Page 38
-        9. Under Access Controls, select Grant and Confirm that Block Access is selected.
-        10. Set Enable policy to Report-only.
-        11. Click Create.
+        10. Under Access Controls, select Grant select Block Access.
+        11. Set Enable policy to Report-only.
+        12. Click Create.
+        Allow some time to pass to ensure the sign-in logs capture relevant conditional access
+        events. These events will need to be reviewed to determine if additional considerations
+        are necessary for your organization (e.g. legitimate locations are being blocked and
+        investigation is needed for exception).
         NOTE: The policy is not yet 'live,' since Report-only is being used to audit the effect of
         the policy.
         Part 2 of 2 - Confirm that the policy is not blocking access that should be granted, then
@@ -89,19 +94,19 @@ control 'azure-foundations-cis-2.2.2' do
         (specifically the Report-only tab) to ensure:
         o The sign-in event you're reviewing occurred after turning on the policy in
         report-only mode
-        o The policy name from step 5 above is listed in the Policy Name column
+        o The policy name from step 6 above is listed in the Policy Name column
         o The Result column for the new policy shows that the policy was Not
         applied (indicating the location origin was not blocked)
         3. If the above conditions are present, navigate back to the policy name in
         Conditional Access and open it.
         4. Toggle the policy from Report-only to On.
         5. Click Save.
-        From PowerShell
+        Remediate from PowerShell
         First, set up the conditions objects values before updating an existing conditional
         access policy or before creating a new one. You may need to use additional PowerShell
-        cmdlets to retrieve specific IDs such as the Get-AzureADMSNamedLocationPolicy which
-        outputs the Location IDs for use with conditional access policies.
-        Page 39
+        cmdlets to retrieve specific IDs such as the Get-
+        MgIdentityConditionalAccessNamedLocation which outputs the Location IDs for
+        use with conditional access policies.
         $conditions = New-Object -TypeName
         Microsoft.Open.MSGraph.Model.ConditionalAccessConditionSet
         $conditions.Applications = New-Object -TypeName
@@ -136,11 +141,11 @@ control 'azure-foundations-cis-2.2.2' do
         $controls.BuiltInControls = 'block'
         Next, update the existing conditional access policy with the condition set options
         configured with the previous commands.
-        Set-AzureADMSConditionalAccessPolicy -PolicyId <policy ID> -Conditions
+        Update-MgIdentityConditionalAccessPolicy -PolicyId <policy ID> -Conditions
         $conditions -GrantControls $controls
         To create a new conditional access policy that complies with this best practice, run the
         following commands after creating the condition set above
-        New-AzureADMSConditionalAccessPolicy -Name 'Policy Name' -State
+        New-MgIdentityConditionalAccessPolicy -Name 'Policy Name' -State
         <enabled|disabled> -Conditions $conditions -GrantControls $controls"
 
     impact 0.5

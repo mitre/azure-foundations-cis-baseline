@@ -27,7 +27,6 @@ control 'azure-foundations-cis-3.1.7.1' do
         From PowerShell
         Get-AzSecurityPricing -Name 'CosmosDbs' | Select-Object Name,PricingTier
         Ensure output of -PricingTier is Standard
-        Page 130
         From Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.

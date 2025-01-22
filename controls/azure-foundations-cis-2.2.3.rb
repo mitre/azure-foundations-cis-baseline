@@ -34,7 +34,6 @@ control 'azure-foundations-cis-2.2.3' do
         actions for the systems the policy will apply to
         o Under Conditions > Authentication Flows, review the configuration to
         ensure Device code flow is selected
-        Page 49
         o Under Access Controls > Grant - Confirm that Block access is
         selected."
 

@@ -21,12 +21,14 @@ control 'azure-foundations-cis-2.20' do
         Panel is set to No"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Then Groups
-        4. Select General in settings
-        5. Set Owners can manage group membership requests in the Access Panel to No"
+        3. Under Manage, select Groups
+        4. Under Settings, select General
+        5. Under Self Service Group Management, set Owners can manage group
+        membership requests in My Groups to No
+        6. Click Save"
 
     impact 0.5
     tag nist: ['AC-2','AC-2(1)','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']

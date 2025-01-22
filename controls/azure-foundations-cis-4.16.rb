@@ -19,18 +19,15 @@ control 'azure-foundations-cis-4.16' do
         sharing and availability requirements."
 
     desc 'check',
-       "From Azure Portal
-        Login to the Azure Portal using https://portal.azure.com
-        1. Navigate to Storage Accounts
-        2. For each storage account, on the left blade under Data Management, click on
-        Object replication
-        3. Select Advanced settings
-        4. Make sure Allow cross-tenant replication is not checked
-        From Azure CLI
-        az storage account list --query '[*].[name,allowCrossTenantReplication]'
+       "Audit from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each storage account, under Data management, click Object replication.
+        3. Click Advanced settings.
+        4. Ensure Allow cross-tenant replication is not checked.
+        Audit from Azure CLI
+        az storage account list --query '[*].[name,allowCrossTenantReplication]''
         The value of false should be returned for each storage account listed.
-        Page 229
-        From Azure Policy
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
@@ -39,13 +36,13 @@ control 'azure-foundations-cis-4.16' do
         should prevent cross tenant object replication'"
 
     desc 'fix',
-       "From Azure Portal
-        1. Navigate to Storage Accounts
-        2. For each storage account, on the left blade under Data Management, click on
-        Object replication
-        3. Click on Advanced settings and untick Allow cross-tenant replication
-        4. Click on OK
-        From Azure CLI
+       "Remediate from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each storage account, under Data management, click Object replication.
+        3. Click Advanced settings.
+        4. Uncheck Allow cross-tenant replication.
+        5. Click OK.
+        Remediate from Azure CLI
         Replace the information within <> with appropriate values:
         az storage account update --name <storageAccountName> --resource-group
         <resourceGroupName> --allow-cross-tenant-replication false"

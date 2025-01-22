@@ -26,7 +26,6 @@ control 'azure-foundations-cis-3.1.14' do
         https://management.azure.com/subscriptions/$0/providers/Microsoft.Security/se
         curityContacts?api-version=2020-01-01-preview' | jq '.|.[] |
         select(.name=='default')'|jq '.properties.alertNotifications'
-        Page 166
         From Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.

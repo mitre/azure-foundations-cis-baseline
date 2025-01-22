@@ -29,7 +29,6 @@ control 'azure-foundations-cis-3.1.1.2' do
         is selected.
         From Azure CLI
         Ensure the output of the below command is True
-        Page 169
         az account get-access-token --query
         '{subscription:subscription,accessToken:accessToken}' --out tsv | xargs -L1
         bash -c 'curl -X GET -H 'Authorization: Bearer $1' -H 'Content-Type:
@@ -70,7 +69,6 @@ control 'azure-foundations-cis-3.1.1.2' do
         https://management.azure.com/subscriptions/<subscription_ID>/providers/Micros
         oft.Security/settings/MCAS?api-version=2021-06-01 -d@'input.json''
         Where input.json contains the Request body json data as mentioned below.
-        Page 170
         'id':
         '/subscriptions/<Your_Subscription_Id>/providers/Microsoft.Security/settings/
         MCAS',

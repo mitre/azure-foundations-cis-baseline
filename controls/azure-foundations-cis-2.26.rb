@@ -31,10 +31,14 @@ control 'azure-foundations-cis-2.26' do
         6. Ensure that at least 2 users are actively assigned the role."
 
     desc 'fix',
-       "If more 4 users are assigned:
+       "Remediate from Azure Portal
+        1. From Azure Home select the Portal Menu
+        2. Select Microsoft Entra ID
+        3. Under Manage, select Roles and administrators
+        4. Under Administrative Roles, select Global Administrator
+        If more than 4 users are assigned:
         1. Remove Global Administrator role for users which do not or no longer require the
         role.
-        Page 111
         2. Assign Global Administrator role via PIM which can be activated when required.
         3. Assign more granular roles to users to conduct their duties.
         If only one user is assigned:

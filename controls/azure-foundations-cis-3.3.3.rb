@@ -32,7 +32,6 @@ control 'azure-foundations-cis-3.3.3' do
         For each Key vault, run the following command to determine which vaults are
         configured to use RBAC:
         Get-AzKeyVault -VaultName <Vault Name>
-        Page 218
         For each Key vault with the EnableRbacAuthorization setting set to True, run the
         following command:
         Get-AzKeyVaultSecret -VaultName <Vault Name>

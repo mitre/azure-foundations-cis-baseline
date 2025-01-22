@@ -29,14 +29,15 @@ control 'azure-foundations-cis-2.11' do
         set to Yes"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        Page 72
-        3. Select Users
-        4. Select Password reset
+        3. Under Manage, select Users
+        4. Under Manage, select Password reset
         5. Under Manage, select Notifications
-        6. Set Notify all admins when other admins reset their password? to Yes"
+        6. Set Notify all admins when other admins reset their password? to
+        Yes
+        7. Click Save"
 
     impact 0.5
     tag nist: ['AC-6(2)','AC-6(5)','AC-2(1)','AC-3']

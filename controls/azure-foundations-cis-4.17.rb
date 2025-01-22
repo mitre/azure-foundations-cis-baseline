@@ -22,38 +22,31 @@ control 'azure-foundations-cis-4.17' do
         never stored in these storage accounts."
 
     desc 'check',
-       "From Azure Portal:
-        1. Open the Storage Accounts blade
-        2. Click on a Storage Account
-        3. In the storage account menu pane, under the Settings section, click
-        Configuration.
-        4. Under Allow Blob Anonymous Access ensure that the selected setting is
-        Disabled.
-        Repeat these steps for each Storage Account.
-        Page 231
-        From Azure CLI:
+       "Audit from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each storage account, under Settings, click Configuration.
+        3. Ensure Allow Blob Anonymous Access is set to Disabled.
+        Audit from Azure CLI
         For every storage account in scope:
-        az storage account show --Name '<yourStorageAccountName>' --query
+        az storage account show --name '<yourStorageAccountName>' --query
         allowBlobPublicAccess
         Ensure that every storage account in scope returns false for the
         'allowBlobPublicAccess' setting.
-        From Azure Policy
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
         https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
-        • Policy ID: 13502221-8df0-4414-9937-de9c5c4e396b - Name: 'Configure your
-        Storage account public access to be disallowed'"
+        • Policy ID: 4fa4b6c0-31ca-4c0d-b10d-24b96f62a751 - Name: '[Preview]: Storage
+        account public access should be disallowed'"
 
     desc 'fix',
-       "From Azure Portal:
-        1. Open the Storage Accounts blade
-        2. Click on a Storage Account
-        3. In the storage account menu pane, under the Settings section, click
-        Configuration.
-        4. Under Allow Blob Anonymous Access, select Disabled.
-        Repeat these steps for each Storage Account.
-        From Powershell:
+       "Remediate from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each storage account, under Settings, click Configuration.
+        3. Set Allow Blob Anonymous Access to Disabled.
+        4. Click Save.
+        Remediate from Powershell
         For every storage account in scope, run the following:
         $storageAccount = Get-AzStorageAccount -ResourceGroupName
         '<yourResourceGroup>' -Name '<yourStorageAccountName>'

@@ -25,12 +25,13 @@ control 'azure-foundations-cis-2.25' do
         one"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From the Azure Portal Home select the portal menu
         2. Select Subscriptions
         3. In the Advanced options drop-down menu, select Manage Policies
-        4. Under Subscription leaving Microsoft Entra ID directory and Subscription
-        entering Microsoft Entra ID directory select Permit no one"
+        4. Set Subscription leaving Microsoft Entra tenant and Subscription
+        entering Microsoft Entra tenant to Permit no one
+        5. Click Save changes"
 
     impact 0.5
     tag nist: ['AC-6(2)','AC-6(5)','IA-4','IA-5','AC-1','AC-2','AC-2(1)','AC-1','AC-2','AC-2(1)']

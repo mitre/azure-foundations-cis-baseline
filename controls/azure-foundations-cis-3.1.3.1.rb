@@ -10,25 +10,29 @@ control 'azure-foundations-cis-3.1.3.1' do
 
     desc 'impact',
         "Turning on Microsoft Defender for Servers in Microsoft Defender for Cloud incurs an
-        additional cost per resource."
+        additional cost per resource.
+        Two Defender for Servers plans exist:
+        • Plan 1: Subscription only
+        • Plan 2: Subscription and workspace"
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. Go to Microsoft Defender for Cloud
-        2. Select Environment Settings
+        2. Under Management, select Environment Settings
         3. Click on the subscription name
-        4. Select Defender plans
-        5. Ensure Servers Status is set to On.
-        From Azure CLI
+        4. Select Defender plans in the left pane
+        5. Under Cloud Workload Protection (CWP), locate Server in the Plan column,
+        ensure Status is set to On.
+        Audit from Azure CLI
         Run the following command:
         az security pricing show -n VirtualMachines --query pricingTier
         If the tenant is licensed and enabled, the output should indicate Standard
-        From PowerShell
+        Audit from PowerShell
         Run the following command:
         Get-AzSecurityPricing -Name 'VirtualMachines' |Select-Object Name,PricingTier
-        If the tenant is licensed and enabled, the -PricingTier parameter will indicate Standard
-        Page 115
-        From Azure Policy
+        If the tenant is licensed and enabled, the -PricingTier parameter will indicate
+        Standard
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
@@ -37,17 +41,18 @@ control 'azure-foundations-cis-3.1.3.1' do
         for servers should be enabled'"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. Go to Microsoft Defender for Cloud
-        2. Select Environment Settings
+        2. Under Management, select Environment Settings
         3. Click on the subscription name
-        4. Select Defender plans
-        5. Set Server Status to On
+        4. Click Defender plans in the left pane
+        5. Under Cloud Workload Protection (CWP), locate Server in the Plan column,
+        set Status to On
         6. Select Save
-        From Azure CLI
+        Remediate from Azure CLI
         Run the following command:
         az security pricing create -n VirtualMachines --tier 'standard'
-        From PowerShell
+        Remediate from PowerShell
         Run the following command:
         Set-AzSecurityPricing -Name 'VirtualMachines' -PricingTier 'Standard'"
 

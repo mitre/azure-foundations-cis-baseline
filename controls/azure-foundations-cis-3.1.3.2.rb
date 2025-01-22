@@ -13,23 +13,24 @@ control 'azure-foundations-cis-3.1.3.2' do
         beyond this recommendation"
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Defender for Cloud
-        3. Then Environment Settings
+        3. Under Management, select Environment Settings
         4. Select a subscription
-        5. Click on Settings & Monitoring
+        5. Click on Settings & monitoring
         6. Ensure that Vulnerability assessment for machines is set to On
         Repeat the above for any additional subscriptions."
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Defender for Cloud
-        3. Then Environment Settings
+        3. Under Management, select Environment Settings
         4. Select a subscription
         5. Click on Settings & Monitoring
-        6. Ensure that Vulnerability assessment for machines is set to On
+        6. Set the Status of Vulnerability assessment for machines to On
+        7. Click Continue
         Repeat the above for any additional subscriptions."
 
     impact 0.5

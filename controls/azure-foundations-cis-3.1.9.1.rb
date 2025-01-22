@@ -23,7 +23,7 @@ control 'azure-foundations-cis-3.1.9.1' do
         az security pricing show -n 'Arm' --query 'PricingTier'
         From Azure PowerShell
         Get-AzSecurityPricing -Name 'Arm' | Select-Object Name,PricingTier
-        Ensure the output of PricingTier is StandardPage 145
+        Ensure the output of PricingTier is Standard
         From Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.

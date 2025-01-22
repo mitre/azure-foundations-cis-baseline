@@ -25,27 +25,22 @@ control 'azure-foundations-cis-2.2.7' do
         exceptions should be regularly reviewed or investigated."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. From the Azure Admin Portal dashboard, open Microsoft Entra ID.
         2. In the menu on the left of the Entra ID blade, click Security.
         3. In the menu on the left of the Security blade, click Conditional Access.
         4. In the menu on the left of the Conditional Access blade, click Policies.
         5. Click on the name of the policy you wish to audit.
         6. Click the blue text under Users.
-        7. Under the Include section of Users, review Users and Groups to ensure that All
-        Users is selected.
-        Page 51
+        7. Under the Include section of Users, ensure that All Users is selected.
         8. Under the Exclude section of Users, review the Users and Groups that are
         excluded from the policy (NOTE: this should be limited to break-glass emergency
         access accounts, non-interactive service accounts, and other carefully
         considered exceptions).
-        9. On the left side, click the blue text under Target Resources.
-        10. Select what this policy applies to should have Cloud apps selected.
-        11. Under the Include section of Target Resources, the Select apps radio button
-        should be selected.
-        12. Click the blue text under Select.
-        13. From the select prompt that appears, the checkbox for Windows Azure Service
-        Management API should be checked."
+        9. On the left side, click the blue text under Target resources.
+        10. Under the Include section of Target Resources, ensure that the Select apps
+        radio button is selected.
+        11. Under Select, ensure that Windows Azure Service Management API is listed."
 
     desc 'fix',
        "From Azure Portal

@@ -1,13 +1,19 @@
 control 'azure-foundations-cis-4.8' do
     title "Ensure 'Allow Azure services on the trusted services list to access this storage account' is Enabled for Storage Account Access"
-    desc "Some Azure services that interact with storage accounts operate from networks that
+    desc "NOTE: This recommendation assumes that the Public network access parameter is
+        set to Enabled from selected virtual networks and IP addresses. Please
+        ensure the prerequisite recommendation has been implemented before proceeding:
+        • Ensure Default Network Access Rule for Storage Accounts is Set to Deny
+        Some Azure services that interact with storage accounts operate from networks that
         can't be granted access through network rules. To help this type of service work as
         intended, allow the set of trusted Azure services to bypass the network rules. These
         services will then use strong authentication to access the storage account. If the Allow
-        trusted Azure services exception is enabled, the following services are granted access
-        to the storage account: Azure Backup, Azure Site Recovery, Azure DevTest Labs,
-        Azure Event Grid, Azure Event Hubs, Azure Networking, Azure Monitor, and Azure SQL
-        Data Warehouse (when registered in the subscription)."
+        Azure services on the trusted services list to access this storage
+        account exception is enabled, the following services are granted access to the storage
+        account: Azure Backup, Azure Data Box, Azure DevTest Labs, Azure Event Grid, Azure
+        Event Hubs, Azure File Sync, Azure HDInsight, Azure Import/Export, Azure Monitor,
+        Azure Networking Services, and Azure Site Recovery (when registered in the
+        subscription)."
 
     desc 'rationale',
         "Turning on firewall rules for storage account will block access to incoming requests for
@@ -21,46 +27,41 @@ control 'azure-foundations-cis-4.8' do
         is recommended to not do this on mission-critical resources during business hours."
 
     desc 'check',
-        "From Azure Portal
-        1. Go to Storage Accounts
-        2. For each storage account, Click on the Networking blade
+        "Audit from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each storage account, under Security + networking, click Networking.
         3. Click on the Firewalls and virtual networks heading.
-        4. Ensure that Enabled from selected virtual networks and IP addresses is
-        selected.
-        5. Ensure that Allow Azure services on the trusted services list to access
-        this storage account is checked in Exceptions.
-        From Azure CLI
+        4. Under Exceptions, ensure that Allow Azure services on the trusted
+        services list to access this storage account is checked.
+        Audit from Azure CLI
         Ensure bypass contains AzureServices
         az storage account list --query '[*].networkRuleSet'
-        From PowerShell
+        Audit from PowerShell
         Connect-AzAccount
         Set-AzContext -Subscription <subscription ID>
         Get-AzStorageAccountNetworkRuleset -ResourceGroupName <resource group> -Name
         <storage account name> |Select-Object Bypass
-        If the resultant output from the above command shows 'NULL', that storage account
-        configuration is out of compliance with this check. If the result of the above command
-        shows 'AzureServices', that storage account configuration is in compliance with this
-        check.
-        From Azure Policy
+        If the response from the above command is None, the storage account configuration is
+        out of compliance with this check. If the response is AzureServices, the storage
+        account configuration is in compliance with this check.
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
         https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
         • Policy ID: c9d007d0-c057-4772-b18c-01e546713bcd - Name: 'Storage accounts
-        should allow access from trusted Microsoft services'"
+        should allow access from trusted Microsoft services"
 
     desc 'fix',
-       "From Azure Portal
-        1. Go to Storage Accounts
-        2. For each storage account, Click on the Networking blade
+       "Remediate from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each storage account, under Security + networking, click Networking.
         3. Click on the Firewalls and virtual networks heading.
-        4. Ensure that Enabled from selected virtual networks and IP addresses is
-        selected.
-        5. Under the 'Exceptions' label, enable check box for Allow Azure services on the
+        4. Under Exceptions, check the box next to Allow Azure services on the
         trusted services list to access this storage account.
-        6. Click Save to apply your changes.
-        From Azure CLI
-        Use the below command to update Azure services.
+        5. Click Save.
+        Remediate from Azure CLI
+        Use the below command to update bypass to Azure services.
         az storage account update --name <StorageAccountName> --resource-group
         <resourceGroupName> --bypass AzureServices"
 

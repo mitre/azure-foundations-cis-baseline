@@ -28,7 +28,6 @@ control 'azure-foundations-cis-3.3.2' do
         Key ID (kid), enabled status as true and Expiration date (expires) is not empty or null:
         az keyvault key list --vault-name <VaultName> --query
         '[*].{'kid':kid,'enabled':attributes.enabled,'expires':attributes.expires}'
-        Page 212
         Audit from PowerShell
         Retrieve a list of Azure Key vaults:
         Get-AzKeyVault

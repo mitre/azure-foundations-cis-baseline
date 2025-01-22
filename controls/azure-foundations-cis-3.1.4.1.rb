@@ -18,26 +18,26 @@ control 'azure-foundations-cis-3.1.4.1' do
         "Turning on Microsoft Defender for Containers incurs an additional cost per resource."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. Go to Microsoft Defender for Cloud.
-        2. Select Environment Settings.
+        2. Under Management, select Environment Settings.
         3. Click on the subscription name.
         4. Select Defender plans.
-        5. Ensure On is set under Status for Containers.
-        From Azure CLI
+        5. Ensure the Status for Containers is set to On.
+        Audit from Azure CLI
         Ensure the output of the commands below indicates Standard pricing.
         For legacy Defender for Container Registries instances:
         az security pricing show --name 'ContainerRegistry' --query pricingTier
         For new Defender for Containers instances:
-        az security pricing show --name 'Containers'Page 136
-        From PowerShell
+        az security pricing show --name 'Containers' --query pricingTier
+        Audit from PowerShell
         Ensure the output of the commands below indicates Standard pricing.
         For legacy Defender for Container Registries instances:
         Get-AzSecurityPricing -Name 'ContainerRegistry' | Select-Object
         Name,PricingTier
         For new Defender for Containers instances:
         Get-AzSecurityPricing -Name 'Containers' | Select-Object Name,PricingTier
-        From Azure Policy
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
@@ -46,18 +46,18 @@ control 'azure-foundations-cis-3.1.4.1' do
         Defender for Containers should be enabled'"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. Go to Microsoft Defender for Cloud.
-        2. Select Environment Settings.
+        2. Under Management, select Environment Settings.
         3. Click on the subscription name.
         4. Select Defender plans.
         5. Set Status to On for Containers.
         6. Click Save.
-        From Azure CLI
+        Remediate from Azure CLI
         (Note: 'ContainerRegistry' has been deprecated and is replaced by 'Containers')
         Use the below command to enable Standard pricing tier for Containers.
         az security pricing create -n 'Containers' --tier 'standard'
-        From PowerShell
+        Remediate from PowerShell
         (Note: 'ContainerRegistry' has been deprecated and is replaced by 'Containers')
         Use the below command to enable Standard pricing tier for Containers.
         Set-AzSecurityPricing -Name 'Containers' -PricingTier 'Standard'"

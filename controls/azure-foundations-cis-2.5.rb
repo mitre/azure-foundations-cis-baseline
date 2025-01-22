@@ -25,13 +25,14 @@ control 'azure-foundations-cis-2.5' do
         6. Ensure that Number of methods required to reset is set to 2"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Then Users
-        4. Select Password reset
-        5. Then Authentication methods
-        6. Set the Number of methods required to reset to 2"
+        3. Under Manage, select Users
+        4. Under Manage, select Password reset
+        5. Select Authentication methods
+        6. Set the Number of methods required to reset to 2
+        7. Click Save"
 
     impact 0.5
     tag nist: ['IA-2(1)','IA-2(2)','AC-19']

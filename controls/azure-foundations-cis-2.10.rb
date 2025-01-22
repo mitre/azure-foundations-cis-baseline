@@ -20,13 +20,14 @@ control 'azure-foundations-cis-2.10' do
         6. Ensure that Notify users on password resets? is set to Yes"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Select Users
-        4. Select Password reset
+        3. Under Manage, select Users
+        4. Under Manage, select Password reset
         5. Under Manage, select Notifications
-        6. Set Notify users on password resets? to Yes"
+        6. Set Notify users on password resets? to Yes
+        7. Click Save"
 
     impact 0.5
     tag nist: ['AC-2(1)','AC-3']

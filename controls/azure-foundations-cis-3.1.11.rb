@@ -35,7 +35,6 @@ control 'azure-foundations-cis-3.1.11' do
         7. Click Add Filter and select Effect
         8. Check the Disabled box to search for all disabled policies
         9. Click Apply
-        Page 150
         If no Policies are shown, no Policies are in Disabled status and no remediation is
         necessary.
         If any Policies remain in the list, the policy Effect should be changed to Audit."

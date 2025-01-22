@@ -1,8 +1,8 @@
 control 'azure-foundations-cis-3.1.13' do
     title "Ensure 'Additional email addresses' is Configured with a Security Contact Email"
     desc "Microsoft Defender for Cloud emails the subscription owners whenever a high-severity
-    alert is triggered for their subscription. You should provide a security contact email
-    address as an additional email address."
+            alert is triggered for their subscription. You should provide a security contact email
+            address as an additional email address."
 
     desc 'rationale',
         "Microsoft Defender for Cloud emails the Subscription Owner to notify them about
@@ -12,26 +12,25 @@ control 'azure-foundations-cis-3.1.13' do
         order to mitigate the risk in a timely fashion."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. From Azure Home select the Portal Menu.
-        2. Select Microsoft Defender for Cloud
-        3. Click on Environment Settings
-        4. Click on the appropriate Management Group, Subscription, or Workspace
-        5. Click on Email notifications
+        2. Select Microsoft Defender for Cloud.
+        3. Under Management, select Environment Settings.
+        4. Click on the appropriate Management Group, Subscription, or Workspace.
+        5. Click on Email notifications.
         6. Ensure that a valid security contact email address is listed in the Additional
-        email addresses field
-        From Azure CLI
-        Ensure the output of the below command is set not empty and is set with appropriate
-        email ids.
+        email addresses field.
+        Audit from Azure CLI
+        Ensure the output of the below command is not empty and is set with appropriate email
+        ids:
         az account get-access-token --query
-        "{subscription:subscription,accessToken:accessToken}" --out tsv | xargs -L1
-        bash -c 'curl -X GET -H "Authorization: Bearer $1" -H "Content-Type:
-        application/json"
+        '{subscription:subscription,accessToken:accessToken}' --out tsv | xargs -L1
+        bash -c 'curl -X GET -H 'Authorization: Bearer $1' -H 'Content-Type:
+        application/json'
         https://management.azure.com/subscriptions/$0/providers/Microsoft.Security/se
         curityContacts?api-version=2020-01-01-preview' | jq '.|.[] |
-        select(.name=="default")'|jq '.properties.emails'
-        Page 163
-        From Azure Policy
+        select(.name=='default')'|jq '.properties.emails'
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:

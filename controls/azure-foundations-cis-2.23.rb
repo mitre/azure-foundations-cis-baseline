@@ -13,27 +13,27 @@ control 'azure-foundations-cis-2.23' do
         "Subscriptions will need to be handled by Administrators with permissions."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. From Azure Home select the Portal Menu.
         2. Select Subscriptions.
-        3. Select Access control (IAM).
-        4. Select Roles.
-        5. Click Type and select CustomRole from the drop down menu.
-        6. Select View next to a role.
-        7. Select JSON.
-        8. Check for assignableScopes set to the subscription, and actions set to *.
-        9. Repeat steps 6-8 for each custom role.
-        From Azure CLI
+        3. Select a subscription.
+        4. Select Access control (IAM).
+        5. Select Roles.
+        6. Click Type and select Custom role from the drop-down menu.
+        7. Select View next to a role.
+        8. Select JSON.
+        9. Check for assignableScopes set to the subscription, and actions set to *.
+        10. Repeat steps 7-9 for each custom role.
+        Audit from Azure CLI
         List custom roles:
         az role definition list --custom-role-only True
         Check for entries with assignableScope of the subscription, and an action of *
-        Page 103
-        From PowerShell
+        Audit from PowerShell
         Connect-AzAccount
         Get-AzRoleDefinition |Where-Object {($_.IsCustom -eq $true) -and
         ($_.Actions.contains('*'))}
         Check the output for AssignableScopes value set to the subscription.
-        From Azure Policy
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
@@ -42,17 +42,18 @@ control 'azure-foundations-cis-2.23' do
         custom RBAC roles'"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu.
         2. Select Subscriptions.
-        3. Select Access control (IAM).
-        4. Select Roles.
-        5. Click Type and select CustomRole from the drop down menu.
-        6. Check the box next to each role which grants subscription administrator
+        3. Select a subscription.
+        4. Select Access control (IAM).
+        5. Select Roles.
+        6. Click Type and select Custom role from the drop-down menu.
+        7. Check the box next to each role which grants subscription administrator
         privileges.
-        7. Select Remove.
-        8. Select Yes.
-        From Azure CLI
+        8. Select Delete.
+        9. Select Yes.
+        Remediate from Azure CLI
         List custom roles:
         az role definition list --custom-role-only True
         Check for entries with assignableScope of the subscription, and an action of *.

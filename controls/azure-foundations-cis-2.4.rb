@@ -1,46 +1,37 @@
 control 'azure-foundations-cis-2.4' do
     title 'Ensure Guest Users Are Reviewed on a Regular Basis'
-    desc "Microsoft Entra ID is extended to include Azure AD B2B collaboration, allowing you to
-        invite people from outside your organization to be guest users in your cloud account and
-        sign in with their own work, school, or social identities. Guest users allow you to share
-        your company's applications and services with users from any other organization, while
-        maintaining control over your own corporate data.
-        Work with external partners, large or small, even if they don't have Azure AD or an IT
-        department. A simple invitation and redemption process lets partners use their own
-        credentials to access your company's resources as a guest user.
-        Guest users in every subscription should be review on a regular basis to ensure that
-        inactive and unneeded accounts are removed."
+    desc "Microsoft Entra ID has native and extended identity functionality allowing you to invite
+        people from outside your organization to be guest users in your cloud account and sign
+        in with their own work, school, or social identities."
 
     desc 'rationale',
-        "Guest users in the Microsoft Entra ID are generally required for collaboration purposes
-        in Office 365, and may also be required for Azure functions in enterprises with multiple
-        Azure tenants. Guest users are typically added outside your employee on-boarding/off-
-        boarding process and could potentially be overlooked indefinitely, leading to a potential
-        vulnerability. To prevent this, guest users should be reviewed on a regular basis. During
-        this audit, guest users should also be determined to not have administrative privileges."
+        "Guest users are typically added outside your employee on-boarding/off-boarding
+        process and could potentially be overlooked indefinitely. To prevent this, guest users
+        should be reviewed on a regular basis. During this audit, guest users should also be
+        determined to not have administrative privileges."
 
     desc 'impact',
         "Before removing guest users, determine their use and scope. Like removing any user,
-        there may be unforeseen consequences to systems if it is deleted."
+        there may be unforeseen consequences to systems if an account is removed without
+        careful consideration."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Select Users
+        3. Under Manage, select Users
         4. Click on Add filter
         5. Select User type
         6. Select Guest from the Value dropdown
         7. Click Apply
         8. Audit the listed guest users
-        Page 59
-        From Azure CLI
+        Audit from Azure CLI
         az ad user list --query '[?userType=='Guest']'
         Ensure all users listed are still required and not inactive.
-        From Azure PowerShell
+        Audit from Azure PowerShell
         Get-AzureADUser |Where-Object {$_.UserType -like 'Guest'} |Select-Object
         DisplayName, UserPrincipalName, UserType -Unique
-        From Azure Policy
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
@@ -50,33 +41,34 @@ control 'azure-foundations-cis-2.4' do
         • Policy ID: 94e1c2ac-cbbe-4cac-a2b5-389c812dee87 - Name: 'Guest accounts
         with write permissions on Azure resources should be removed'
         • Policy ID: 339353f6-2387-4a45-abe4-7f529d121046 - Name: 'Guest accounts
-        with owner permissions on Azure resources should be removed'"
+        with owner permissions on Azure resources should be removed"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Select Users
+        3. Under Manage, select Users
         4. Click on Add filter
         5. Select User type
         6. Select Guest from the Value dropdown
         7. Click Apply
-        8. Delete all Guest users that are no longer required or are inactive
-        From Azure CLI
+        8. Check the box next to all Guest users that are no longer required or are inactive
+        9. Click Delete
+        10. Click OK
+        Remediate from Azure CLI
         Before deleting the user, set it to inactive using the ID from the Audit Procedure to
         determine if there are any dependent systems.
         az ad user update --id <exampleaccountid@domain.com> --account-enabled
         {false}
         After determining that there are no dependent systems delete the user.
         Remove-AzureADUser -ObjectId <exampleaccountid@domain.com>
-        Page 60
-        From Azure PowerShell
+        Remediate from Azure PowerShell
         Before deleting the user, set it to inactive using the ID from the Audit Procedure to
         determine if there are any dependent systems.
         Set-AzureADUser -ObjectId '<exampleaccountid@domain.com>' -AccountEnabled
         false
         After determining that there are no dependent systems delete the user.
-        PS C:\>Remove-AzureADUser -ObjectId <exampleaccountid@domain.com>"
+        PS C:\>Remove-AzureADUser -ObjectId exampleaccountid@domain.com"
 
     impact 0.5
     tag nist: ['AC-2','AC-2(3)','AC-1','AC-2(1)','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']

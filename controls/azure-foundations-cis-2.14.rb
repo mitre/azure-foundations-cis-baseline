@@ -16,29 +16,28 @@ control 'azure-foundations-cis-2.14' do
         malevolent third party application, potentially giving it access to your data."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Select Users
-        4. Select User settings
+        3. Under Manage, select Users
+        4. Under Manage, select User settings
         5. Ensure that Users can register applications is set to No
-        From PowerShell
-        Connect-MsolService
-        Get-MsolCompanyInformation | Select-Object
-        UsersPermissionToCreateLOBAppsEnabled
-        Command should return UsersPermissionToCreateLOBAppsEnabled with the value of
-        False"
+        Audit from PowerShell
+        (Get-MgPolicyAuthorizationPolicy).DefaultUserRolePermissions | Format-List
+        AllowedToCreateApps
+        Command should return the value of False"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Select Users
-        4. Select User settings
+        3. Under Manage, select Users
+        4. Under Manage, select User settings
         5. Set Users can register applications to No
-        From PowerShell
-        Connect-MsolService
-        Set-MsolCompanyInformation -UsersPermissionToCreateLOBAppsEnabled $False"
+        6. Click Save
+        Remediate from PowerShell
+        $param = @{ AllowedToCreateApps = "$false" }
+        Update-MgPolicyAuthorizationPolicy -DefaultUserRolePermissions $param"
 
     impact 0.5
     tag nist: ['CM-7(2)','CM-8(3)','CM-10','CM-11','CM-8(3)','AC-2(1)','AC-3']

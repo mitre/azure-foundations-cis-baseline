@@ -32,7 +32,6 @@ control 'azure-foundations-cis-3.3.8' do
         Run the following command:
         Get-AzKeyVaultKeyRotationPolicy -VaultName <vaultName> -Name <keyName>
         Ensure that the response contains a lifetime action of Rotate.
-        Page 235
         Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.

@@ -1,6 +1,10 @@
 control 'azure-foundations-cis-2.1.3' do
     title "Ensure that 'Multi-Factor Auth Status' is 'Enabled' for all Non-Privileged Users"
-    desc "Enable multi-factor authentication for all non-privileged users."
+    desc "[IMPORTANT - Please read the section overview: If your organization pays for
+        Microsoft Entra ID licensing (included in Microsoft 365 E3, E5, or F5, and EM&S E3 or
+        E5 licenses) and CAN use Conditional Access, ignore the recommendations in this
+        section and proceed to the Conditional Access section.]
+        Enable multi-factor authentication for all non-privileged users."
 
     desc 'rationale',
         "Multi-factor authentication requires an individual to present a minimum of two separate
@@ -15,52 +19,46 @@ control 'azure-foundations-cis-2.1.3' do
         requires an overhead for managing dual forms of authentication."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select the Microsoft Entra ID blade
-        3. Select Users
-        4. Take note of all users with the role Service Co-Administrators, Owners or
-        Contributors
-        5. Click on the Per-User MFA button in the top row menu
-        6. Check the box next to each noted user
-        7. Click Enable under quick steps in the right-hand panel
-        8. Click enable multi-factor auth
-        9. Click close
-        From REST API
+        3. Under Manage, click Users
+        4. Click the Per-User MFA button on the top bar
+        For every user listed, ensure that the Status column indicates Enabled
+        Audit from REST API
         For Every Subscription, For Every Tenant
         Step 1: Identify Users with non-administrative Access
         1. List All Users Using Microsoft Graph API:
         GET https://graph.microsoft.com/v1.0/users
         Capture id and corresponding userPrincipalName ($uid, $userPrincipalName)
-        Page 28
         2. List all Role Definitions Using Azure management API:
         https://management.azure.com/subscriptions/<subscriptionId>/providers/Microso
         ft.Authorization/roleDefinitions?api-version=2017-05-01
         Capture Role Definition IDs/Name ($name) and role names ($properties/roleName)
-        where 'properties/roleName' does NOT contain (Owner or *contributor or admin )
+        where 'properties/roleName' does NOT contain (Owner or *contributor or admin
+        )
         3. List All Role Assignments (Mappings $A.uid to $B.name) Using Azure
         Management API:
         GET
         https://management.azure.com/subscriptions/<subscriptionId>/providers/Microso
         ft.Authorization/roleassignments?api-version=2017-10-01-preview
-        Find all non-administrative roles ($B.name) in 'Properties/roleDefinationId'  mapped
-        with user ids ($A.id) in 'Properties/principalId' where 'Properties/principalType'
-        == 'User'
-        D> Now Match ($CProperties/principalId) with $A.uid and get $A.userPrincipalName
-        save this as D.userPrincipleName
-        Step 2: Run MSOL PowerShell command:
-        Get-MsolUser -All | where {$_.StrongAuthenticationMethods.Count -eq 0} |
+        Find all non-administrative roles ($B.name) in 'Properties/roleDefinationId'
+        mapped with user ids ($A.id) in 'Properties/principalId' where
+        'Properties/principalType' == 'User'
+        D> Now Match ($CProperties/principalId) with $A.uid and get
+        $A.userPrincipalName save this as D.userPrincipleName
+        Step 2: Run Graph PowerShell command:
+        get-mguser -All | where {$_.StrongAuthenticationMethods.Count -eq 0} |
         Select-Object -Property UserPrincipalName
         If the output contains any of the $D.userPrincipleName, then this recommendation is
         non-compliant.
-        From Azure Policy
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
         https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
-        •
-        Policy ID: 81b3ccb4-e6e8-4e4a-8d05-5df25cd29fd4 - Name: 'Accounts with
-        read permissions on Azure resources should be MFA enabled'"
+        • Policy ID: 81b3ccb4-e6e8-4e4a-8d05-5df25cd29fd4 - Name: 'Accounts with
+        read permissions on Azure resources should be MFA enabled"
 
     desc 'fix',
        "Follow Microsoft Azure documentation and enable multi-factor authentication in your

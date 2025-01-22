@@ -10,7 +10,11 @@ control 'azure-foundations-cis-4.11' do
         encryption key yourself, however, you can specify a customer-managed key. That key is
         used to protect and control access to the key that encrypts your data. You can also
         choose to automatically update the key version used for Azure Storage encryption
-        whenever a new version is available in the associated Key Vault."
+        whenever a new version is available in the associated Key Vault.
+        While it is possible to automate the assessment of this recommendation, the
+        assessment status for this recommendation remains 'Manual.' This is because the
+        recommendation pertains to storage accounts that store critical data and is therefore not
+        applicable to all storage accounts."
 
     desc 'impact',
         "If the key expires by setting the 'activation date' and 'expiration date', the user must
@@ -31,7 +35,6 @@ control 'azure-foundations-cis-4.11' do
         ...
         KeySource : Microsoft.Storage
         ...
-        Page 217
         PowerShell Results - Compliant
         ...
         KeySource : Microsoft.Keyvault
@@ -45,11 +48,11 @@ control 'azure-foundations-cis-4.11' do
         should use customer-managed key for encryption'"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. Go to Storage Accounts
-        2. For each storage account, go to Encryption
-        3. Set Customer Managed Keys
-        4. Select the Encryption key and enter the appropriate setting value
+        2. For each storage account, under Security + networking, go to Encryption
+        3. Set Encryption type to Customer-managed keys
+        4. Select an encryption key or enter a key URI
         5. Click Save"
 
     impact 0.5

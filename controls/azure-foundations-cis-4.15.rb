@@ -13,13 +13,11 @@ control 'azure-foundations-cis-4.15' do
         leveraging legacy versions of the protocol will fail."
 
     desc 'check',
-       "From Azure Console
-        1. Login to Azure Portal using https://portal.azure.com
-        2. Go to Storage Accounts
-        3. Click on each Storage Account
-        4. Under Setting section, Click on Configuration
-        5. Ensure that the minimum TLS version is set to be Version 1.2
-        From Azure CLI
+       "Audit from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each storage account, under Settings, click Configuration.
+        3. Ensure that the Minimum TLS version is set to Version 1.2.
+        Audit from Azure CLI
         Get a list of all storage accounts and their resource groups
         az storage account list | jq '.[] | {name, resourceGroup}'
         Then query the minimumTLSVersion field
@@ -28,12 +26,11 @@ control 'azure-foundations-cis-4.15' do
         --resource-group <resource-group> \
         --query minimumTlsVersion \
         --output tsv
-        From Azure PowerShell
+        Audit from PowerShell
         To get the minimum TLS version, run the following command:
         (Get-AzStorageAccount -Name <STORAGEACCOUNTNAME> -ResourceGroupName
         <RESOURCEGROUPNAME>).MinimumTlsVersion
-        Page 226
-        From Azure Policy
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
@@ -42,18 +39,17 @@ control 'azure-foundations-cis-4.15' do
         should have the specified minimum TLS version'"
 
     desc 'fix',
-       "From Azure Console
-        1. Login to Azure Portal using https://portal.azure.com
-        2. Go to Storage Accounts
-        3. Click on each Storage Account
-        4. Under Setting section, Click on Configuration
-        5. Set the minimum TLS version to be Version 1.2
-        From Azure CLI
+       "Remediate from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each storage account, under Settings, click Configuration.
+        3. Set the Minimum TLS version to Version 1.2.
+        4. Click Save.
+        Remediate from Azure CLI
         az storage account update \
         --name <storage-account> \
         --resource-group <resource-group> \
         --min-tls-version TLS1_2
-        From Azure PowerShell
+        Remediate from PowerShell
         To set the minimum TLS version, run the following command:
         Set-AzStorageAccount -AccountName <STORAGEACCOUNTNAME> `
         -ResourceGroupName <RESOURCEGROUPNAME> `

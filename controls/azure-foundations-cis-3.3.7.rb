@@ -33,7 +33,6 @@ control 'azure-foundations-cis-3.3.7' do
         '/subscriptions/<subscriptionNumber>/resourceGroups/<resourceGroup>/providers
         /Microsoft.KeyVault/vaults/<keyVaultName>/'
         Ensure that the response contains details of a private endpoint.
-        Page 231
         Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
@@ -68,7 +67,6 @@ control 'azure-foundations-cis-3.3.7' do
         19. Review the information and select Create. Follow the Audit Procedure to
         determine if it has successfully applied.
         20. Repeat steps 3-19 for each Key Vault.
-        Page 232
         Remediate from Azure CLI
         1. To create an endpoint, run the following command:
         az network private-endpoint create --resource-group <resourceGroup --vnet-

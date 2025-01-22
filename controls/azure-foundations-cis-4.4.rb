@@ -30,7 +30,6 @@ control 'azure-foundations-cis-4.4' do
         organization's period of validity], the key should be rotated.
         From Azure CLI
         1. Get a list of storage accounts
-        Page 192
         az storage account list --subscription <subscription-id>
         Make a note of id, name and resourceGroup.
         2. For every storage account make sure that key is regenerated in past 90 days.

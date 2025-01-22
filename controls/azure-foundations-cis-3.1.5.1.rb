@@ -24,7 +24,7 @@ control 'azure-foundations-cis-3.1.5.1' do
         From PowerShell
         Get-AzSecurityPricing -Name 'StorageAccounts' | Select-Object
         Name,PricingTier
-        Ensure output for Name PricingTier is StorageAccounts StandardPage 133
+        Ensure output for Name PricingTier is StorageAccounts Standard
         From Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure. If referencing a printed copy, you can search

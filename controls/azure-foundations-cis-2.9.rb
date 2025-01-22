@@ -25,14 +25,15 @@ control 'azure-foundations-cis-2.9' do
         authentication information is not set to 0"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Then Users
-        4. Select Password reset
-        5. Then Registration
+        3. Under Manage, select Users
+        4. Under Manage, select Password reset
+        5. Under Manage, select Registration`
         6. Set the Number of days before users are asked to re-confirm their
-        authentication information to your organization-defined frequency."
+        authentication information to your organization-defined frequency
+        7. Click Save"
 
     impact 0.5
     tag nist: ['AC-1','AC-2','AC-2(1)']

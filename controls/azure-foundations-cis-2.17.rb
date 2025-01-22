@@ -1,6 +1,9 @@
 control 'azure-foundations-cis-2.17' do
     title "Ensure That 'Restrict access to Microsoft Entra admin center' is Set to 'Yes'"
-    desc "Restrict access to the Microsoft Entra ID administration center to administrators only."
+    desc "Restrict access to the Microsoft Entra ID administration center to administrators only.
+        NOTE: This only affects access to the Entra ID administrator's web portal. This setting
+        does not prohibit privileged users from using other methods such as Rest API or
+        Powershell to obtain sensitive information from Microsoft Entra ID."
 
     desc 'rationale',
         "The Microsoft Entra ID administrative center has sensitive data and permission settings.
@@ -19,12 +22,14 @@ control 'azure-foundations-cis-2.17' do
         5. Ensure that Restrict access to Microsoft Entra admin center is set to Yes"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Then Users
-        4. Select User settings
-        5. Set Restrict access to Microsoft Entra admin center to Yes"
+        3. Under Manage, select Users
+        4. Under Manage, select User settings
+        5. Under Administration centre, set Restrict access to Microsoft Entra
+        admin center to Yes
+        6. Click Save"
 
     impact 0.5
     tag nist: ['AC-6(2)','AC-6(5)','AC-2','AC-2(1)','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']

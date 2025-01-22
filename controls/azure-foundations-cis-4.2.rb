@@ -31,7 +31,6 @@ control 'azure-foundations-cis-4.2' do
         3. Click on each storage account within each resource group you wish to audit.
         4. In the overview, under Security, ensure Infrastructure encryption is set to
         Enabled.
-        Page 186
         From Azure CLI
         az storage blob show \
         --account-name <storage-account> \
@@ -74,7 +73,6 @@ control 'azure-foundations-cis-4.2' do
         -SkuName 'Standard_RAGRS' `
         -Kind StorageV2 `
         -RequireInfrastructureEncryption
-        Page 187
         Enabling Infrastructure Encryption after Storage Account Creation
         If infrastructure encryption was not enabled on blob storage creation, there is no official
         way to enable it. Please see the additional information section."

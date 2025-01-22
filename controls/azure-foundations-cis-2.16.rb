@@ -31,19 +31,23 @@ control 'azure-foundations-cis-2.16' do
         admins (most inclusive),
         • Member users and users assigned to specific admin roles can invite guest users
         including guests with member permissions,
-        Page 88
         • Only users assigned to specific admin roles can invite guest users,
         • No one in the organization can invite guest users including admins (most
         restrictive)."
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Then External Identities
+        3. Under Manage, select External Identities
         4. Select External collaboration settings
-        5. Under Guest invite settings, for Guest invite restrictions, ensure that Only
-        users assigned to specific admin roles can invite guest users is selected"
+        5. Under Guest invite settings, set Guest invite restrictions, to Only
+        users assigned to specific admin roles can invite guest users
+        6. Click Save
+        Remediate from PowerShell
+        Enter the following:
+        Connect-MgGraph
+        Update-MgPolicyAuthorizationPolicy -AllowInvitesFrom 'adminsAndGuestInviters'"
 
     impact 0.5
     tag nist: ['IA-4','IA-5','AC-1','AC-2','AC-2(1)','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']

@@ -26,14 +26,14 @@ control 'azure-foundations-cis-2.3' do
         AllowedToCreateTenants is not 'True'."
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Select Users
-        4. Select User settings
-        Page 57
+        3. Under Manage, select Users
+        4. Under Manage, select User settings
         5. Set Restrict non-admin users from creating tenants to Yes
-        From PowerShell
+        6. Click Save
+        Remediate from PowerShell
         Import-Module Microsoft.Graph.Identity.SignIns
         Connect-MgGraph -Scopes 'Policy.ReadWrite.Authorization'
         Select-MgProfile -Name beta

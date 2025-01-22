@@ -14,21 +14,21 @@ control 'azure-foundations-cis-4.9' do
         interception and reading."
     
     desc 'impact',
-        "There is no cost in deploying VNets between Azure resources. If improperly
-        implemented, it may result in loss of critical network traffic."
+        "A Private Endpoint costs approximately US$7.30 per month. If an Azure Virtual Network
+        is not implemented correctly, this may result in the loss of critical network traffic."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. Open the Storage Accounts blade.
         2. For each listed Storage Account, perform the following check:
         3. Under the Security + networking heading, click on Networking.
-        4. Click on the Private Endpoint Connections tab at the top of the networking
+        4. Click on the Private endpoint connections tab at the top of the networking
         window.
         5. Ensure that for each VNet that the Storage Account must be accessed from, a
-        unique Private Endpoint is deployed and the Connection State for each Private
-        Endpoint is Approved
+        unique Private Endpoint is deployed and the Connection state for each Private
+        Endpoint is Approved.
         Repeat the procedure for each Storage Account.
-        From PowerShell
+        Audit from PowerShell
         $storageAccount = Get-AzStorageAccount -ResourceGroup '<ResourceGroupName>' -
         Name '<storageaccountname>'
         Get-AzPrivateEndpoint -ResourceGroup '<ResourceGroupName>'|Where-Object
@@ -36,18 +36,18 @@ control 'azure-foundations-cis-4.9' do
         If the results of the second command returns information, the Storage Account is using
         a Private Endpoint and complies with this Benchmark, otherwise if the results of the
         second command are empty, the Storage Account generates a finding.
-        From Azure CLI
+        Audit from Azure CLI
         az storage account show --name '<storage account name>' --query
         'privateEndpointConnections[0].id'
         If the above command returns data, the Storage Account complies with this Benchmark,
         otherwise if the results are empty, the Storage Account generates a finding.
-        From Azure Policy
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
         https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
         • Policy ID: 6edd7eda-6dd8-40f7-810d-67160c639cd9 - Name: 'Storage accounts
-        should use private link"
+        should use private link'"
 
     desc 'fix',
        "From Azure Portal

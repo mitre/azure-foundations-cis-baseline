@@ -25,26 +25,26 @@ control 'azure-foundations-cis-2.24' do
         5. Ensure that the role is assigned to the appropriate users."
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. In the Azure portal, open a subscription or resource group where you want the
         custom role to be assigned.
         2. Select Access control (IAM).
         3. Click Add.
         4. Select Add custom role.
-        5. In the Custom Role Name field enter Resource Lock Administrator.
+        5. In the Custom role name field enter Resource Lock Administrator.
         6. In the Description field enter Can Administer Resource Locks.
-        Page 106
         7. For Baseline permissions select Start from scratch
-        8. Select next.
+        8. Select Next.
         9. In the Permissions tab select Add permissions.
-        10. In the Search for a permission box, type in Microsoft.Authorization/locks to
-        search for permissions.
-        11. Select the check box next to the permission Microsoft.Authorization/locks.
-        12. Select Add.
-        13. Select Review + create.
-        14. Select Create.
-        15. Assign the newly created role to the appropriate user.
-        From PowerShell:
+        10. In the Search for a permission box, type in Microsoft.Authorization/locks
+        to search for permissions.
+        11. Click on the result.
+        12. Check the box next to Permission.
+        13. Select Add.
+        14. Select Review + create.
+        15. Select Create.
+        16. Assign the newly created role to the appropriate user.
+        Remediate from PowerShell:
         Below is a power shell definition for a resource lock administrator role created at an
         Azure Management group level
         Import-Module Az.Accounts
@@ -59,8 +59,7 @@ control 'azure-foundations-cis-2.24' do
         * Scope at the Management group level Management group
         $role.AssignableScopes.Add('/providers/Microsoft.Management/managementGroups/
         MG-Name')
-        New-AzRoleDefinition -Role $role
-        Get-AzureRmRoleDefinition 'Resource Lock Administrator'"
+        New-AzRoleDefinition -Role $role"
 
     impact 0.5
     tag nist: ['AC-3','AC-5','AC-6','MP-2','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']

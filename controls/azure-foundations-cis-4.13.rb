@@ -22,20 +22,20 @@ control 'azure-foundations-cis-4.13' do
         cost."
 
     desc 'check',
-       "From Azure Portal
-        1. From the default portal page select Storage Accounts.
-        2. Select the specific Storage Account.
-        3. Click the Diagnostics settings under the Monitoring section in the left column.
-        4. Select the 'blob' tab indented below the storage account. Then select the
-        diagnostic setting listed.
-        5. Ensure StorageRead, StorageWrite, and StorageDelete options are selected
-        under the Logging section and that they are sent to the correct destination.
-        From Azure CLI
+       "Audit from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each storage account, under Monitoring, click Diagnostics settings.
+        3. Select the blob tab indented below the storage account.
+        4. Ensure that at least one diagnostic setting is listed.
+        5. Click Edit setting on a diagnostic setting.
+        6. Ensure that at least one diagnostic setting has StorageRead, StorageWrite,
+        and StorageDelete options selected under the Logs section and that they are
+        sent to an appropriate destination.
+        Audit from Azure CLI
         Ensure the below command's output contains properties delete, read and write set to
         true.
-        Page 220
         az storage logging show --services b --account-name <storageAccountName>
-        From Azure Policy
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
@@ -44,16 +44,17 @@ control 'azure-foundations-cis-4.13' do
         diagnostic settings for Blob Services to Log Analytics workspace'"
 
     desc 'fix',
-       "From Azure Portal
-        1. From the default portal page select Storage Accounts.
-        2. Select the specific Storage Account.
-        3. Click the Diagnostics settings under the Monitoring section in the left column.
-        4. Select the 'blob' tab indented below the storage account.
-        5. Click '+ Add diagnostic setting'.
-        6. Select StorageRead, StorageWrite and StorageDelete options under the Logging
-        section to enable Storage Logging for Blob service.
-        7. Select a destination for your logs to be sent to.
-        From Azure CLI
+       "Remediate from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each storage account, under Monitoring, click Diagnostics settings.
+        3. Select the blob tab indented below the storage account.
+        4. To create a new diagnostic setting, click + Add diagnostic setting. To
+        update an existing diagnostic setting, click Edit setting on the diagnostic
+        setting.
+        5. Check the boxes next to StorageRead, StorageWrite, and StorageDelete.
+        6. Select an appropriate destination.
+        7. Click Save.
+        Remediate from Azure CLI
         Use the below command to enable the Storage Logging for Blob service.
         az storage logging update --account-name <storageAccountName> --account-key
         <storageAccountKey> --services b --log rwd --retention 90"

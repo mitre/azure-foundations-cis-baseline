@@ -34,7 +34,6 @@ control 'azure-foundations-cis-3.1.12' do
         5. Click on Email notifications
         6. In the drop down of the All users with the following roles field select Owner
         7. Click Save
-        Page 160
         From Azure CLI
         Use the below command to set Send email also to subscription owners to On.
         az account get-access-token --query

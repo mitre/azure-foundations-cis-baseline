@@ -31,29 +31,14 @@ control 'azure-foundations-cis-4.1' do
         storage accounts should be enabled'"
 
     desc 'fix',
-       "From Azure Portal
-        1. Go to Storage Accounts
-        2. For each storage account, go to Configuration
-        3. Ensure that Secure transfer required is set to Enabled
-        From Azure CLI
-        Use the below command to ensure the Secure transfer required is enabled for all the
-        Storage Accounts by ensuring the output contains true for each of the Storage
-        Accounts.
-        az storage account list --query '[*].[name,enableHttpsTrafficOnly]'
-        From Azure Policy
-        If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
-        associated Policy definition in Azure.
-        If referencing a printed copy, you can search Policy IDs from this URL:
-        https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
-        • Policy ID: 404c3081-a854-4457-ae30-26a93ef643f9 - Name: 'Secure transfer to
-        storage accounts should be enabled'Page 184
-        Remediation:
-        From Azure Portal
-        1. Go to Storage Accounts
-        2. For each storage account, go to Configuration
-        3. Set Secure transfer required to Enabled
-        From Azure CLI
-        Use the below command to enable Secure transfer required for a Storage Account
+       "Remediate from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each storage account, under Settings, click Configuration.
+        3. Set Secure transfer required to Enabled.
+        4. Click Save.
+        Remediate from Azure CLI
+        Use the below command to enable Secure transfer required for a Storage
+        Account
         az storage account update --name <storageAccountName> --resource-group
         <resourceGroupName> --https-only true"    
 

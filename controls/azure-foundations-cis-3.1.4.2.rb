@@ -12,13 +12,15 @@ control 'azure-foundations-cis-3.1.4.2' do
         • Defender for Containers plans."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. From the Azure Portal Home page, select Microsoft Defender for Cloud
         2. Under Management select Environment Settings
         3. Select a subscription
-        4. Ensure that Containers is set to On
+        4. Under Settings > Defender Plans, click Settings & monitoring
+        5. Locate the row for Agentless discovery for Kubernetes
+        6. Ensure that On is selected
         Repeat the above for any additional subscriptions.
-        From Azure Policy
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:

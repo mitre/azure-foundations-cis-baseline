@@ -30,7 +30,6 @@ control 'azure-foundations-cis-3.1.7.3' do
         Run the following command:
         Get-AzSecurityPricing -Name 'SqlServers' | Select-Object Name,PricingTier
         Ensure the -PricingTier is set to Standard
-        Page 121
         From Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.

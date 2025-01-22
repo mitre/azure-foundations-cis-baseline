@@ -31,7 +31,6 @@ control 'azure-foundations-cis-3.3.6' do
         Audit from Azure CLI
         Run the following command for each Key Vault in each Resource Group:
         az keyvault show --resource-group <resource_group> --name <vault_name>
-        Page 228
         Ensure the enableRbacAuthorization setting is set to true within the output of the
         above command.
         Audit from PowerShell

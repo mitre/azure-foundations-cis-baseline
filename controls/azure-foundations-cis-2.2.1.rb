@@ -29,14 +29,18 @@ control 'azure-foundations-cis-2.2.1' do
         Microsoft Entra ID. This 'Break Glass' account should be excluded from Conditional
         Access Policies and should be configured with the longest pass phrase feasible. This
         account should only be used in the event of an emergency and complete administrator
-        lockout."
+        lockout.
+        NOTE: Starting July 2024, Microsoft will begin requiring MFA for All Users - including
+        Break Glass Accounts. By the end of October 2024, this requirement will be enforced.
+        Physical FIDO2 security keys, or a certificate kept on secure removable storage can
+        fulfill this MFA requirement. If opting for a physical device, that device should be kept in
+        a very secure, documented physical location."
 
     desc 'check',
        "From Azure Portal
         1. In the Azure Portal, navigate to Microsoft Entra ID Conditional Access
         2. Click on Manage
         3. Click on Named Locations
-        Page 34
         Ensure there are IP ranges location settings configured and marked as Trusted
         From PowerShell
         Get-AzureADMSNamedLocationPolicy
@@ -47,31 +51,33 @@ control 'azure-foundations-cis-2.2.1' do
         are out of compliance with this check."
 
     desc 'fix',
-       "From Azure Portal
-        1. Navigate to the Microsoft Entra ID Conditional Access Blade
-        2. Click on the Named locations blade
-        3. Within the Named locations blade, click on IP ranges location
-        4. Enter a name for this location setting in the Name text box
-        5. Click on the + sign
-        6. Add an IP Address Range in CIDR notation inside the text box that appears
-        7. Click on the Add button
-        8. Repeat steps 5 through 7 for each IP Range that needs to be added
-        9. If the information entered are trusted ranges, select the Mark as trusted
+       "Remediate from Azure Portal
+        1. In the Azure Portal, navigate to Microsoft Entra ID
+        2. Under Manage, click Security
+        3. Under Protect, click Conditional Access
+        4. Under Manage, click Named locations
+        5. Within the Named locations blade, click on IP ranges location
+        6. Enter a name for this location setting in the Name text box
+        7. Click on the + sign
+        8. Add an IP Address Range in CIDR notation inside the text box that appears
+        9. Click on the Add button
+        10. Repeat steps 7 through 9 for each IP Range that needs to be added
+        11. If the information entered are trusted ranges, select the Mark as trusted
         location check box
-        10. Once finished, click on Create
-        From PowerShell
+        12. Once finished, click on Create
+        Remediate from PowerShell
         Create a new trusted IP-based Named location policy
         [System.Collections.Generic.List`1[Microsoft.Open.MSGraph.Model.IpRange]]$ipR
         anges = @()
         $ipRanges.Add('<first IP range in CIDR notation>')
         $ipRanges.Add('<second IP range in CIDR notation>')
         $ipRanges.Add('<third IP range in CIDR notation>')
-        New-AzureADMSNamedLocationPolicy -OdataType
+        New-MgIdentityConditionalAccessNamedLocation -dataType
         '#microsoft.graph.ipNamedLocation' -DisplayName '<name of IP Named location
-        policy> -IsTrusted $true -IpRanges $ipRanges
+        policy>' -IsTrusted $true -IpRanges $ipRanges
         Set an existing IP-based Named location policy to trusted
-        Set-AzureADMSNamedLocationPolicy -PolicyId '<ID of the policy>' -OdataType
-        '#microsoft.graph.ipNamedLocation' -IsTrusted $true"
+        Update-MgIdentityConditionalAccessNamedLocation -PolicyId '<ID of the
+        policy>' -dataType '#microsoft.graph.ipNamedLocation' -IsTrusted $true"
 
     impact 0.5
     tag nist: ['AC-2(1)','AC-3']

@@ -1,6 +1,10 @@
 control 'azure-foundations-cis-2.1.2' do
     title "Ensure that 'Multi-Factor Auth Status' is 'Enabled' for allPrivileged Users"
-    desc "Enable multi-factor authentication for all roles, groups, and users that have write access
+    desc "[IMPORTANT - Please read the section overview: If your organization pays for
+        Microsoft Entra ID licensing (included in Microsoft 365 E3, E5, or F5, and EM&S E3 or
+        E5 licenses) and CAN use Conditional Access, ignore the recommendations in this
+        section and proceed to the Conditional Access section.]
+        Enable multi-factor authentication for all roles, groups, and users that have write access
         or permissions to Azure resources. These include custom created objects or built-in
         roles such as;
         • Service Co-Administrators
@@ -22,18 +26,19 @@ control 'azure-foundations-cis-2.1.2' do
 
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select the Microsoft Entra ID blade
-        3. Select Users
+        3. Under Manage, click Roles and administrators
         4. Take note of all users with the role Service Co-Administrators, Owners or
         Contributors
-        5. Click on the Per-User MFA button in the top row menu
-        6. Ensure that MULTI-FACTOR AUTH STATUS is Enabled for all noted users
-        From REST API
+        5. Return to the Overview
+        6. Under Manage, click Users
+        7. Click on the Per-User MFA button in the top row menu
+        8. Ensure that Status is Enabled for all noted users
+        Audit from REST API
         For Every Subscription, For Every Tenant
         Step 1: Identify Users with Administrative Access
-        Page 24
         1. List All Users Using Microsoft Graph API:
         GET https://graph.microsoft.com/v1.0/users
         Capture id and corresponding userPrincipalName ('$uid', '$userPrincipalName')
@@ -47,17 +52,17 @@ control 'azure-foundations-cis-2.1.2' do
         GET
         https://management.azure.com/subscriptions/:subscriptionId/providers/Microsof
         t.Authorization/roleassignments?api-version=2017-10-01-preview
-        Find all administrative roles ($B.name) in 'Properties/roleDefinitionId' mapped with
-        user ids ($A.id) in 'Properties/principalId' where 'Properties/principalType' ==
-        'User'
+        Find all administrative roles ($B.name) in 'Properties/roleDefinitionId' mapped
+        with user ids ($A.id) in 'Properties/principalId' where
+        'Properties/principalType' == 'User'
         4. Now Match ($CProperties/principalId) with $A.uid and get
         $A.userPrincipalName save this as D.userPrincipalName
-        Step 2: Run MSOL PowerShell command:
-        Get-MsolUser -All | where {$_.StrongAuthenticationMethods.Count -eq 0} |
+        Step 2: Run Graph PowerShell command:
+        get-mguser -All | where {$_.StrongAuthenticationMethods.Count -eq 0} |
         Select-Object -Property UserPrincipalName
         If the output contains any of the $D.userPrincipalName, then this recommendation is
         non-compliant.
-        From Azure Policy
+        Audit from Azure Policy
         If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
         associated Policy definition in Azure.
         If referencing a printed copy, you can search Policy IDs from this URL:
@@ -78,21 +83,7 @@ control 'azure-foundations-cis-2.1.2' do
         6. Check the box next to each noted user
         7. Click Enable under quick steps in the right-hand panel
         8. Click enable multi-factor auth
-        9. Click close
-        Other Options within Azure Portal
-        Follow Microsoft Azure documentation and enable multi-factor authentication in your
-        environment.
-        https://docs.microsoft.com/en-us/azure/active-directory/authentication/tutorial-enable-
-        azure-mfa
-        Enabling and configuring MFA with conditional access policy is a multi-step process.
-        Here are some additional resources on the process within Entra ID to enable multi-
-        factor authentication for users within your subscriptions with conditional access policy.
-        https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-
-        conditional-access-policy-admin-mfa
-        https://docs.microsoft.com/en-us/azure/active-directory/authentication/howto-mfa-
-        getstarted#enable-multi-factor-authentication-with-conditional-access
-        https://docs.microsoft.com/en-us/azure/active-directory/authentication/howto-mfa-
-        mfasettings"
+        9. Click close"
 
     impact 0.5
     tag nist: ['IA-2(1)','IA-2(2)','AC-19','IA-2(1)']

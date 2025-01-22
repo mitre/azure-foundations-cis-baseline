@@ -8,40 +8,45 @@ control 'azure-foundations-cis-2.2.5' do
     desc 'impact',
         "There is an increased cost, as Conditional Access policies require Microsoft Entra ID P1
         or P2. Similarly, this may require additional overhead to maintain if users lose access to
-        their MFA."
+        their MFA.
+        NOTE: Starting July 2024, Microsoft will begin requiring MFA for All Users - including
+        Break Glass Accounts. By the end of October 2024, this requirement will be enforced.
+        Physical FIDO2 security keys, or a certificate kept on secure removable storage can
+        fulfill this MFA requirement. If opting for a physical device, that device should be kept in
+        a very secure, documented physical location."
 
     desc 'check',
-       "From Azure Portal
+       "Audit from Azure Portal
         1. From Azure Home open the Portal Menu in the top left, and select Microsoft
         Entra ID.
         2. Scroll down in the menu on the left, and select Security.
         3. Select on the left side Conditional Access.
-        4. Select the policy you wish to audit.
-        5. View under Users and Groups the corresponding users and groups to whom the
-        policy is applied.
-        6. View under Exclude to determine which users and groups to whom the policy is
+        4. Select Policies.
+        5. Select the policy you wish to audit.
+        6. Click the blue text under Users.
+        7. View under Include the corresponding users and groups to whom the policy is
+        applied.
+        8. View under Exclude to determine which users and groups to whom the policy is
         not applied."
 
     desc 'fix',
-       "From Azure Portal
-        1. From Azure Home open Portal menu in the top left, and select Microsoft Entra
-        ID.
+       "1. From Azure Home open Portal menu in the top left, and select Microsoft Entra ID.
         2. Select Security.
         3. Select Conditional Access.
-        4. Click + New policy.
-        5. Enter a name for the policy.
-        6. Select Users or workload identities.
-        Page 45
-        7. Under Include, select All users.
-        8. Under Exclude, check Users and groups.
-        9. Select users this policy should not apply to and click Select.
-        10. Select Cloud apps or actions.
-        11. Select All cloud apps.
-        12. Select Grant.
-        13. Under Grant access, check Require multifactor authentication and click
+        4. Select Policies.
+        5. Click + New policy.
+        6. Enter a name for the policy.
+        7. Click the blue text under Users.
+        8. Under Include, select All users.
+        9. Under Exclude, check Users and groups.
+        10. Select users this policy should not apply to and click Select.
+        11. Click the blue text under Target resources.
+        12. Select All cloud apps.
+        13. Click the blue text under Grant.
+        14. Under Grant access, check Require multifactor authentication and click
         Select.
-        14. Set Enable policy to Report-only.
-        15. Click Create.
+        15. Set Enable policy to Report-only.
+        16. Click Create.
         After testing the policy in report-only mode, update the Enable policy setting from
         Report-only to On."
 

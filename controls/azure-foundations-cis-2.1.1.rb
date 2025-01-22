@@ -1,6 +1,10 @@
 control 'azure-foundations-cis-2.1.1' do
     title 'Ensure Security Defaults is enabled on Microsoft Entra ID'
-    desc "Security defaults in Microsoft Entra ID make it easier to be secure and help protect your
+    desc "[IMPORTANT - Please read the section overview: If your organization pays for
+        Microsoft Entra ID licensing (included in Microsoft 365 E3, E5, or F5, and EM&S E3 or
+        E5 licenses) and CAN use Conditional Access, ignore the recommendations in this
+        section and proceed to the Conditional Access section.]
+        Security defaults in Microsoft Entra ID make it easier to be secure and help protect your
         organization. Security defaults contain preconfigured security settings for common
         attacks.
         Security defaults is available to everyone. The goal is to ensure that all organizations

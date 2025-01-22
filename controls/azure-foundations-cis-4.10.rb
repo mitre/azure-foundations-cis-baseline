@@ -20,43 +20,34 @@ control 'azure-foundations-cis-4.10' do
         "Additional storage costs may be incurred as snapshots are retained."
 
     desc 'check',
-       "From Azure Portal:
-        1. From the Azure home page, open the hamburger menu in the top left or click on
-        the arrow pointing right with 'More services' underneath.
-        2. Select Storage.
-        3. Select Storage Accounts.
-        4. For each Storage Account, navigate to Data protection in the left scroll column.
-        5. Ensure that soft delete is checked for both blobs and containers. Also check if
-        the retention period is a sufficient length for your organization.
-        From Azure CLI
+       "Audit from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each Storage Account, under Data management, go to Data protection.
+        3. Ensure that Enable soft delete for blobs is checked.
+        4. Ensure that Enable soft delete for containers is checked.
+        5. Ensure that the retention period for both is a sufficient length for your
+        organization.
+        Audit from Azure CLI
         Blob Storage: Ensure that the output of the below command contains enabled status as
         true and days is not empty or null
-        az storage blob service-properties delete-policy show --account-name
-        <StorageAccountName> --account-key <accountkey>
-        Page 214
-        Azure Containers: Make certain that the --enable-container-delete-retention is 'true'.
-        az storage account blob-service-properties show
-        --account-name <StorageAccountName>
+        az storage blob service-properties delete-policy show
+        --account-name <storageAccount>
         --account-key <accountkey>
-        --resource-group <resource_group>
-        From Azure Policy
-        If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the
-        associated Policy definition in Azure.
-        If referencing a printed copy, you can search Policy IDs from this URL:
-        https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
-        • Policy ID: ea39f60f-9f00-473c-8604-be5eac4bb088 - Name: 'Configure blob soft
-        delete on a storage account'"
+        Azure Containers: Ensure that within containerDeleteRetentionPolicy, the
+        enabled property is set to true.
+        az storage account blob-service-properties show
+        --account-name <storageAccount>
+        --resource-group <resourceGroup>"
 
     desc 'fix',
-       "From Azure Portal
-        1. From the Azure home page, open the hamburger menu in the top left or click on
-        the arrow pointing right with 'More services' underneath.
-        2. Select Storage.
-        3. Select Storage Accounts.
-        4. For each Storage Account, navigate to Data protection in the left scroll column.
-        5. Check soft delete for both blobs and containers. Set the retention period to a
-        sufficient length for your organization.
-        From Azure CLI
+       "Remediate from Azure Portal
+        1. Go to Storage Accounts.
+        2. For each Storage Account, under Data management, go to Data protection.
+        3. Check the box next to Enable soft delete for blobs.
+        4. Check the box next to Enable soft delete for containers.
+        5. Set the retention period for both to a sufficient length for your organization.
+        6. Click Save.
+        Remediate from Azure CLI
         Update blob storage retention days in below command
         az storage blob service-properties delete-policy update --days-retained
         <RetentionDaysValue> --account-name <StorageAccountName> --account-key
@@ -65,9 +56,8 @@ control 'azure-foundations-cis-4.10' do
         az storage account blob-service-properties update
         --enable-container-delete-retention true
         --container-delete-retention-days <days>
-        --account-name <storage-account>
-        --resource-group <resource_group>
-        --account-key <AccountKey>"
+        --account-name <storageAccount>
+        --resource-group <resourceGroup>"
 
     impact 0.5
     tag nist: ['CP-2','CP-10']

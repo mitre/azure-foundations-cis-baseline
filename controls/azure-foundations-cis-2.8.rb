@@ -32,14 +32,15 @@ control 'azure-foundations-cis-2.8' do
         7. Scroll through the list to view the enforced passwords."
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Select Security.
-        4. Under Manage, select Authentication Methods.
-        5. Select Password Protection.
+        3. Under Manage, select Security.
+        4. Under Manage, select Authentication methods.
+        5. Under Manage, select Password protection.
         6. Set the Enforce custom list option to Yes.
-        7. Double click the custom banned password list to add a string."
+        7. Click in the Custom banned password list text box to add a string.
+        8. Click Save."
 
     impact 0.5
     tag nist: ['IA-5(1)','AC-2(1)','AC-3']

@@ -1,5 +1,5 @@
 control 'azure-foundations-cis-3.1.3.3' do
-    title "Ensure that 'Endpoint protection' component status is set to 'On' "
+    title "Ensure that 'Endpoint protection' component status is set to 'On'"
     desc "This integration setting enables Microsoft Defender for Endpoint (formerly 'Advanced
         Threat Protection' or 'ATP' or 'WDATP' - see additional info) to communicate with
         Microsoft Defender for Cloud.
@@ -58,17 +58,16 @@ control 'azure-foundations-cis-3.1.3.3' do
         WDATP True"
 
     desc 'fix',
-       "From Azure Console
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu.
         2. Go to Microsoft Defender for Cloud.
-        3. Select Environment Settings blade.
-        4. Select the subscription.
-        5. Select Integrations.
-        6. Check Allow Microsoft Defender for Endpoint to access my data.
-        7. Select Save.
-        From Azure CLI
+        3. Under Management, select Environment Settings.
+        4. Click on the subscription name.
+        5. Click Settings & monitoring.
+        6. Set the Status for Endpoint protection to On.
+        7. Click Continue.
+        Remediate from Azure CLI
         Use the below command to enable Standard pricing tier for Storage Accounts
-        Page 174
         az account get-access-token --query
         '{subscription:subscription,accessToken:accessToken}' --out tsv | xargs -L1
         bash -c 'curl -X PUT -H 'Authorization: Bearer $1' -H 'Content-Type:

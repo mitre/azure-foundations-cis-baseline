@@ -1,6 +1,11 @@
 control 'azure-foundations-cis-2.22' do
     title "Ensure that 'Require Multi-Factor Authentication to register or join devices with Microsoft Entra ID' is set to 'Yes'"
-    desc "Joining or registering devices to Microsoft Entra ID should require Multi-factor authentication."
+    desc "NOTE: This recommendation is only relevant if your subscription is using Per-User
+        MFA. If your organization is licensed to use Conditional Access, the preferred method of
+        requiring MFA to join devices to Entra ID is to use a Conditional Access policy (see
+        additional information below for link).
+        Joining or registering devices to Microsoft Entra ID should require multi-factor
+        authentication."
 
     desc 'rationale',
         "Multi-factor authentication is recommended when adding devices to Microsoft Entra ID.
@@ -25,14 +30,15 @@ control 'azure-foundations-cis-2.22' do
         devices with Microsoft Entra is set to Yes"
 
     desc 'fix',
-       "From Azure Portal
+       "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
-        3. Select Devices
-        4. Select Device settings
-        Page 101
-        5. Set Require Multi-Factor Authentication to register or join devices with
-        Microsoft Entra to Yes"
+        3. Under Manage, select Devices
+        4. Under Manage, select Device settings
+        5. Under Microsoft Entra join and registration settings, set Require
+        Multifactor Authentication to register or join devices with
+        Microsoft Entra to Yes
+        6. Click Save"
 
     impact 0.5
     tag nist: ['IA-2(1)','IA-2(2)','AC-19','IA-2(1)','IA-2(2)']
