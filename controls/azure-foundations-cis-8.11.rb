@@ -26,10 +26,7 @@ control 'azure-foundations-cis-8.11' do
           4. Make sure Enable Secure Boot & Enable vTPM are checked
           5. Click on Apply.
       Note: Trusted launch on existing virtual machines (VMs) is currently not supported for Azure Generation 1 VMs"
-
-  desc 'other descriptions',
-      "check aws baseline for examples"
-
+      
   impact 0.5
   tag nist: ['CM-1', 'CM-2', 'CM-6', 'CM-7', 'CM-7(1)', 'CM-9', 'SA-3', 'SA-8', 'SA-10']
   tag severity: 'medium'
