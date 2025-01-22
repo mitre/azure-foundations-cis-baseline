@@ -1,5 +1,5 @@
 control 'azure-foundations-cis-5.4.3' do
-    title 'title here'
+    title 'Use Entra ID Client Authentication and Azure RBAC where possible'
     desc "Cosmos DB can use tokens or Entra ID for client authentication which in turn will use Azure RBAC for authorization. Using Entra ID is significantly more secure because Entra ID handles the credentials and allows for MFA and centralized management, and the Azure RBAC is better integrated with the rest of Azure."
 
     desc 'rationale',
