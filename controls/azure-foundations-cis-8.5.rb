@@ -1,5 +1,5 @@
 control 'azure-foundations-cis-8.5' do
-    title "Ensure that 'Disk Network Access' is NOT set to 'Enable public access from all networks' (Automated)"
+    title "Ensure that 'Disk Network Access' is NOT set to 'Enable public access from all networks'"
     desc 'Virtual Machine Disks and snapshots can be configured to allow access from different network resources.'
 
     desc 'rationale',

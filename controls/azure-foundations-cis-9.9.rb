@@ -1,5 +1,5 @@
 control 'azure-foundations-cis-9.9' do
-    title "Ensure that 'Java version' is the latest, if used to run the Web App"
+    title "Ensure that 'Java version' is currently supported (if in use)"
     desc "Periodically, older versions of Java may be deprecated and no longer supported. Using a supported version of Java for app services is recommended to avoid potential unpatched vulnerabilities."
 
     desc 'rationale',
