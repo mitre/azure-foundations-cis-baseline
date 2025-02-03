@@ -1,11 +1,11 @@
 control 'azure-foundations-cis-3.1.1.2' do
-    title "Ensure that Microsoft Defender for Cloud Apps integration with Microsoft Defender for Cloud is Selected"
-    desc "This integration setting enables Microsoft Defender for Cloud Apps (formerly 'Microsoft
+  title 'Ensure that Microsoft Defender for Cloud Apps integration with Microsoft Defender for Cloud is Selected'
+  desc "This integration setting enables Microsoft Defender for Cloud Apps (formerly 'Microsoft
         Cloud App Security' or 'MCAS' - see additional info) to communicate with Microsoft
         Defender for Cloud."
 
-    desc 'rationale',
-        "Microsoft Defender for Cloud offers an additional layer of protection by using Azure
+  desc 'rationale',
+       "Microsoft Defender for Cloud offers an additional layer of protection by using Azure
         Resource Manager events, which is considered to be the control plane for Azure. By
         analyzing the Azure Resource Manager records, Microsoft Defender for Cloud detects
         unusual or potentially harmful operations in the Azure subscription environment. Several
@@ -13,12 +13,12 @@ control 'azure-foundations-cis-3.1.1.2' do
         benefit from these analytics, subscription must have a Cloud App Security license.
         Microsoft Defender for Cloud Apps works only with Standard Tier subscriptions."
 
-    desc 'impact',
-        "Microsoft Defender for Cloud Apps works with Standard pricing tier Subscription.
+  desc 'impact',
+       "Microsoft Defender for Cloud Apps works with Standard pricing tier Subscription.
         Choosing the Standard pricing tier of Microsoft Defender for Cloud incurs an additional
         cost per resource."
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Defender for Cloud
@@ -51,7 +51,7 @@ control 'azure-foundations-cis-3.1.1.2' do
         ---- -------
         MCAS True"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. From Azure Home select the Portal Menu.
         2. Select Microsoft Defender for Cloud.
@@ -79,27 +79,27 @@ control 'azure-foundations-cis-3.1.1.2' do
         Default Value:
         With Cloud App Security license, these alerts are enabled by default"
 
-    impact 0.5
-    tag nist: ['RA-5','SC-7(8)','SA-15']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.5','7.6','13.10','16.11'] }]
+  impact 0.5
+  tag nist: ['RA-5', 'SC-7(8)', 'SA-15']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['7.5', '7.6', '13.10', '16.11'] }]
 
-    ref 'https://docs.microsoft.com/en-in/azure/security-center/security-center-alerts-service-layer#azure-management-layer-azure-resource-manager-preview'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/settings/list'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/settings/update'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-9-secure-user-access-to--existing-applications'
+  ref 'https://docs.microsoft.com/en-in/azure/security-center/security-center-alerts-service-layer#azure-management-layer-azure-resource-manager-preview'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/settings/list'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/settings/update'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-9-secure-user-access-to--existing-applications'
 
-    script = <<-EOH
+  script = <<-EOH
         Set-AzContext -Subscription #{input('subscription_id')} | Out-Null
         (Get-AzSecuritySetting | Where-Object { $_.name -eq 'MCAS' }).enabled
-    EOH
+  EOH
 
-    pwsh_output = powershell(script).stdout.strip
+  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
-    describe "Ensure that MCAS" do   
-        subject {pwsh_output}
-        it "is set to 'True'" do
-            expect(subject).to eq('True')
-        end
+  describe 'Ensure that MCAS' do
+    subject { pwsh_output.stdout.strip }
+    it "is set to 'True'" do
+      expect(subject).to eq('True')
     end
+  end
 end
