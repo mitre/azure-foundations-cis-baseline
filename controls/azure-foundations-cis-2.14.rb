@@ -36,7 +36,7 @@ control 'azure-foundations-cis-2.14' do
         5. Set Users can register applications to No
         6. Click Save
         Remediate from PowerShell
-        $param = @{ AllowedToCreateApps = "$false" }
+        $param = @{ AllowedToCreateApps = '$false' }
         Update-MgPolicyAuthorizationPolicy -DefaultUserRolePermissions $param"
 
     impact 0.5

@@ -60,7 +60,16 @@ control 'azure-foundations-cis-3.1.9.1' do
     ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/alerts-overview'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
 
-    describe 'benchmark' do
-        skip 'configure'
+    script = <<-EOH
+        (Get-AzSecurityPricing -Name 'Arm').PricingTier
+    EOH
+
+    pwsh_output = powershell(script).stdout.strip
+
+    describe "Ensure That Microsoft Defender for Resource Manager" do   
+        subject {pwsh_output}
+        it "is set to 'On'" do
+            expect(subject).to eq('Standard')
+        end
     end
 end

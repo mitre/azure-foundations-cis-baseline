@@ -89,7 +89,17 @@ control 'azure-foundations-cis-3.1.1.2' do
     ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/settings/update'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-9-secure-user-access-to--existing-applications'
 
-    describe 'benchmark' do
-        skip 'configure'
+    script = <<-EOH
+        Set-AzContext -Subscription #{input('subscription_id')} | Out-Null
+        (Get-AzSecuritySetting | Where-Object { $_.name -eq 'MCAS' }).enabled
+    EOH
+
+    pwsh_output = powershell(script).stdout.strip
+
+    describe "Ensure that MCAS" do   
+        subject {pwsh_output}
+        it "is set to 'True'" do
+            expect(subject).to eq('True')
+        end
     end
 end

@@ -39,7 +39,7 @@ control 'azure-foundations-cis-2.7' do
     impact 0.5
     tag nist: ['AC-7','AC-19']
     tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['4.10] }]
+    tag cis_controls: [{ '8' => ['4.10'] }]
 
     ref 'https://learn.microsoft.com/en-us/entra/identity/authentication/howto-password-smart-lockout#manage-microsoft-entra-smart-lockout-values'
 

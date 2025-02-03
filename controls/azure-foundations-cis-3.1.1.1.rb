@@ -31,7 +31,7 @@ control 'azure-foundations-cis-3.1.1.1' do
         application/json'
         https://management.azure.com/subscriptions/<subscriptionID>/providers/Microso
         ft.Security/autoProvisioningSettings?api-version=2017-08-01-preview' | jq
-        '.|.value[] | select(.name=="default")'|jq '.properties.autoProvision'
+        '.|.value[] | select(.name=='default')'|jq '.properties.autoProvision'
         Using PowerShell
         Connect-AzAccount
         Get-AzSecurityAutoProvisioningSetting | Select-Object Name, AutoProvision
@@ -95,7 +95,16 @@ control 'azure-foundations-cis-3.1.1.1' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
 
-    describe 'benchmark' do
-        skip 'configure'
+    script = <<-EOH
+        (Get-AzSecurityAutoProvisioningSetting -Name 'default').AutoProvision
+    EOH
+
+    pwsh_output = powershell(script).stdout.strip
+
+    describe "Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs'" do   
+        subject {pwsh_output}
+        it "is set to 'On'" do
+            expect(subject).to eq('On')
+        end
     end
 end

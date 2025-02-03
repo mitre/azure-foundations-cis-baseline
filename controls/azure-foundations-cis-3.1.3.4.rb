@@ -44,7 +44,7 @@ control 'azure-foundations-cis-3.1.3.4' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
     ref 'https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-agentless-scanning-vms'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that 'Agentless scanning for machines' component status is set to 'On'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

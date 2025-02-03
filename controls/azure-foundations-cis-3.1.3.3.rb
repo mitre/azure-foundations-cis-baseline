@@ -97,7 +97,17 @@ control 'azure-foundations-cis-3.1.3.3' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-endpoint-security#es-1-use-endpoint-detection-and-response-edr'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-endpoint-security#es-2-use-modern-anti-malware-software'
 
-    describe 'benchmark' do
-        skip 'configure'
+    script = <<-EOH
+        Set-AzContext -Subscription #{input('subscription_id')} | Out-Null
+        (Get-AzSecuritySetting | Where-Object { $_.name -eq 'WDATP' }).enabled
+    EOH
+
+    pwsh_output = powershell(script).stdout.strip
+
+    describe "Ensure that 'Endpoint protection' component status" do   
+        subject {pwsh_output}
+        it "is set to 'On'" do
+            expect(subject).to eq('True')
+        end
     end
 end

@@ -42,7 +42,7 @@ control 'azure-foundations-cis-3.1.3.5' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
     ref 'https://learn.microsoft.com/en-us/azure/defender-for-cloud/file-integrity-monitoring-enable-defender-endpoint'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that 'File Integrity Monitoring' component status is set to 'On'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

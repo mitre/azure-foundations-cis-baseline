@@ -52,7 +52,7 @@ control 'azure-foundations-cis-3.1.4.3' do
     ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/autoprovisioningsettings/create'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that 'Agentless container vulnerability assessment' component status is 'On'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

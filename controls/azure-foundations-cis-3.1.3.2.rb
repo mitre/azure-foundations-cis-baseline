@@ -45,7 +45,7 @@ control 'azure-foundations-cis-3.1.3.2' do
     ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/autoprovisioningsettings/create'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-posture-vulnerability-management#pv-5-perform-vulnerability-assessments'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that Auto provisioning of 'Vulnerability assessment for machines' is Set to 'On'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

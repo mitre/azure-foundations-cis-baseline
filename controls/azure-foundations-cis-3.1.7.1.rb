@@ -64,7 +64,16 @@ control 'azure-foundations-cis-3.1.7.1' do
     ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/quickstart-enable-database-protections'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
 
-    describe 'benchmark' do
-        skip 'configure'
+    script = <<-EOH
+        (Get-AzSecurityPricing -Name 'CosmosDbs').PricingTier
+    EOH
+
+    pwsh_output = powershell(script).stdout.strip
+
+    describe "Ensure That Microsoft Defender for Azure Cosmos DB" do   
+        subject {pwsh_output}
+        it "Is Set To 'On'" do
+            expect(subject).to eq('Standard')
+        end
     end
 end

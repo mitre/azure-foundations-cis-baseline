@@ -47,7 +47,7 @@ control 'azure-foundations-cis-3.1.10' do
     ref 'https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/'
     ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/deploy-vulnerability-assessment-vm'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that Microsoft Defender Recommendation for 'Apply system updates' status is 'Completed'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

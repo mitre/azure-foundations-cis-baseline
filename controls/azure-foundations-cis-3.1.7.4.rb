@@ -71,7 +71,16 @@ control 'azure-foundations-cis-3.1.7.4' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-2-monitor-anomalies-and-threats-targeting-sensitive-data'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
 
-    describe 'benchmark' do
-        skip 'configure'
+    script = <<-EOH
+        (Get-AzSecurityPricing -Name 'SqlServerVirtualMachines').PricingTier
+    EOH
+
+    pwsh_output = powershell(script).stdout.strip
+
+    describe "Ensure That Microsoft Defender for SQL Servers on Machines" do   
+        subject {pwsh_output}
+        it "Is Set To 'On'" do
+            expect(subject).to eq('Standard')
+        end
     end
 end

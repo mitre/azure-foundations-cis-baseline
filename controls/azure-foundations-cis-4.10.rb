@@ -13,10 +13,10 @@ control 'azure-foundations-cis-4.10' do
         user may do this deliberately in order to cause disruption. Deleting an Azure Storage
         blob causes immediate data loss. Enabling this configuration for Azure storage ensures
         that even if blobs/data were deleted from the storage account, Blobs/data objects are
-        recoverable for a particular time which is set in the 'Retention policies,'' ranging from 7
+        recoverable for a particular time which is set in the 'Retention policies,' ranging from 7
         days to 365 days."
 
-    check 'impact',
+    desc 'impact',
         "Additional storage costs may be incurred as snapshots are retained."
 
     desc 'check',

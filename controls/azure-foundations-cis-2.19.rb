@@ -29,7 +29,7 @@ control 'azure-foundations-cis-2.19' do
         4. Under Settings, select General
         5. Under Security Groups, set Users can create security groups in Azure
         portals, API or PowerShell to No
-        6. Click Save
+        6. Click Save"
 
     impact 0.5
     tag nist: ['AC-2','AC-2(1)','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']

@@ -74,7 +74,7 @@ control 'azure-foundations-cis-3.1.11' do
     ref 'https://docs.microsoft.com/en-in/azure/security-center/tutorial-security-policy'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-7-define-and-implement-logging-threat-detection-and-incident-response-strategy'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that Microsoft Cloud Security Benchmark policies are not set to 'Disabled'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

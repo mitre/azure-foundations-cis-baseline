@@ -49,7 +49,7 @@ control 'azure-foundations-cis-6.1.1' do
             Repeat these step for all resources as needed.
         Remediate from Azure CLI 
             To configure Diagnostic Settings on a Subscription: 
-                az monitor diagnostic-settings subscription create --subscription <subscription id> --name <diagnostic settings name> --location <location> <[--event-hub <event hub ID> --event-hub-auth-rule <event hub auth rule ID>] [--storage-account <storage account ID>] [--workspace <log analytics workspace ID>] --logs "<JSON encoded categories>" (e.g. [{category:Security,enabled:true},{category:Administrative,enabled:true},{category:Alert,enabled:true},{category:Policy,enabled:true}])
+                az monitor diagnostic-settings subscription create --subscription <subscription id> --name <diagnostic settings name> --location <location> <[--event-hub <event hub ID> --event-hub-auth-rule <event hub auth rule ID>] [--storage-account <storage account ID>] [--workspace <log analytics workspace ID>] --logs '<JSON encoded categories>'' (e.g. [{category:Security,enabled:true},{category:Administrative,enabled:true},{category:Alert,enabled:true},{category:Policy,enabled:true}])
             To configure Diagnostic Settings on a specific resource: 
                 az monitor diagnostic-settings create --subscription <subscription ID> --resource <resource ID> --name <diagnostic settings name> <[--event-hub <event hub ID> --event-hub-rule <event hub auth rule ID>] [--storage-account <storage account ID>] [--workspace <log analytics workspace ID>] --logs <resource specific JSON encoded log settings> --metrics <metric settings (shorthand|json-file|yaml-file)>
         Remediate from PowerShell 

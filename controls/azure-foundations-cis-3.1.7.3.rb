@@ -69,7 +69,16 @@ control 'azure-foundations-cis-3.1.7.3' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-2-monitor-anomalies-and-threats-targeting-sensitive-data'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
 
-    describe 'benchmark' do
-        skip 'configure'
+    script = <<-EOH
+        (Get-AzSecurityPricing -Name 'SqlServers').PricingTier
+    EOH
+
+    pwsh_output = powershell(script).stdout.strip
+
+    describe "Ensure That Microsoft Defender for (Managed Instance) Azure SQL Databases" do   
+        subject {pwsh_output}
+        it "is set to 'On'" do
+            expect(subject).to eq('Standard')
+        end
     end
 end
