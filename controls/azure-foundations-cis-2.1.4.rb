@@ -47,7 +47,7 @@ control 'azure-foundations-cis-2.1.4' do
     ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/security-controls-v3-identity-management#im-4-use-strong-authentication-controls-for-all-azure-active-directory-based-access'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-6-use-strong-authentication-controls'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that 'Allow users to remember multi-factor authentication on devices they trust' is Disabled" do
+        skip 'The check for this control needs to be done manually'
     end
 end

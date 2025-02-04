@@ -69,6 +69,6 @@ control 'azure-foundations-cis-6.2.2' do
     ref 'https://azure.microsoft.com/en-us/services/blueprints/'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

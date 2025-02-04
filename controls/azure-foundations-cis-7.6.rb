@@ -48,6 +48,6 @@ control 'azure-foundations-cis-7.6' do
     ref 'https://azure.microsoft.com/en-ca/pricing/details/network-watcher/'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

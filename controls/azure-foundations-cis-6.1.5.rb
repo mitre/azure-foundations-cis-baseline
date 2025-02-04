@@ -56,6 +56,6 @@ control 'azure-foundations-cis-6.1.5' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-4-enable-network-logging-for-security-investigation'
 
   describe 'benchmark' do
-      skip 'configure'
+      skip 'The check for this control needs to be done manually'
   end
 end

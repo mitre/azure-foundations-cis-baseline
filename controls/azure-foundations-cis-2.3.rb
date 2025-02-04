@@ -55,6 +55,6 @@ control 'azure-foundations-cis-2.3' do
     ref 'https://blog.admindroid.com/disable-users-creating-new-azure-ad-tenants-in-microsoft-365/'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

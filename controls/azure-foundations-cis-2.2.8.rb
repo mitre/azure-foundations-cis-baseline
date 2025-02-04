@@ -78,7 +78,7 @@ control 'azure-foundations-cis-2.2.8' do
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-users-groups'
     ref 'https://learn.microsoft.com/en-us/entra/identity/conditional-access/how-to-policy-mfa-admin-portals'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe 'Ensure Multifactor Authentication is Required to access Microsoft Admin Portals' do
+        skip 'The check for this control needs to be done manually'
     end
 end

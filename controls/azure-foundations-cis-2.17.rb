@@ -41,7 +41,7 @@ control 'azure-foundations-cis-2.17' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-1-separate-and-limit-highly-privilegedadministrative-users'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure That 'Restrict access to Microsoft Entra admin center' is Set to 'Yes'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

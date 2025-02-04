@@ -85,7 +85,52 @@ control 'azure-foundations-cis-4.3' do
     ref 'https://www.pcidssguide.com/pci-dss-key-rotation-requirements/'
     ref 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'
 
-    describe 'benchmark' do
-        skip 'configure'
+    rg_sa_list = input('resource_groups_and_storage_accounts')
+
+    rg_sa_list.each do |pair|
+        resource_group, storage_account = pair.split('.')
+
+        describe "Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+            script = <<-EOH
+                $account = Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}"
+                $result = [PSCustomObject]@{
+                    Name                      = "#{storage_account}"
+                    KeyExpirationPeriodInDays = $account.KeyPolicy.KeyExpirationPeriodInDays
+                    Key1CreationTime          = if ($account.KeyCreationTime.Key1) { $account.KeyCreationTime.Key1.ToString("yyyy-MM-dd") } else { "" }
+                    Key2CreationTime          = if ($account.KeyCreationTime.Key2) { $account.KeyCreationTime.Key2.ToString("yyyy-MM-dd") } else { "" }
+                }
+                $result | ConvertTo-Json -Compress
+            EOH
+
+            account_info = json({command: "pwsh -NoProfile -NonInteractive -Command '#{script}'"})
+
+            describe "Key Expiration Reminder" do
+                it "should be set to 90 days" do
+                    expect(account_info['KeyExpirationPeriodInDays']).to cmp 90
+                end
+            end
+
+            describe "Key1 Creation Time" do
+                it "should not be empty" do
+                    expect(account_info['Key1CreationTime']).not_to eq('')
+                end
+            end
+
+            describe "Key2 Creation Time" do
+                it "should not be empty" do
+                    expect(account_info['Key2CreationTime']).not_to eq('')
+                end
+            end
+
+            #remove later, for debugging
+            describe "Storage Account Details" do
+                it "outputs account details" do
+                    puts "Storage Account: #{account_info['Name']}"
+                    puts "Expiration Reminder: #{account_info['KeyExpirationPeriodInDays']} days"
+                    puts "Key1 Last Rotated: #{account_info['Key1CreationTime']}"
+                    puts "Key2 Last Rotated: #{account_info['Key2CreationTime']}"
+                end
+            end
+        end
     end
 end

@@ -92,7 +92,7 @@ control 'azure-foundations-cis-2.2.3' do
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-report-only'
     ref 'https://learn.microsoft.com/en-us/entra/identity/conditional-access/how-to-policy-authentication-flows'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe 'Ensure that an exclusionary Device code flow policy is considered' do
+        skip 'The check for this control needs to be done manually'
     end
 end

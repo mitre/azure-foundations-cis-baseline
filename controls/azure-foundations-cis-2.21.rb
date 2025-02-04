@@ -42,7 +42,7 @@ control 'azure-foundations-cis-2.21' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-1-separate-and-limit-highly-privilegedadministrative-users'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that 'Users can create Microsoft 365 groups in Azure portals, API or PowerShell' is set to 'No'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

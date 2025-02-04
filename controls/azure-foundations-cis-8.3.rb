@@ -63,6 +63,6 @@ control 'azure-foundations-cis-8.3' do
     ref 'https://docs.microsoft.com/en-us/azure/virtual-machines/disk-encryption'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

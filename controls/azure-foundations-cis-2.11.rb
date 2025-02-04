@@ -50,7 +50,7 @@ control 'azure-foundations-cis-2.11' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-1-separate-and-limit-highly-privilegedadministrative-users'
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/authentication/tutorial-enable-sspr#set-up-notifications-and-customizations'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure That 'Notify all admins when other admins reset their password?' is set to 'Yes'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

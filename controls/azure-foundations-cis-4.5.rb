@@ -35,6 +35,6 @@ control 'azure-foundations-cis-4.5' do
     ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

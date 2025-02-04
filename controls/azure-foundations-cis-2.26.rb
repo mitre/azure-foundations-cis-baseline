@@ -55,7 +55,7 @@ control 'azure-foundations-cis-2.26' do
     ref 'https://learn.microsoft.com/en-us/entra/identity/role-based-access-control/security-emergency-access'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-1-separate-and-limit-highly-privilegedadministrative-users'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe 'Ensure fewer than 5 users have global administrator assignment' do
+        skip 'The check for this control needs to be done manually'
     end
 end

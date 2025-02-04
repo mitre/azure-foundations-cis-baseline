@@ -57,7 +57,7 @@ control 'azure-foundations-cis-3.1.15' do
     ref 'https://learn.microsoft.com/en-us/azure/external-attack-surface-management/deploying-the-defender-easm-azure-resource?source=recommendations'
     ref 'https://www.microsoft.com/en-us/security/blog/2022/08/02/microsoft-announces-new-solutions-for-threat-intelligence-and-attack-surface-management/'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe 'Ensure that Microsoft Defender External Attack Surface Monitoring (EASM) is enabled' do
+        skip 'The check for this control needs to be done manually'
     end
 end

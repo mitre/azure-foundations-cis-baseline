@@ -72,6 +72,6 @@ control 'azure-foundations-cis-6.2.1' do
     ref 'https://docs.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-log'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

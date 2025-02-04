@@ -64,6 +64,6 @@ control 'azure-foundations-cis-9.9' do
     ref 'https://www.oracle.com/java/technologies/java-se-support-roadmap.html'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

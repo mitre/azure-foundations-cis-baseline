@@ -33,6 +33,6 @@ control 'azure-foundations-cis-5.4.3' do
     ref 'https://learn.microsoft.com/en-us/azure/cosmos-db/role-based-access-control'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

@@ -73,6 +73,6 @@ control 'azure-foundations-cis-4.12' do
     ref 'https://docs.microsoft.com/en-us/azure/storage/queues/monitor-queue-storage?tabs=azure-portal'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

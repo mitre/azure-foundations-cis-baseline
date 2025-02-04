@@ -84,6 +84,6 @@ control 'azure-foundations-cis-6.4' do
     ref 'https://docs.microsoft.com/en-us/azure/cdn/cdn-azure-diagnostic-logs'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

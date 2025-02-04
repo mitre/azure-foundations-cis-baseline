@@ -57,6 +57,6 @@ control 'azure-foundations-cis-8.2' do
     ref 'https://azure.microsoft.com/en-us/pricing/details/managed-disks/'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end
