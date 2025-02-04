@@ -49,7 +49,7 @@ control 'azure-foundations-cis-2.18' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that 'Restrict user ability to access groups features in the Access Pane' is Set to 'Yes'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

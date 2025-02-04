@@ -47,6 +47,6 @@ control 'azure-foundations-cis-5.2.5' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-6-deploy-web-application-firewall'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

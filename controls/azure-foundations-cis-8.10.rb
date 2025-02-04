@@ -47,6 +47,6 @@ control 'azure-foundations-cis-8.10' do
     tag cis_controls: [{ '8' => ['6.5'] }]
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

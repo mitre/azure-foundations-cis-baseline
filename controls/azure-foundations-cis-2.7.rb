@@ -43,7 +43,7 @@ control 'azure-foundations-cis-2.7' do
 
     ref 'https://learn.microsoft.com/en-us/entra/identity/authentication/howto-password-smart-lockout#manage-microsoft-entra-smart-lockout-values'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that account 'Lockout Threshold' is less than or equal to '10'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

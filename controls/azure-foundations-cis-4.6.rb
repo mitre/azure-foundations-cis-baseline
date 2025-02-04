@@ -72,6 +72,6 @@ control 'azure-foundations-cis-4.6' do
     ref 'https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

@@ -158,6 +158,6 @@ control 'azure-foundations-cis-2.2.2' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

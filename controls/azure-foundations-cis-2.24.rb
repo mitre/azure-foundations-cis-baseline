@@ -74,7 +74,7 @@ control 'azure-foundations-cis-2.24' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe 'Ensure a Custom Role is Assigned Permissions for Administering Resource Locks' do
+        skip 'The check for this control needs to be done manually'
     end
 end

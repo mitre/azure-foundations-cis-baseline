@@ -1,5 +1,4 @@
-control 'azure-foundations-cis-2.2.4
-' do
+control 'azure-foundations-cis-2.2.4' do
     title 'Ensure that A Multi-factor Authentication Policy Exists for Administrative Groups'
     desc "For designated users, they will be prompted to use their multi-factor authentication (MFA) process on login"
 
@@ -68,7 +67,7 @@ control 'azure-foundations-cis-2.2.4
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/plan-conditional-access'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe 'Ensure that A Multi-factor Authentication Policy Exists for Administrative Groups' do
+        skip 'The check for this control needs to be done manually'
     end
 end

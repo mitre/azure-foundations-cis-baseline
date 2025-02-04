@@ -45,6 +45,6 @@ control 'azure-foundations-cis-9.6' do
     ref 'https://learn.microsoft.com/en-us/azure/app-service/configure-basic-auth-disable?tabs=portal'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

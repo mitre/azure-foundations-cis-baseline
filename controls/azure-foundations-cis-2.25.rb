@@ -1,7 +1,5 @@
 control 'azure-foundations-cis-2.25' do
-    title 'Ensure That `Subscription leaving Microsoft Entra ID
-        directory` and `Subscription entering Microsoft Entra ID directory`
-        Is Set To ‘Permit No One’'
+    title "Ensure That `Subscription leaving Microsoft Entra ID directory` and `Subscription entering Microsoft Entra ID directory` Is Set To 'Permit No One'"
     desc "Users who are set as subscription owners are able to make administrative changes to
         the subscriptions and move them into and out of Microsoft Entra ID."
 
@@ -42,7 +40,7 @@ control 'azure-foundations-cis-2.25' do
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-how-subscriptions-associated-directory'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-2-protect-identity-and-authentication-systems'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure That `Subscription leaving Microsoft Entra ID directory` and `Subscription entering Microsoft Entra ID directory` Is Set To 'Permit No One'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

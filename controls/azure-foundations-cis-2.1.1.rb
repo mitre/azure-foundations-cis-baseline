@@ -53,7 +53,7 @@ control 'azure-foundations-cis-2.1.1' do
     ref 'https://techcommunity.microsoft.com/t5/azure-active-directory-identity/introducing-security-defaults/ba-p/1061414'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-2-protect-identity-and-authentication-systems'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe 'Ensure Security Defaults is enabled on Microsoft Entra ID' do
+        skip 'The check for this control needs to be done manually'
     end
 end

@@ -52,7 +52,7 @@ control 'azure-foundations-cis-4.1' do
     ref 'https://docs.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest#az_storage_account_update'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-3-encrypt-sensitive-data-in-transit'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that 'Secure transfer required' is set to 'Enabled'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

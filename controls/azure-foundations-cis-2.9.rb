@@ -45,7 +45,7 @@ control 'azure-foundations-cis-2.9' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that 'Number of days before users are asked to re-confirm their authentication information' is not set to '0'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

@@ -38,7 +38,7 @@ control 'azure-foundations-cis-2.2.1' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
     ref 'https://learn.microsoft.com/en-us/azure/defender-for-iot/device-builders/quickstart-onboard-iot-hub'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure That Microsoft Defender for IoT Hub Is Set To 'On'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

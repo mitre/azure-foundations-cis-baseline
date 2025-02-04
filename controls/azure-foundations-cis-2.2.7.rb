@@ -79,7 +79,7 @@ control 'azure-foundations-cis-2.2.7' do
     ref 'https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-policy-azure-management'
     ref 'https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-conditional-access-cloud-apps#windows-azure-service-management-api'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe 'Ensure Multifactor Authentication is Required for Windows Azure Service Management API' do
+        skip 'The check for this control needs to be done manually'
     end
 end

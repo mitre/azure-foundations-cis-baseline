@@ -39,7 +39,7 @@ control 'azure-foundations-cis-2.10' do
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/authentication/howto-sspr-deployment'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that 'Notify users on password resets?' is set to 'Yes'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

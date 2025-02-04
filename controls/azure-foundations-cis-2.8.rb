@@ -54,7 +54,7 @@ control 'azure-foundations-cis-2.8' do
     ref 'https://learn.microsoft.com/en-us/entra/identity/authentication/tutorial-configure-custom-password-protection'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-6-use-strong-authentication-controls'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that a Custom Bad Password List is set to 'Enforce' foryour Organization" do
+        skip 'The check for this control needs to be done manually'
     end
 end

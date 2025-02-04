@@ -57,6 +57,6 @@ control 'azure-foundations-cis-9.7' do
     ref 'https://www.php.net/supported-versions.php'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

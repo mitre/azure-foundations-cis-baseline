@@ -57,6 +57,6 @@ control 'azure-foundations-cis-9.8' do
     ref 'https://devguide.python.org/versions/'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

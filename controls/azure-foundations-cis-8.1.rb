@@ -61,6 +61,6 @@ control 'azure-foundations-cis-8.1' do
     ref 'https://learn.microsoft.com/en-us/cli/azure/network/bastion?view=azure-cli-latest'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

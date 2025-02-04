@@ -46,7 +46,7 @@ control 'azure-foundations-cis-2.5' do
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/authentication/howto-sspr-deployment'
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/authentication/concept-authentication-methods'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure That 'Number of methods required to reset' is set to '2'" do
+        skip 'The check for this control needs to be done manually'
     end
 end

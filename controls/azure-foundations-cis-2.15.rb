@@ -82,6 +82,6 @@ control 'azure-foundations-cis-2.15' do
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/users-restrict-guest-permissions'
 
     describe 'benchmark' do
-        skip 'configure'
+        skip 'The check for this control needs to be done manually'
     end
 end

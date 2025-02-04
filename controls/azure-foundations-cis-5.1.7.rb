@@ -30,6 +30,6 @@ control 'azure-foundations-cis-5.1.7' do
   ref 'https://learn.microsoft.com/en-us/azure/azure-sql/database/connectivity-settings?view=azuresql&tabs=azure-portal#deny-public-network-access'
 
   describe 'benchmark' do
-      skip 'configure'
+      skip 'The check for this control needs to be done manually'
   end
 end

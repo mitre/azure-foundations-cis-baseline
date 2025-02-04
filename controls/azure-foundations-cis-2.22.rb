@@ -48,7 +48,7 @@ control 'azure-foundations-cis-2.22' do
     ref 'https://blogs.technet.microsoft.com/janketil/2016/02/29/azure-mfa-for-enrollment-in-intune-and-azure-ad-device-registration-explained/'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-6-use-strong-authentication-controls'
 
-    describe 'benchmark' do
-        skip 'configure'
+    describe "Ensure that 'Require Multi-Factor Authentication to register or join devices with Microsoft Entra ID' is set to 'Yes'" do
+        skip 'The check for this control needs to be done manually'
     end
 end
