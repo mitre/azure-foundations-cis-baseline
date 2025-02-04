@@ -1,0 +1,13 @@
+{
+    "version": "1.1",
+    "cli_options": {
+        "color": "true"
+    },
+    "credentials": {
+        "pwsh": {
+            "pwsh-options": {
+                "pwsh_path": "INSERT_PATH_HERE"
+            }
+        }
+    }
+}
