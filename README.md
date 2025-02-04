@@ -48,14 +48,9 @@ The original benchmark document that serves as the basis for this automated test
 
 Your Azure admin may need to be contacted to obtain some of these credentials. The following credentials are needed, as highlighted by the [train-pwsh](https://github.com/mitre/train-pwsh) documentation:
 
-- client_id (id of client)
-- tenant_id (id of tenant)
-- client_secret (secret key for client)
-- certificate_path (path on machine where authentication certificate is stored)
-- certificate_password (password for certificate)
-- organization (organization domain)
-- sharepoint_admin_url (sharepoint url for admin)
 - pwsh_path (path on machine where the PowerShell executable is stored)
+
+As mentioned in the train-pwsh documentation, to run the gem, a `config.json` file is needed at the following directory: `~/.inspec/config.json`. A `config_template.json` file has been provided in this directory to reference what the file should look like. The values will need to be populated with your actual data. 
 
 Some details to create credentials if you are a Azure admin:
 
