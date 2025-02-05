@@ -35,7 +35,7 @@ control 'azure-foundations-cis-6.1.6' do
     ref 'https://docs.microsoft.com/en-us/azure/app-service/troubleshoot-diagnostic-logs'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
 
-    describe 'benchmark' do
+    describe "Ensure that logging for Azure AppService 'HTTP logs' is enabled" do
         skip 'The check for this control needs to be done manually'
     end
 end

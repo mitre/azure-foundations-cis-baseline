@@ -73,7 +73,21 @@ control 'azure-foundations-cis-4.8' do
     ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+    subscription_id = input('subscription_id')
+    rg_sa_list = input('resource_groups_and_storage_accounts')
+
+    rg_sa_list.each do |pair|
+        resource_group, storage_account = pair.split('.')
+
+        describe "Storage Account Network Ruleset Bypass for '#{storage_account}' in Resource Group '#{resource_group}'" do
+            script = <<-EOH
+                Set-AzContext -Subscription #{subscription_id} | Out-Null
+                (Get-AzStorageAccountNetworkRuleset -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").Bypass
+            EOH
+
+            describe powershell(script) do
+                its('stdout.strip') { should cmp 'AzureServices' }
+            end
+        end
     end
 end

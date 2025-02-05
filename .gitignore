@@ -11,6 +11,7 @@ inputs.yml
 /spec/reports/
 /spec/examples.txt
 inspec-azure.plan
+config.json
 
 
 *.tfstate

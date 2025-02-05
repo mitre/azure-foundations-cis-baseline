@@ -29,7 +29,7 @@ control 'azure-foundations-cis-5.1.7' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/security-controls-v3-network-security#ns-2-secure-cloud-services-with-network-controls'
   ref 'https://learn.microsoft.com/en-us/azure/azure-sql/database/connectivity-settings?view=azuresql&tabs=azure-portal#deny-public-network-access'
 
-  describe 'benchmark' do
+  describe 'Ensure Public Network Access is Disabled' do
       skip 'The check for this control needs to be done manually'
   end
 end

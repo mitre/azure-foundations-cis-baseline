@@ -71,7 +71,19 @@ control 'azure-foundations-cis-4.6' do
     ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/assign-azure-role-data-access'
     ref 'https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+    rg_sa_list = input('resource_groups_and_storage_accounts')
+
+    rg_sa_list.each do |pair|
+        resource_group, storage_account = pair.split('.')
+
+        describe "Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+            script = <<-EOH
+                (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").PublicNetworkAccess
+            EOH
+
+            describe powershell(script) do
+                its('stdout.strip') { should cmp 'Disabled' }
+            end
+        end
     end
 end

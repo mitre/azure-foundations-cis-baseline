@@ -9,22 +9,22 @@ control 'azure-foundations-cis-6.3.1' do
         'Because Application Insights relies on a Log Analytics Workspace, an organization will incur additional expenses when using this service.'
 
     desc 'check',
-       %(Audit from Azure Portal
+        "%(Audit from Azure Portal
             1. Navigate to Application Insights
             2. Ensure an Application Insights service is configured and exists.
         Audit from Azure CLI 
             Note: The application-insights extension to Azure CLI is currently in Preview Add the application-insights extension.
                 az extension add --name application-insights 
-                az monitor app-insights component show --query "[].{ID:appId, Name:name, Tenant:tenantId, Location:location, Provisioning_State:provisioningState}"
+                az monitor app-insights component show --query '[].{ID:appId, Name:name, Tenant:tenantId, Location:location, Provisioning_State:provisioningState}'
                 Ensure the above command produces output, otherwise Application Insights has not been configured.
         Audit From Powershell 
             Get-AzApplicationInsights|select location,name,appid,provisioningState,tenantid
         Audit from Azure Policy 
             If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the associated Policy definition in Azure. If referencing a printed copy, you can search Policy IDs from this URL: https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
-                • Policy ID: fa9cd53d-cb8f-464e-84f1-7b1490fd21c6 - Name: 'Deploy Diagnostic Settings for Application Insights to Log Analytics workspace')
+                • Policy ID: fa9cd53d-cb8f-464e-84f1-7b1490fd21c6 - Name: 'Deploy Diagnostic Settings for Application Insights to Log Analytics workspace')"
 
     desc 'fix',
-       'Remediate from Azure Portal
+       "Remediate from Azure Portal
             1. Navigate to Application Insights
             2. Under the Basics tab within the PROJECT DETAILS section, select the Subscription
             3. Select the Resource group
@@ -38,9 +38,9 @@ control 'azure-foundations-cis-6.3.1' do
             11. Click Next:Review+Create
             12. Click Create
         Remediate from Azure CLI 
-            az monitor app-insights component create --app <app name> --resource-group <resource group name> --location <location> --kind "web" --retention-time <INT days to retain logs> --workspace <log analytics workspace ID> --subscription <subscription ID>
+            az monitor app-insights component create --app <app name> --resource-group <resource group name> --location <location> --kind 'web' --retention-time <INT days to retain logs> --workspace <log analytics workspace ID> --subscription <subscription ID>
         Remediate From Powershell
-            New-AzApplicationInsights -Kind "web" -ResourceGroupName <resource group name> -Name <app insights name> -location <location> -RetentionInDays <INT days to retain logs> -SubscriptionID <subscription ID> -WorkspaceResourceId <log analytics workspace ID>'
+            New-AzApplicationInsights -Kind 'web' -ResourceGroupName <resource group name> -Name <app insights name> -location <location> -RetentionInDays <INT days to retain logs> -SubscriptionID <subscription ID> -WorkspaceResourceId <log analytics workspace ID>"
 
     impact 0.5
     tag nist: ['AU-2', 'AU-7', 'AU-12']
@@ -49,7 +49,16 @@ control 'azure-foundations-cis-6.3.1' do
 
     ref 'https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+    subscription_id = input('subscription_id')
+
+    describe "Application Insights configuration for Subscription '#{subscription_id}'" do
+        script = <<-EOH
+            Set-AzContext -Subscription #{subscription_id} | Out-Null
+            Get-AzApplicationInsights | select location,name,appid,provisioningState,tenantid
+        EOH
+
+        describe powershell(script) do
+            its('stdout.strip') { should_not be_empty }
+        end
     end
 end

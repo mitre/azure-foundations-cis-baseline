@@ -55,7 +55,7 @@ control 'azure-foundations-cis-6.1.5' do
   ref 'https://docs.microsoft.com/en-us/azure/network-watcher/network-watcher-nsg-flow-logging-portal'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-4-enable-network-logging-for-security-investigation'
 
-  describe 'benchmark' do
+  describe 'Ensure that Network Security Group Flow logs are captured and sent to Log Analytics' do
       skip 'The check for this control needs to be done manually'
   end
 end

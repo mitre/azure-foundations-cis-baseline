@@ -54,7 +54,7 @@ control 'azure-foundations-cis-5.4.2' do
     ref 'https://docs.microsoft.com/en-us/cli/azure/network/private-endpoint?view=azure-cli-latest#az-network-private-endpoint-create'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
 
-    describe 'benchmark' do
+    describe 'Ensure That Private Endpoints Are Used Where Possible' do
         skip 'The check for this control needs to be done manually'
     end
 end

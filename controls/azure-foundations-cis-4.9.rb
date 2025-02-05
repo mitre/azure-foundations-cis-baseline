@@ -133,7 +133,20 @@ control 'azure-foundations-cis-4.9' do
     ref 'https://docs.microsoft.com/en-us/azure/private-link/tutorial-private-endpoint-storage-portal'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+    rg_sa_list = input('resource_groups_and_storage_accounts')
+
+    rg_sa_list.each do |pair|
+        resource_group, storage_account = pair.split('.')
+
+        describe "Private Endpoint Check for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+            script = <<-EOH
+                $storageAccount = Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}"
+                Get-AzPrivateEndpoint -ResourceGroup "#{resource_group}" | Where-Object { $_.PrivateLinkServiceConnectionsText -match $storageAccount.id }
+            EOH
+
+            describe powershell(script) do
+                its('stdout.strip') { should_not be_empty }
+            end
+        end
     end
 end
