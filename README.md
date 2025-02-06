@@ -50,7 +50,7 @@ Your Azure admin may need to be contacted to obtain some of these credentials. T
 
 - pwsh_path (path on machine where the PowerShell executable is stored)
 
-As mentioned in the train-pwsh documentation, to run the gem, a `config.json` file is needed at the following directory: `~/.inspec/config.json`. A `config_template.json` file has been provided in this directory to reference what the file should look like. The values will need to be populated with your actual data. 
+As mentioned in the train-pwsh documentation, to run the gem, a `config.json` file is needed at the following directory: `~/.inspec/config.json`. A `config_template.json` file has been provided in this directory to reference what the file should look like. The values will need to be populated with your actual data.
 
 Some details to create credentials if you are a Azure admin:
 
