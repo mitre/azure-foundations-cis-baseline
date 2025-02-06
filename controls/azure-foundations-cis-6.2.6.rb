@@ -6,7 +6,7 @@ control 'azure-foundations-cis-6.2.6' do
         "Monitoring for Delete Security Solution events gives insight into changes to the active security solutions and may reduce the time it takes to detect suspicious activity."
 
     desc 'check',
-       %(Audit from Azure Portal
+       "%(Audit from Azure Portal
             1. Navigate to the Monitor blade.
             2. Click on Alerts.
             3. In the Alerts window, click on Alert rules.
@@ -15,16 +15,16 @@ control 'azure-foundations-cis-6.2.6' do
             6. Ensure the Condition panel displays the text Whenever the Activity Log has an event with Category='Administrative', Operation name='Delete Security Solutions' and does not filter on Level, Status or Caller.
             7. Ensure the Actions panel displays an Action group is assigned to notify the appropriate personnel in your organization.
         Audit from Azure CLI 
-            az monitor activity-log alert list --subscription <subscription Id> --query "[].{Name:name,Enabled:enabled,Condition:condition.allOf,Actions:actions}"
+            az monitor activity-log alert list --subscription <subscription Id> --query '[].{Name:name,Enabled:enabled,Condition:condition.allOf,Actions:actions}'
             Look for Microsoft.Security/securitySolutions/delete in the output 
         Audit from PowerShell 
-            Get-AzActivityLogAlert -SubscriptionId <subscription ID>|where-object {$_.ConditionAllOf.Equal -match "Microsoft.Security/securitySolutions/delete"}|select-object Location,Name,Enabled,ResourceGroupName,ConditionAllOf
+            Get-AzActivityLogAlert -SubscriptionId <subscription ID>|where-object {$_.ConditionAllOf.Equal -match 'Microsoft.Security/securitySolutions/delete'}|select-object Location,Name,Enabled,ResourceGroupName,ConditionAllOf
         Audit from Azure Policy 
             If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the associated Policy definition in Azure. If referencing a printed copy, you can search Policy IDs from this URL: https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
-                • Policy ID: b954148f-4c11-4c38-8221-be76711e194a - Name: 'An activity log alert should exist for specific Administrative operations)
+                • Policy ID: b954148f-4c11-4c38-8221-be76711e194a - Name: 'An activity log alert should exist for specific Administrative operations)"
 
     desc 'fix',
-       %(Remediate from Azure Portal
+       "%(Remediate from Azure Portal
             1. Navigate to the Monitor blade.
             2. Select Alerts.
             3. Select Create.
@@ -43,7 +43,7 @@ control 'azure-foundations-cis-6.2.6' do
             16. Click Review + create.
             17. Click Create.
         Remediate from Azure CLI 
-            az monitor activity-log alert create --resource-group "<resource group name>" --condition category=Administrative and operationName=Microsoft.Security/securitySolutions/delete and level=<verbose | information | warning | error | critical> --scope "/subscriptions/<subscription ID>" --name "<activity log rule name>" --subscription <subscription id> --action-group <action group ID>
+            az monitor activity-log alert create --resource-group '<resource group name>' --condition category=Administrative and operationName=Microsoft.Security/securitySolutions/delete and level=<verbose | information | warning | error | critical> --scope '/subscriptions/<subscription ID>' --name '<activity log rule name>' --subscription <subscription id> --action-group <action group ID>
         Remediate from PowerShell 
             Create the Conditions object.
                 $conditions = @() 
@@ -53,9 +53,9 @@ control 'azure-foundations-cis-6.2.6' do
                 $actionGroup = Get-AzActionGroup -ResourceGroupName <resource group name> -Name <action group name> 
                 $actionObject = New-AzActivityLogAlertActionGroupObject -Id $actionGroup.Id
             Create the Scope object 
-                $scope = "/subscriptions/<subscription ID>"
+                $scope = '/subscriptions/<subscription ID>'
             Create the Activity Log Alert Rule for Microsoft.Security/securitySolutions/delete 
-                New-AzActivityLogAlert -Name "<activity log alert rule name>" -ResourceGroupName "<resource group name>" -Condition $conditions -Scope $scope -Location global -Action $actionObject -Subscription <subscription ID> -Enabled $true)
+                New-AzActivityLogAlert -Name '<activity log alert rule name>' -ResourceGroupName '<resource group name>' -Condition $conditions -Scope $scope -Location global -Action $actionObject -Subscription <subscription ID> -Enabled $true)"
 
     impact 0.5
     tag nist: ['AU-3', 'AU-3(1)', 'AU-7', 'AU-12']

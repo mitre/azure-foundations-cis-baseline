@@ -10,11 +10,11 @@ control 'azure-foundations-cis-6.4' do
         'Costs for monitoring varies with Log Volume. Not every resource needs to have logging enabled. It is important to determine the security classification of the data being processed by the given resource and adjust the logging based on which events need to be tracked. This is typically determined by governance and compliance requirements.'
 
     desc 'check',
-       %(Audit from Azure Portal 
+       "%(Audit from Azure Portal 
             The specific steps for configuring resources within the Azure console vary depending on resource, but typically the steps are:
                 1. Go to the resource
                 2. Click on Diagnostic settings
-                3. In the blade that appears, click "Add diagnostic setting"
+                3. In the blade that appears, click 'Add diagnostic setting'
                 4. Configure the diagnostic settings
                 5. Click on Save
         Audit from Azure CLI 
@@ -27,7 +27,7 @@ control 'azure-foundations-cis-6.4' do
             Get a list of resources in a subscription context and store in a variable 
                 $resources = Get-AzResource
             Loop through each resource to determine if a diagnostic setting is configured or not. 
-                foreach ($resource in $resources) {$diagnosticSetting = Get-AzDiagnosticSetting -ResourceId $resource.id -ErrorAction "SilentlyContinue"; if ([string]::IsNullOrEmpty($diagnosticSetting)) {$message = "Diagnostic Settings not configured for resource: " + $resource.Name;Write-Output $message}else{$diagnosticSetting}}
+                foreach ($resource in $resources) {$diagnosticSetting = Get-AzDiagnosticSetting -ResourceId $resource.id -ErrorAction 'SilentlyContinue'; if ([string]::IsNullOrEmpty($diagnosticSetting)) {$message = 'Diagnostic Settings not configured for resource: ' + $resource.Name;Write-Output $message}else{$diagnosticSetting}}
             A result of Diagnostic Settings not configured for resource: <resource name> means a diagnostic settings is not configured for that resource. Otherwise, the output of the above command will show configured Diagnostic Settings for a resource.
         Audit from Azure Policy 
             If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the associated Policy definition in Azure. If referencing a printed copy, you can search Policy IDs from this URL: https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
@@ -41,20 +41,20 @@ control 'azure-foundations-cis-6.4' do
                 • Policy ID: 34f95f76-5386-4de7-b824-0d8478470c9d - Name: 'Resource logs in Logic Apps should be enabled
                 • Policy ID: b4330a05-a843-4bc8-bf9a-cacce50c67f4 - Name: 'Resource logs in Search services should be enabled'
                 • Policy ID: f8d36e2f-389b-4ee4-898d-21aeb69a0f45 - Name: 'Resource logs in Service Bus should be enabled'
-                • Policy ID: f9be5368-9bf5-4b84-9e0a-7850da98bb46 - Name: 'Resource logs in Azure Stream Analytics should be enabled')
+                • Policy ID: f9be5368-9bf5-4b84-9e0a-7850da98bb46 - Name: 'Resource logs in Azure Stream Analytics should be enabled')"
 
     desc 'fix',
-       %(Azure Subscriptions should log every access and operation for all resources. Logs should be sent to Storage and a Log Analytics Workspace or equivalent third-party system. Logs should be kept in readily-accessible storage for a minimum of one year, and then moved to inexpensive cold storage for a duration of time as necessary. If retention policies are set but storing logs in a Storage Account is disabled (for example, if only Event Hubs or Log Analytics options are selected), the retention policies have no effect. Enable all monitoring at first, and then be more aggressive moving data to cold storage if the volume of data becomes a cost concern. 
+       "%(Azure Subscriptions should log every access and operation for all resources. Logs should be sent to Storage and a Log Analytics Workspace or equivalent third-party system. Logs should be kept in readily-accessible storage for a minimum of one year, and then moved to inexpensive cold storage for a duration of time as necessary. If retention policies are set but storing logs in a Storage Account is disabled (for example, if only Event Hubs or Log Analytics options are selected), the retention policies have no effect. Enable all monitoring at first, and then be more aggressive moving data to cold storage if the volume of data becomes a cost concern. 
         Remediate from Azure Portal 
             The specific steps for configuring resources within the Azure console vary depending on resource, but typically the steps are:
                 1. Go to the resource
                 2. Click on Diagnostic settings
-                3. In the blade that appears, click "Add diagnostic setting"
+                3. In the blade that appears, click 'Add diagnostic setting'
                 4. Configure the diagnostic settings
                 5. Click on Save
         Remediate from Azure CLI 
             For each resource, run the following making sure to use a resource appropriate JSON encoded category for the --logs option. 
-                az monitor diagnostic-settings create --name <diagnostic settings name> --resource <resource ID> --logs "[{category:<resource specific category>,enabled:true,rentention-policy:{enabled:true,days:180}}]" --metrics "[{category:AllMetrics,enabled:true,retention-policy:{enabled:true,days:180}}]" <[--event-hub <event hub ID> --event-hub-rule <event hub auth rule ID> | --storage-account <storage account ID> |--workspace <log analytics workspace ID> | --marketplace-partner-id <full resource ID of third-party solution>]>]
+                az monitor diagnostic-settings create --name <diagnostic settings name> --resource <resource ID> --logs '[{category:<resource specific category>,enabled:true,rentention-policy:{enabled:true,days:180}}]' --metrics '[{category:AllMetrics,enabled:true,retention-policy:{enabled:true,days:180}}]' <[--event-hub <event hub ID> --event-hub-rule <event hub auth rule ID> | --storage-account <storage account ID> |--workspace <log analytics workspace ID> | --marketplace-partner-id <full resource ID of third-party solution>]>]
         Remediate From Powershell 
             Create the log settings object 
                 $logSettings = @() 
@@ -64,7 +64,7 @@ control 'azure-foundations-cis-6.4' do
                 $metricSettings = @() 
                 $metricSettings += New-AzDiagnosticSettingMetricSettingsObject -Enabled $true -RetentionPolicyDay 180 -RetentionPolicyEnabled $true -Category AllMetrics
             Create the diagnostic setting for a specific resource 
-                New-AzDiagnosticSetting -Name "<diagnostic settings name>" -ResourceId <resource ID> -Log $logSettings -Metric $metricSettings)
+                New-AzDiagnosticSetting -Name '<diagnostic settings name>' -ResourceId <resource ID> -Log $logSettings -Metric $metricSettings)'"
 
     impact 0.5
     tag nist: ['AU-3', 'AU-3(1)', 'AU-7', 'AU-12', 'AU-6(3)']
@@ -83,7 +83,22 @@ control 'azure-foundations-cis-6.4' do
     ref 'https://docs.microsoft.com/en-us/azure/azure-monitor/platform/diagnostic-logs-schema'
     ref 'https://docs.microsoft.com/en-us/azure/cdn/cdn-azure-diagnostic-logs'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+    subscription_id = input('subscription_id')
+
+    describe "Diagnostic Settings across all resources in Subscription #{subscription_id}" do
+        script = <<-EOH
+            Set-AzContext -Subscription #{subscription_id} | Out-Null
+            $resources = Get-AzResource
+            foreach ($resource in $resources) {
+            $diagnosticSetting = Get-AzDiagnosticSetting -ResourceId $resource.id -ErrorAction SilentlyContinue
+            if ([string]::IsNullOrEmpty($diagnosticSetting)) {
+                Write-Output "Diagnostic Settings not configured for resource: $($resource.Name)"
+            }
+            }
+        EOH
+
+        describe powershell(script) do
+            its('stdout') { should_not match /Diagnostic Settings not configured for resource:/ }
+        end
     end
 end

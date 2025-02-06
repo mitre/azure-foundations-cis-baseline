@@ -9,7 +9,7 @@ control 'azure-foundations-cis-6.1.3' do
         'NOTE: You must have your key vault setup to utilize this. All Audit Logs will be encrypted with a key you provide. You will need to set up customer managed keys separately, and you will select which key to use via the instructions here. You will be responsible for the lifecycle of the keys, and will need to manually replace them at your own determined intervals to keep the data secure.'
 
     desc 'check',
-       %(Audit from Azure Portal
+       "%(Audit from Azure Portal
             1. Go to Monitor.
             2. Select Activity log.
             3. Select Export Activity Logs.
@@ -23,14 +23,14 @@ control 'azure-foundations-cis-6.1.3' do
             1. Get storage account id configured with log profile: 
                 az monitor diagnostic-settings subscription list --subscription <subscription id> --query 'value[*].storageAccountId'
             2. Ensure the storage account is encrypted with CMK: 
-                az storage account list --query "[?name=='<Storage Account Name>']"
+                az storage account list --query '[?name=='<Storage Account Name>']'
             In command output ensure keySource is set to Microsoft.Keyvault and keyVaultProperties is not set to null
         Audit from PowerShell 
             Get-AzStorageAccount -ResourceGroupName <resource group name> -Name <storage account name>|select-object -ExpandProperty encryption|format-list
             Ensure the value of KeyVaultProperties is not null or empty, and ensure KeySource is not set to Microsoft.Storage.
         Audit from Azure Policy 
             If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the associated Policy definition in Azure. If referencing a printed copy, you can search Policy IDs from this URL: https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
-                • Policy ID: fbb99e8e-e444-4da0-9ff1-75c92f5a85b2 - Name: 'Storage account containing the container with activity logs must be encrypted with BYOK')
+                • Policy ID: fbb99e8e-e444-4da0-9ff1-75c92f5a85b2 - Name: 'Storage account containing the container with activity logs must be encrypted with BYOK')"
 
     desc 'fix',
        "Remediate from Azure Portal

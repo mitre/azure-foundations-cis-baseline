@@ -18,16 +18,16 @@ control 'azure-foundations-cis-6.5' do
         All resources should be either tagged or in separate Management Groups/Subscriptions"
 
     desc 'check',
-       %(This needs to be audited by Azure Policy (one for each resource type) and denied for each artifact that is production.
+       "%(This needs to be audited by Azure Policy (one for each resource type) and denied for each artifact that is production.
        Audit from Azure Portal
             1. Open Azure Resource Graph Explorer
             2. Click New query
             3. Paste the following into the query window: Resources | where sku contains 'Basic' or sku contains 'consumption' | order by type
             4. Click Run query then evaluate the results in the results window.
         Audit from Azure CLI 
-            az graph query -q "Resources | sku contains 'Basic' or sku contains 'consumption' | order by type"
+            az graph query -q 'Resources | sku contains 'Basic' or sku contains 'consumption' | order by type'
         Audit From Powershell 
-            Get-AzResource | ?{ $_.Sku -EQ "Basic"})
+            Get-AzResource | ?{ $_.Sku -EQ 'Basic'})"
 
     desc 'fix',
        "Each artifact has its own process for upgrading from basic to standard SKU's and this should be followed if required."
@@ -40,7 +40,11 @@ control 'azure-foundations-cis-6.5' do
     ref 'https://azure.microsoft.com/en-us/support/plans'
     ref 'https://azure.microsoft.com/en-us/support/plans/response/'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+    script = <<-EOH
+        Get-AzResource | Where-Object { $_.Sku -eq 'Basic' }
+    EOH
+
+    describe powershell(script) do
+        its('stdout.strip') { should eq '' }
     end
 end

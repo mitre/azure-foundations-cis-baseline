@@ -9,7 +9,7 @@ control 'azure-foundations-cis-6.2.9' do
         'There will be a substantial increase in log size if there are a large number of administrative actions on a server.'
 
     desc 'check',
-       %(Audit from Azure Portal
+       "%(Audit from Azure Portal
             1. Navigate to the Monitor blade.
             2. Click on Alerts.
             3. In the Alerts window, click on Alert rules.
@@ -18,13 +18,13 @@ control 'azure-foundations-cis-6.2.9' do
             6. Ensure the Condition panel displays the text Whenever the Activity Log has an event with Category='Administrative', Operation name='Create or Update Public Ip Address' and does not filter on Level, Status or Caller.
             7. Ensure the Actions panel displays an Action group is assigned to notify the appropriate personnel in your organization.
         Audit from Azure CLI 
-            az monitor activity-log alert list --subscription <subscription Id> --query "[].{Name:name,Enabled:enabled,Condition:condition.allOf,Actions:actions}"
-            Look for Microsoft.Network/publicIPAddresses/write in the output 
+            az monitor activity-log alert list --subscription <subscription Id> --query '[].{Name:name,Enabled:enabled,Condition:condition.allOf,Actions:actions}'
         Audit From Powershell 
-            Get-AzActivityLogAlert -SubscriptionId <subscription ID>|where-object {$_.ConditionAllOf.Equal -match "Microsoft.Network/publicIPAddresses/write"}|select-object Location,Name,Enabled,ResourceGroupName,ConditionAllOf
+            Look for Microsoft.Network/publicIPAddresses/write in the output 
+            Get-AzActivityLogAlert -SubscriptionId <subscription ID>|where-object {$_.ConditionAllOf.Equal -match 'Microsoft.Network/publicIPAddresses/write'}|select-object Location,Name,Enabled,ResourceGroupName,ConditionAllOf
         Audit from Azure Policy 
             If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the associated Policy definition in Azure. If referencing a printed copy, you can search Policy IDs from this URL: https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
-                • Policy ID: 1513498c-3091-461a-b321-e9b433218d28 - Name: 'Enable logging by category group for Public IP addresses (microsoft.network/publicipaddresses) to Log Analytics')
+                • Policy ID: 1513498c-3091-461a-b321-e9b433218d28 - Name: 'Enable logging by category group for Public IP addresses (microsoft.network/publicipaddresses) to Log Analytics')"
 
     desc 'fix',
        'Remediate from Azure Portal

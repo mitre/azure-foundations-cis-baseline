@@ -6,9 +6,9 @@ control 'azure-foundations-cis-5.4.3' do
         "Entra ID client authentication is considerably more secure than token-based authentication because the tokens must be persistent at the client. Entra ID does not require this."
 
     desc 'check',
-       %(Audit from PowerShell 
-            $cosmosdbname = "<your-cosmos-db-account-name>" 
-            $resourcegroup = "<your-resource-group-name>" 
+       "%(Audit from PowerShell 
+            $cosmosdbname = '<your-cosmos-db-account-name>' 
+            $resourcegroup = '<your-resource-group-name>' 
             az cosmosdb show --name $cosmosdbname --resource-group $resourcegroup | ConvertFrom-Json
             In the resulting output, disableLocalAuth should be true 
         Audit from Azure Policy 
@@ -21,9 +21,9 @@ control 'azure-foundations-cis-5.4.3' do
             • For non-Azure resources, create an Entra ID identity. Grant each Entra ID identity the minimum permission it requires. When possible, we recommend you
               use one of the 2 built-in role definitions: Cosmos DB Built-in Data Reader or Cosmos DB Built-in Data Contributor. Validate that the new resource is functioning correctly. After new permissions are granted to identities, it may take a few hours until they propagate. When all resources are working correctly with the new identities, continue to the next step.
         Remediate from PowerShell 
-            $cosmosdbname = "<your-cosmos-db-account-name>" 
-            $resourcegroup = "<your-resource-group-name>" 
-            az cosmosdb show --name $cosmosdbname --resource-group $resourcegroup | ConvertFrom-Json az resource update --ids $cosmosdb.id --set properties.disableLocalAuth=true --latest-include-preview'
+            $cosmosdbname = '<your-cosmos-db-account-name>' 
+            $resourcegroup = '<your-resource-group-name>' 
+            az cosmosdb show --name $cosmosdbname --resource-group $resourcegroup | ConvertFrom-Json az resource update --ids $cosmosdb.id --set properties.disableLocalAuth=true --latest-include-preview'"
 
     impact 0.5
     tag nist: ['AC-2(1)', 'AC-3']

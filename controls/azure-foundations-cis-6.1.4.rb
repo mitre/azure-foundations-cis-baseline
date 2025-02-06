@@ -6,20 +6,20 @@ control 'azure-foundations-cis-6.1.4' do
         "Monitoring how and when key vaults are accessed, and by whom, enables an audit trail of interactions with confidential information, keys, and certificates managed by Azure Key Vault. Enabling logging for Key Vault saves information in a user provided destination of either an Azure storage account or Log Analytics workspace. The same destination can be used for collecting logs for multiple Key Vaults."
 
     desc 'check',
-       %(Audit from Azure CLI 
+       "%(Audit from Azure CLI 
             List all key vaults 
                 az keyvault list
             For each keyvault id 
                 az monitor diagnostic-settings list --resource <id>
             Ensure that storageAccountId reflects your desired destination and that categoryGroup and enabled are set as follows in the sample outputs below. 
-                "logs": [ 
+                'logs': [ 
                 { 
-                    "categoryGroup": "audit", 
-                    "enabled": true, 
+                    'categoryGroup': 'audit', 
+                    'enabled': true, 
                 }, 
                 { 
-                    "categoryGroup": "allLogs", 
-                    "enabled": true, 
+                    'categoryGroup': 'allLogs', 
+                    'enabled': true, 
                 }
         Audit from PowerShell 
             List the key vault(s) in the subscription 
@@ -29,7 +29,7 @@ control 'azure-foundations-cis-6.1.4' do
             Ensure that StorageAccountId, ServiceBusRuleId, MarketplacePartnerId, or WorkspaceId is set as appropriate. Also, ensure that enabled is set to true, and that categoryGroup reflects both audit and allLogs category groups.
         Audit from Azure Policy 
             If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the associated Policy definition in Azure. If referencing a printed copy, you can search Policy IDs from this URL: https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
-                • Policy ID: cf820ca0-f99e-4f3e-84fb-66e913812d21 - Name: 'Resource logs in Key Vault should be enabled')
+                • Policy ID: cf820ca0-f99e-4f3e-84fb-66e913812d21 - Name: 'Resource logs in Key Vault should be enabled')"
 
     desc 'fix',
        'Remediate from Azure Portal
