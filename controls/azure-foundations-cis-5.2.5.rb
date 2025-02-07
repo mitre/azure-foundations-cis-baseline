@@ -6,20 +6,20 @@ control 'azure-foundations-cis-5.2.5' do
         "If access from Azure services is enabled, the server's firewall will accept connections from all Azure resources, including resources not in your subscription. This is usually not a desired configuration. Instead, set up firewall rules to allow access from specific network ranges or VNET rules to allow access from specific virtual networks."
 
     desc 'check',
-       %(Audit from Azure Portal
+       "%(Audit from Azure Portal
             1. Login to Azure Portal using https://portal.azure.com.
             2. Go to Azure Database for PostgreSQL flexible servers.
             3. For each database, under Settings, click Networking.
             4. Under Firewall rules, ensure Allow public access from any Azure service within Azure to this server is not checked.
         Audit from Azure CLI 
-            Ensure the below command does not return a rule with a name beginning AllowAllAzureServicesAndResourcesWithinAzureIps or with "startIpAddress": "0.0.0.0" or "endIpAddress": "0.0.0.0": 
+            Ensure the below command does not return a rule with a name beginning AllowAllAzureServicesAndResourcesWithinAzureIps or with 'startIpAddress': '0.0.0.0' or 'endIpAddress': '0.0.0.0': 
                 az postgres flexible-server firewall-rule list --resource-group <resourceGroup> --name <serverName>
         Audit from PowerShell 
             Ensure the below command does not return a rule with a name beginning AllowAllAzureServicesAndResourcesWithinAzureIps: 
                 Get-AzPostgreSqlFlexibleServerFirewallRule -ResourceGroupName <resourceGroup> -ServerName <serverName>
         Audit from Azure Policy 
             If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the associated Policy definition in Azure. If referencing a printed copy, you can search Policy IDs from this URL: https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
-                • Policy ID: 5e1de0e3-42cb-4ebc-a86d-61d0c619ca48 - Name: 'Public network access should be disabled for PostgreSQL flexible servers')
+                • Policy ID: 5e1de0e3-42cb-4ebc-a86d-61d0c619ca48 - Name: 'Public network access should be disabled for PostgreSQL flexible servers')"
 
     desc 'fix',
        "Remediate from Azure Portal

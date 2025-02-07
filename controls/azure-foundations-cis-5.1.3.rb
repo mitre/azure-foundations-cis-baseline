@@ -13,13 +13,13 @@ control 'azure-foundations-cis-5.1.3' do
         As far as toolsets go, check with your cryptographic key provider, as they may well provide one as an add-on to their service.'
 
     desc 'check',
-       %(Audit from Azure Portal
+       "%(Audit from Azure Portal
             1. Go to SQL servers
             2. For each SQL server, under Security, click Transparent data encryption
             3. Ensure that Customer-managed key is selected
             4. Ensure Make this key the default TDE protector is checked
         Audit from Azure CLI 
-            az account get-access-token --query "{subscripton:subscription,accessToken:accessToken}" --out tsv | xargs -L1 bash -c 'curl -X GET -H "Authorization: Bearer $1" -H "Content-Type: application/json" https://management.azure.com/subscriptions/$0/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/encryptionProtector?api-version=2015-05-01-preview'
+            az account get-access-token --query '{subscripton:subscription,accessToken:accessToken}' --out tsv | xargs -L1 bash -c 'curl -X GET -H 'Authorization: Bearer $1' -H 'Content-Type: application/json' https://management.azure.com/subscriptions/$0/resourceGroups/{resourceGroupName}/providers/Microsoft.Sql/servers/{serverName}/encryptionProtector?api-version=2015-05-01-preview'
             Ensure the output of the command contains properties kind set to azurekeyvault serverKeyType set to AzureKeyVault uri is not null
         Audit from PowerShell 
             Get-AzSqlServerTransparentDataEncryptionProtector -ServerName <ServerName> -ResourceGroupName <ResourceGroupName>
@@ -27,7 +27,7 @@ control 'azure-foundations-cis-5.1.3' do
         Audit from Azure Policy 
             If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the associated Policy definition in Azure. If referencing a printed copy, you can search Policy IDs from this URL: https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
                 • Policy ID: 0a370ff3-6cab-4e85-8995-295fd854c5b8 - Name: 'SQL servers should use customer-managed keys to encrypt data at rest'
-                • Policy ID: ac01ad65-10e5-46df-bdd9-6b0cad13e1d2 - Name: 'SQL managed instances should use customer-managed keys to encrypt data at rest')
+                • Policy ID: ac01ad65-10e5-46df-bdd9-6b0cad13e1d2 - Name: 'SQL managed instances should use customer-managed keys to encrypt data at rest')"
 
     desc 'fix',
        "Remediate from Azure Portal
