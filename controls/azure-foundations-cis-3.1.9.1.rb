@@ -64,10 +64,10 @@ control 'azure-foundations-cis-3.1.9.1' do
         (Get-AzSecurityPricing -Name 'Arm').PricingTier
     EOH
 
-    pwsh_output = powershell(script).stdout.strip
+    pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
     describe "Ensure That Microsoft Defender for Resource Manager" do   
-        subject {pwsh_output}
+        subject { pwsh_output.stdout.strip }
         it "is set to 'On'" do
             expect(subject).to eq('Standard')
         end

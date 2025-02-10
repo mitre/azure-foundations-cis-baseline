@@ -99,7 +99,6 @@ control 'azure-foundations-cis-3.1.1.1' do
 		(Get-AzSecurityAutoProvisioningSetting -Name 'default').AutoProvision
 	EOH
 
-	# pwsh_output = powershell(script).stdout.strip
 	pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
 	describe "Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs'" do

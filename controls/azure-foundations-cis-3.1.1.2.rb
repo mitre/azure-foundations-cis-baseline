@@ -90,7 +90,7 @@ control 'azure-foundations-cis-3.1.1.2' do
 	ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-9-secure-user-access-to--existing-applications'
 
 	script = <<-EOH
-		Set-AzContext -Subscription #{input('subscription_id')} | Out-Null
+	        Set-AzContext -Subscription #{input('subscription_id')} | Out-Null
 		(Get-AzSecuritySetting | Where-Object { $_.name -eq 'MCAS' }).enabled
 	EOH
 
