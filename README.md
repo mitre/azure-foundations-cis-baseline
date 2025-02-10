@@ -29,7 +29,6 @@ Table of Contents
   - [Tailoring to Your Environment](#tailoring-to-your-environment)
   - [Testing the Profile Controls](#testing-the-profile-controls)
 - [Running the Profile](#running-the-profile)
-  - [Directly from Github](#directly-from-github)
   - [Different Run Options](#different-run-options)
 - [Using Heimdall for Viewing Test Results](#using-heimdall-for-viewing-test-results)
 - [Check Overview](#check-overview)
