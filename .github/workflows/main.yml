@@ -26,6 +26,12 @@ jobs:
       - name: Install Packages
         run: sudo apt-get install -y jq curl
 
+      - name: Install Az Module
+        run: |
+          Install-Module -Name Az -AllowClobber -Scope CurrentUser -Force
+          Import-Module Az
+        shell: pwsh
+
       - name: Check-out Repository
         uses: actions/checkout@v4
 
