@@ -83,7 +83,7 @@ jobs:
                   "credentials": {
                     "pwsh": {
                       "pwsh-options": {
-                        "pwsh_path": "'"${{secrets.SAF_AZURE_PWSH_PATH}}"'"
+                        "pwsh_path": "/usr/bin/pwsh"
                       }
                     }
                   }
