@@ -71,19 +71,63 @@ control 'azure-foundations-cis-4.6' do
     ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/assign-azure-role-data-access'
     ref 'https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal'
 
-    rg_sa_list = input('resource_groups_and_storage_accounts')
+    # rg_sa_list = input('resource_groups_and_storage_accounts')
 
-    rg_sa_list.each do |pair|
-        resource_group, storage_account = pair.split('.')
+    # rg_sa_list.each do |pair|
+    #     resource_group, storage_account = pair.split('.')
 
-        describe "Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-            script = <<-EOH
-                (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").PublicNetworkAccess
-            EOH
+    #     describe "Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+    #         script = <<-EOH
+    #             (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").PublicNetworkAccess
+    #         EOH
 
-            describe powershell(script) do
-                its('stdout.strip') { should cmp 'Disabled' }
-            end
-        end
-    end
+    #         describe powershell(script) do
+    #             its('stdout.strip') { should cmp 'Disabled' }
+    #         end
+    #     end
+    # end
+
+	rg_sa_list = input('resource_groups_and_storage_accounts')
+
+	script = <<-EOH
+		$rg_sa_list = ConvertFrom-Json '#{rg_sa_list.to_json}'
+
+		$nonCompliantResources = @()
+
+		foreach ($pair in $rg_sa_list) {
+			$parts = $pair -split '\\.'
+			if ($parts.Length -eq 2) {
+				$resourceGroup = $parts[0]
+				$storageAccount = $parts[1]
+				try {
+					$sa = Get-AzStorageAccount -ResourceGroupName $resourceGroup -Name $storageAccount -ErrorAction Stop
+					if ($sa.PublicNetworkAccess -ne 'Disabled') {
+					$nonCompliantResources += "$resourceGroup.$storageAccount"
+					}
+				}
+				catch {
+					$nonCompliantResources += "$resourceGroup.$storageAccount (Error retrieving account)"
+				}
+				}
+				else {
+				$nonCompliantResources += "Invalid input: $pair"
+				}
+			}
+
+			if ($nonCompliantResources.Count -eq 0) {
+				""
+			}
+			else {
+				$nonCompliantResources -join ","
+			}
+		EOH
+
+	pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+
+	describe "Storage Accounts with non-disabled Public Network Access" do
+		subject { pwsh_output.stdout.strip.split(',').map(&:strip).reject { |x| x.empty? } }
+			it "should be empty (i.e. all storage accounts have PublicNetworkAccess set to Disabled)" do
+				expect(subject).to be_empty
+		end
+	end
 end

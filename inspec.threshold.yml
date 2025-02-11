@@ -1,0 +1,10 @@
+compliance:
+  min: 95
+failed:
+  critical:
+    max: 0
+  high:
+    max: 0
+error:
+  total:
+    max: 0
