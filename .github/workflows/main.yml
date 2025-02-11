@@ -43,7 +43,10 @@ jobs:
 
       - name: Move Input file
         shell: bash
-        run: echo "${{ env.INSPEC_INPUTS }}" > inputs.yml
+        run: |
+          printf "%s" "${{ env.INSPEC_INPUTS }}" > inputs.yml
+          pwd
+          ls
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
