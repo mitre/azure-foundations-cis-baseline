@@ -10,7 +10,7 @@ on:
 
 jobs:
   my-job:
-    name: Validate the CIS Azure Foundations v3.0.0
+    name: Validate the CIS Azure Foundations v3.0.0 Profile
 
     runs-on: ubuntu-latest
 
