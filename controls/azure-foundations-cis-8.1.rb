@@ -60,7 +60,12 @@ control 'azure-foundations-cis-8.1' do
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.network/get-azbastion?view=azps-9.2.0'
   ref 'https://learn.microsoft.com/en-us/cli/azure/network/bastion?view=azure-cli-latest'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  subscription_id = input('subscription_id')
+  bastion_list = command("az network bastion list --subscription #{subscription_id}").stdout.strip
+  describe 'Ensure the bastions for resource groups' do
+    subject { bastion_list }
+    it 'are not empty' do
+      expect(subject).not_to be_empty
+    end
   end
 end
