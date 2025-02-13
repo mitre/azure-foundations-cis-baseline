@@ -31,13 +31,11 @@ control 'azure-foundations-cis-7.7' do
   relevant_public_ips = input('relevant_public_ip_addresses')
   azure_cli_ip_list = command('az network public-ip list --query "[].name" -o tsv').stdout.split("\n").reject(&:empty?)
 
-  puts('HERE')
-  puts(azure_cli_ip_list)
   describe 'Ensure all public IPs present' do
-    subject { azure_cli_ip_list - relevant_public_ips }
+    subject { azure_cli_ip_list.sort }
     it 'are relevant' do
-      failure_message = "The following IPs are not relevant: #{subject.join(',')}"
-      expect(subject).to be_empty, failure_message
+      failure_message = "The IP lists do not match. Expected: #{relevant_public_ips.sort}, Got: #{subject}"
+      expect(subject).to eq(relevant_public_ips.sort), failure_message
     end
   end
 end
