@@ -102,7 +102,7 @@ control 'azure-foundations-cis-4.3' do
                 $result | ConvertTo-Json -Compress
             EOH
 
-            account_info = json({command: "pwsh -NoProfile -NonInteractive -Command '#{script}'"})
+            account_info = json(command: "pwsh -NoProfile -NonInteractive -Command '#{script}'")
 
             describe "Key Expiration Reminder" do
                 it "should be set to 90 days" do

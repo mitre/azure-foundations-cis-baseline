@@ -69,7 +69,24 @@ control 'azure-foundations-cis-4.14' do
     ref 'https://docs.microsoft.com/en-us/cli/azure/storage/logging?view=azure-cli-latest'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+    rg_sa_list = input('resource_groups_and_storage_accounts')
+    
+    rg_sa_list.each do |pair|
+        resource_group, storage_account = pair.split('.')
+
+        output = json(command:"az storage logging show --services t --account-name #{storage_account}").params
+
+        describe 'Storage Queue Logging Settings' do
+            subject { output['table'] }
+            it 'has delete logging enabled' do
+                expect(subject['delete']).to cmp true
+            end
+            it 'has read logging enabled' do
+                expect(subject['read']).to cmp true
+            end
+            it 'has write logging enabled' do
+                expect(subject['write']).to cmp true
+            end
+        end
     end
 end
