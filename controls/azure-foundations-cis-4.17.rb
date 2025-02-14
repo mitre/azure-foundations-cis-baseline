@@ -62,7 +62,17 @@ control 'azure-foundations-cis-4.17' do
     ref 'https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-prevent?source=recommendations&tabs=portal'
     ref 'https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-prevent-classic?tabs=portal'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+    rg_sa_list = input('resource_groups_and_storage_accounts')
+
+    rg_sa_list.each do |pair|
+        resource_group, storage_account = pair.split('.')
+
+        allow_blob_public_access = json(command: "az storage account show --name #{storage_account} --query allowBlobPublicAccess").params
+
+        describe "Storage Account: #{storage_account} (Resource Group: #{resource_group})" do
+            it 'should have allowBlobPublicAccess set to false' do
+                expect(allow_blob_public_access).to cmp false
+            end
+        end
     end
 end

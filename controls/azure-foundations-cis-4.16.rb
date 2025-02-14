@@ -54,7 +54,16 @@ control 'azure-foundations-cis-4.16' do
 
     ref 'https://learn.microsoft.com/en-us/azure/storage/blobs/object-replication-prevent-cross-tenant-policies?tabs=portal'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+    storage_accounts = json(command:"az storage account list --query \"[*].[name,allowCrossTenantReplication]\" --output json").params
+
+    storage_accounts.each do |account|
+        account_name = account[0]
+        allow_replication = account[1]
+
+        describe "Storage Account: #{account_name}" do
+            it 'should have allowCrossTenantReplication set to false' do
+                expect(allow_replication).to cmp false
+            end
+        end
     end
 end

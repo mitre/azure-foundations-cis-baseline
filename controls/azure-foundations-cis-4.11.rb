@@ -65,7 +65,21 @@ control 'azure-foundations-cis-4.11' do
     ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-service-encryption#azure-storage-encryption-versus-disk-encryption'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-5-use-customer-managed-key-option-in-data-at-rest-encryption-when-required'
 
-    describe 'benchmark' do
-        skip 'configure'
+    subscription_id = input('subscription_id')
+    rg_sa_list = input('resource_groups_and_storage_accounts')
+
+    rg_sa_list.each do |pair|
+        resource_group, storage_account = pair.split('.')
+
+        describe "Encryption configuration for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+            script = <<-EOH
+                Set-AzContext -Subscription #{subscription_id} | Out-Null
+                (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").Encryption.KeySource
+            EOH
+
+            describe powershell(script) do
+                its('stdout.strip') { should cmp 'Microsoft.Keyvault' }
+            end
+        end
     end
 end
