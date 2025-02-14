@@ -5,3 +5,5 @@ resource_groups_and_storage_accounts:
 relevant_public_ip_addresses: #control 7.7
   - "1"
   - "2"
+resource_group_and_disk_name:
+  - "group1.disk1"
