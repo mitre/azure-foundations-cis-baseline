@@ -68,15 +68,14 @@ control 'azure-foundations-cis-8.3' do
   ensure_disks_encrypted_cmk_script = %(
     $rg_disk_groups = @(#{rg_pattern})
     foreach ($rg in $rg_disk_groups) {
-
+    $rg = $rg.Trim("'")
     # Split the resource group and disk name
-    $names = $rg.ResourceGroupName -split '\.'
+    $names = $rg.Split('\.')
     $resourceGroupName = $names[0]
     $diskName = $names[1]
 
     # Retrieve the disk using the split names
     $disk = Get-AzDisk -ResourceGroupName $resourceGroupName -DiskName $diskName
-
     # Check the encryption type
     if ($disk.Encryption.Type -ne "EncryptionAtRestWithPlatformKey" -and $disk.Encryption.Type -ne "EncryptionAtRestWithCustomerKey") {
         Write-Output "Resource Group: $resourceGroupName, Disk Name: $diskName, Encryption Type: $($disk.Encryption.Type)"
