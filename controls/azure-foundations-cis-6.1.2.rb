@@ -57,7 +57,24 @@ control 'azure-foundations-cis-6.1.2' do
     ref 'https://learn.microsoft.com/en-us/cli/azure/monitor/diagnostic-settings?view=azure-cli-latest'
     ref 'https://learn.microsoft.com/en-us/powershell/module/az.monitor/new-azsubscriptiondiagnosticsetting?view=azps-9.2.0'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+
+    subscription_id = input('subscription_id')
+
+    required_categories = ['Administrative', 'Alert', 'Policy', 'Security']
+
+    diag_settings = json(command: "az monitor diagnostic-settings subscription list --subscription #{subscription_id}").params['value']
+
+    diag_settings.each do |diag_setting|
+        diag_setting_name = diag_setting['name']
+
+        required_categories.each do |category|
+            log_entry = diag_setting['logs'].find { |log| log['category'] == category }
+
+            describe "Subscription diagnostic setting '#{diag_setting_name}' for log category '#{category}'" do
+                it 'is enabled' do
+                    expect(log_entry['enabled']).to cmp true
+                end
+            end
+        end
     end
 end
