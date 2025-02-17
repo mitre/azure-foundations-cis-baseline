@@ -1,56 +1,102 @@
 control 'azure-foundations-cis-8.7' do
-    title 'Ensure that Only Approved Extensions Are Installed'
-    desc "For added security, only install organization-approved extensions on VMs."
+  title 'Ensure that Only Approved Extensions Are Installed'
+  desc 'For added security, only install organization-approved extensions on VMs.'
 
-    desc 'rationale',
-        "Azure virtual machine extensions are small applications that provide post-deployment configuration and automation tasks on Azure virtual machines. These extensions run with administrative privileges and could potentially access anything on a virtual machine. The Azure Portal and community provide several such extensions. Each organization should carefully evaluate these extensions and ensure that only those that are approved for use are actually implemented."
+  desc 'rationale',
+       'Azure virtual machine extensions are small applications that provide post-deployment configuration and automation tasks on Azure virtual machines. These extensions run with administrative privileges and could potentially access anything on a virtual machine. The Azure Portal and community provide several such extensions. Each organization should carefully evaluate these extensions and ensure that only those that are approved for use are actually implemented.'
 
-    desc 'impact',
-        'Functionality by unsupported extensions will be disabled.'
+  desc 'impact',
+       'Functionality by unsupported extensions will be disabled.'
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
             1. Go to Virtual machines.
             2. For each virtual machine, click on the server name to select it go to
             3. In the new column menu, under Settings Click on Extensions + applications.
             4. Ensure that all the listed extensions are approved by your organization for use.
-        Audit from Azure CLI 
-            Use the below command to list the extensions attached to a VM, and ensure the listed extensions are approved for use. 
+        Audit from Azure CLI
+            Use the below command to list the extensions attached to a VM, and ensure the listed extensions are approved for use.
                 az vm extension list --vm-name <vmName> --resource-group <sourceGroupName> --query [*].name
-        Audit From Powershell 
-            Get a list of VMs. 
+        Audit From Powershell
+            Get a list of VMs.
                 Get-AzVM
-            For each VM run the following command. 
+            For each VM run the following command.
                 Get-AzVMExtension -ResourceGroupName <VM Resource Group> -VMName <VM Name>
             Review each Name, ExtensionType, and ProvisioningState to make sure no unauthorized extensions are installed on any virtual machines.
-        Audit from Azure Policy 
+        Audit from Azure Policy
             If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the associated Policy definition in Azure. If referencing a printed copy, you can search Policy IDs from this URL: https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
                 • Policy ID: c0e996f8-39cf-4af9-9f45-83fbde810432 - Name: 'Only approved VM extensions should be installed'"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
             1. Go to Virtual machines
             2. For each virtual machine, go to Settings
             3. Click on Extensions + applications
             4. If there are unapproved extensions, uninstall them.
-        Remediate from Azure CLI 
-            From the audit command identify the unapproved extensions, and use the below CLI command to remove an unapproved extension attached to VM. 
+        Remediate from Azure CLI
+            From the audit command identify the unapproved extensions, and use the below CLI command to remove an unapproved extension attached to VM.
                 az vm extension delete --resource-group <resourceGroupName> --vm-name <vmName> --name <extensionName>
-        Remediate From Powershell 
-            For each VM and each insecure extension from the Audit Procedure run the following command. 
+        Remediate From Powershell
+            For each VM and each insecure extension from the Audit Procedure run the following command.
                 Remove-AzVMExtension -ResourceGroupName <ResourceGroupName> -Name <ExtensionName> -VMName <VirtualMachineName>"
 
-    impact 0.5
-    tag nist: ['CM-8', 'CM-7(1)', 'MA-3']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['2.1'] }]
+  impact 0.5
+  tag nist: ['CM-8', 'CM-7(1)', 'MA-3']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['2.1'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/virtual-machines/windows/extensions-features'
-    ref 'https://docs.microsoft.com/en-us/powershell/module/az.compute/?view=azps-7.5.0#vm-extensions'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-asset-management#am-2-use-only-approved-services'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-asset-management#am-5-use-only-approved-applications-in-virtual-machine'
+  ref 'https://docs.microsoft.com/en-us/azure/virtual-machines/windows/extensions-features'
+  ref 'https://docs.microsoft.com/en-us/powershell/module/az.compute/?view=azps-7.5.0#vm-extensions'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-asset-management#am-2-use-only-approved-services'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-asset-management#am-5-use-only-approved-applications-in-virtual-machine'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+  unauthorized_extension_names = input('unauthorized_extension_names')
+  unauthorized_extension_names_pattern = unauthorized_extension_names.map { |extension_name| "'#{extension_name}'" }.join(', ')
+
+  unauthorized_extension_types = input('unauthorized_extension_types')
+  unauthorized_extension_types_pattern = unauthorized_extension_types.map { |extension_type| "'#{extension_type}'" }.join(', ')
+
+  unauthorized_extension_states = input('unauthorized_provision_states')
+  unauthorized_extension_states_pattern = unauthorized_extension_states.map { |provision_state| "'#{provision_state}'" }.join(', ')
+
+  only_approved_extensions_approved_script = %(
+    $disallowedNames = @(#{unauthorized_extension_names_pattern})
+    $disallowedExtensionTypes = @(#{unauthorized_extension_types_pattern})
+    $disallowedProvisioningStates = @(#{unauthorized_extension_states_pattern})
+    $vms = Get-AzVM
+
+    # Iterate over each VM
+    foreach ($vm in $vms) {
+        $vmName = $vm.Name
+        $resourceGroupName = $vm.ResourceGroupName
+
+        # Get all extensions for the current VM
+        $extensions = Get-AzVMExtension -ResourceGroupName $resourceGroupName -VMName $vmName
+
+        # Check if there are any extensions
+        if ($extensions) {
+            foreach ($extension in $extensions) {
+                $extensionName = $extension.Name
+                $extensionType = $extension.ExtensionType
+                $provisioningState = $extension.ProvisioningState
+
+                # Check if the extension matches any disallowed criteria
+                if ($disallowedNames -contains $extensionName -or
+                    $disallowedExtensionTypes -contains $extensionType -or
+                    $disallowedProvisioningStates -contains $provisioningState) {
+
+                    Write-Output "Resource Group: $resourceGroupName, VM Name: $vmName"
+                }
+            }
+        }
+    }
+  )
+  powershell_output = powershell(only_approved_extensions_approved_script)
+  describe 'Ensure the number of resource group/VMs that have non-approved Names, Extention Type, or Provisioning State settings' do
+    subject { powershell_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The following resource groups/VM do not have the the approved settings are: #{powershell_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
     end
+  end
 end
