@@ -46,7 +46,7 @@ control 'azure-foundations-cis-8.10' do
     tag severity: 'medium'
     tag cis_controls: [{ '8' => ['6.5'] }]
 
-    describe 'benchmark' do
+    describe 'Ensure only MFA enabled identities can access privileged Virtual Machine' do
         skip 'The check for this control needs to be done manually'
     end
 end

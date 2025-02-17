@@ -36,7 +36,7 @@ control 'azure-foundations-cis-8.11' do
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch-existing-vm?tabs=portal#enable-trusted-launch-on-existing-vm'
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch#secure-boot'
 
-  describe 'benchmark' do
+  describe 'Ensure Trusted Launch is enabled on Virtual Machines' do
       skip 'The check for this control needs to be done manually'
   end
 end
