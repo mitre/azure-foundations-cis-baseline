@@ -2,7 +2,7 @@
 *.gem
 *.rbc
 *results.json
-inputs.yml
+inputs_template.yml
 
 /.config
 /coverage/
