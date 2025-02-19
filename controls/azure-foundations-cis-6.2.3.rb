@@ -76,7 +76,7 @@ control 'azure-foundations-cis-6.2.3' do
   )
 
   powershell_output = powershell(activity_log_exists_create_update_nsg_script)
-  describe 'Ensure the subscription that the output from checking the activity log alert rule for Creating/Updating a Network Security Group' do
+  describe 'Ensure that the subscriptions output for the activity log alert rule for Creating/Updating a Network Security Group' do
     subject { powershell_output.stdout.strip }
     it 'is not empty' do
       expect(subject).not_to be_empty

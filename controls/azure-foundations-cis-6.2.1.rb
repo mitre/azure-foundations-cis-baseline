@@ -79,7 +79,7 @@ control 'azure-foundations-cis-6.2.1' do
   )
 
   powershell_output = powershell(activity_log_exists_cpa_script)
-  describe 'Ensure the subscription that the output from checking the activity log alert rule for Create Policy Assignments' do
+  describe 'Ensure that the subscriptions output for the activity log alert rule for Create Policy Assignments' do
     subject { powershell_output.stdout.strip }
     it 'is not empty' do
       expect(subject).not_to be_empty
