@@ -90,7 +90,13 @@ jobs:
 
       - name: Run InSpec Profile
         run: |
-          bundle exec inspec exec . --target pwsh://pwsh-options --input-file=inputs.yml --reporter cli json:${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} --enhanced-outcomes --filter-empty-profiles || true
+          bundle exec inspec exec . \
+          --controls=azure-foundations-cis-6.2.1 azure-foundations-cis-6.2.2 \
+          --input client_id=${secrets.AZURE_CLIENT_ID} tenant_id=${secrets.AZURE_TENANT_ID} client_secret=${secrets.AZURE_CLIENT_SECRET} \
+          --input-file=inputs_template.yml \
+          --reporter cli json:${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} \
+          --enhanced-outcomes \
+          --filter-empty-profiles || true
 
       - name: Save Test Results
         uses: actions/upload-artifact@v4
