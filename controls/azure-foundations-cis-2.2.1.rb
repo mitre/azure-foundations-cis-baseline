@@ -87,7 +87,35 @@ control 'azure-foundations-cis-2.2.1' do
     ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/location-condition'
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+    subscription_id = input('subscription_id')
+
+    script = <<-EOH
+        Set-AzContext -Subscription #{subscription_id} | Out-Null
+        Connect-MgGraph -NoWelcome
+        $results = Get-MgIdentityConditionalAccessNamedLocation | ForEach-Object {
+            [PSCustomObject]@{
+                DisplayName = $_.DisplayName;
+                IsTrusted   = $_.AdditionalProperties["isTrusted"]
+            }
+        }
+
+        $trusted = $results | Where-Object { $_.IsTrusted.ToString().ToLower() -eq "true" }
+
+        if ($trusted.Count -gt 0) {
+            Write-Output "At least one trusted location exists"
+        }
+        else {
+            Write-Output "No trusted locations found"
+        }
+    EOH
+
+    # pwsh_output = pwsh_graph_executor(script).run_script_in_graph
+    pwsh_output = powershell(script).stdout.strip
+
+    describe "Azure Conditional Access Named Locations" do
+        subject { pwsh_output}
+            it "should indicate that at least one trusted location exists" do
+                expect(subject).to eq("At least one trusted location exists")
+        end
     end
 end

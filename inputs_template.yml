@@ -1,0 +1,15 @@
+#Required Inputs
+subscription_id: "00000000-0000-0000-0000-000000000000"
+resource_groups_and_storage_accounts: 
+  - "group1.account1"
+relevant_public_ip_addresses: #control 7.7
+  - "1"
+  - "2"
+resource_group_and_disk_name:
+  - "group1.disk1"
+unauthorized_extension_names: #control 8.7
+  - "test"
+unauthorized_extension_types: #control 8.7
+  - "google"
+unauthorized_provision_states: #control 8.7
+  - "test"
