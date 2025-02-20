@@ -69,7 +69,19 @@ control 'azure-foundations-cis-6.2.2' do
   ref 'https://azure.microsoft.com/en-us/services/blueprints/'
 
   subscription_id = input('subscription_id')
+
+  client_id = input('client_id')
+  tenant_id = input('tenant_id')
+  client_secret = input('client_secret')
   activity_log_exists_dpa_script = %(
+        $tenantId = "#{client_id}"
+        $clientId = "#{tenant_id}"
+        $clientSecret = "#{client_secret}"
+
+        $secureClientSecret = ConvertTo-SecureString $clientSecret -AsPlainText -Force
+        $credential = New-Object System.Management.Automation.PSCredential($clientId, $secureClientSecret)
+        Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential
+
         Get-AzActivityLogAlert -SubscriptionId "#{subscription_id}"|
         where-object {$_.ConditionAllOf.Equal -match "Microsoft.Authorization/policyAssignments/delete"}|
         select-object Location,Name,Enabled,ResourceGroupName,ConditionAllOf
