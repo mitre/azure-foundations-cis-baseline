@@ -64,7 +64,7 @@ control 'azure-foundations-cis-4.15' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-3-encrypt-sensitive-data-in-transit'
 
     subscription_id = input('subscription_id')
-    rg_sa_list      = input('resource_groups_and_storage_accounts')
+    rg_sa_list = input('resource_groups_and_storage_accounts')
 
     rg_sa_list.each do |pair|
         resource_group, storage_account = pair.split('.')

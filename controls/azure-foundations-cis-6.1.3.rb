@@ -57,7 +57,31 @@ control 'azure-foundations-cis-6.1.3' do
     ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-5-use-customer-managed-key-option-in-data-at-rest-encryption-when-required'
     ref 'https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log?tabs=cli#managing-legacy-log-profiles'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
+    rg_sa_list = input('resource_groups_and_storage_accounts')
+
+    rg_sa_list.each do |pair|
+        resource_group, storage_account = pair.split('.')
+
+        describe "Encryption settings for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+            storage_accounts = json(command: "az storage account list --resource-group #{resource_group} --query \"[?name=='#{storage_account}']\" -o json").params
+
+            encryption = storage_accounts.first['encryption']
+
+            describe "KeySource for '#{storage_account}'" do
+                it "should be set to 'Microsoft.Keyvault'" do
+                    expect(encryption['keySource']).to cmp 'Microsoft.Keyvault'
+                end
+            end
+
+            describe "KeyVaultProperties for '#{storage_account}'" do
+                it 'should not be null' do
+                    expect(encryption['keyVaultProperties']).not_to be_nil
+            end
+
+            it 'should not be empty' do
+                    expect(encryption['keyVaultProperties'].to_s.strip).not_to eq ''
+                end
+            end
+        end
     end
 end

@@ -103,8 +103,8 @@ control 'azure-foundations-cis-3.1.1.1' do
 
 	describe "Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs'" do
 		subject { pwsh_output.stdout.strip }
-		it "is set to 'On'" do
-			expect(subject).to eq('On')
+               it "is set to 'On'" do
+                    expect(subject).to eq('On')
 		end
 	end
 end

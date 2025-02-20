@@ -1,4 +1,4 @@
-control 'azure-foundations-cis-2.2.1' do
+control 'azure-foundations-cis-3.2.1' do
     title "Ensure That Microsoft Defender for IoT Hub Is Set To 'On'"
     desc "Microsoft Defender for IoT acts as a central security hub for IoT devices within your organization."
 

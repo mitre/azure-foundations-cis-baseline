@@ -30,6 +30,8 @@ jobs:
         run: |
           Install-Module -Name Az -AllowClobber -Scope CurrentUser -Force
           Import-Module Az
+          Install-Module -Name Microsoft.Graph -AllowClobber -Scope CurrentUser -Force
+          Import-Module Microsoft.Graph
         shell: pwsh
 
       - name: Check-out Repository
