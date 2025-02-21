@@ -1,20 +1,20 @@
 control 'azure-foundations-cis-2.2.1' do
-    title 'Ensure Trusted Locations Are Defined'
-    desc "Microsoft Entra ID Conditional Access allows an organization to configure Named
+  title 'Ensure Trusted Locations Are Defined'
+  desc "Microsoft Entra ID Conditional Access allows an organization to configure Named
             locations and configure whether those locations are trusted or untrusted. These
             settings provide organizations the means to specify Geographical locations for use in
             conditional access policies, or define actual IP addresses and IP ranges and whether or
             not those IP addresses and/or ranges are trusted by the organization."
 
-    desc 'rationale',
-        "Defining trusted source IP addresses or ranges helps organizations create and enforce
+  desc 'rationale',
+       "Defining trusted source IP addresses or ranges helps organizations create and enforce
             Conditional Access policies around those trusted or untrusted IP addresses and ranges.
             Users authenticating from trusted IP addresses and/or ranges may have less access
             restrictions or access requirements when compared to users that try to authenticate to
             Microsoft Entra ID from untrusted locations or untrusted source IP addresses/ranges."
 
-    desc 'impact',
-        "When configuring Named locations, the organization can create locations using
+  desc 'impact',
+       "When configuring Named locations, the organization can create locations using
             Geographical location data or by defining source IP addresses or ranges. Configuring
             Named locations using a Country location does not provide the organization the ability
             to mark those locations as trusted, and any Conditional Access policy relying on those
@@ -36,8 +36,8 @@ control 'azure-foundations-cis-2.2.1' do
             fulfill this MFA requirement. If opting for a physical device, that device should be kept in
             a very secure, documented physical location."
 
-    desc 'check',
-        "From Azure Portal
+  desc 'check',
+       "From Azure Portal
             1. In the Azure Portal, navigate to Microsoft Entra ID Conditional Access
             2. Click on Manage
             3. Click on Named Locations
@@ -50,8 +50,8 @@ control 'azure-foundations-cis-2.2.1' do
             IsTrusted parameter with an empty value, a NULL value, or a value of False, the results
             are out of compliance with this check."
 
-    desc 'fix',
-        "Remediate from Azure Portal
+  desc 'fix',
+       "Remediate from Azure Portal
             1. In the Azure Portal, navigate to Microsoft Entra ID
             2. Under Manage, click Security
             3. Under Protect, click Conditional Access
@@ -79,20 +79,20 @@ control 'azure-foundations-cis-2.2.1' do
             Update-MgIdentityConditionalAccessNamedLocation -PolicyId '<ID of the
             policy>' -dataType '#microsoft.graph.ipNamedLocation' -IsTrusted $true"
 
-    impact 0.5
-    tag nist: ['AC-2(1)', 'AC-3']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['6.7'] }]
+  impact 0.5
+  tag nist: ['AC-2(1)', 'AC-3']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['6.7'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/location-condition'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
+  ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/location-condition'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
 
-    subscription_id = input('subscription_id')
-    client_id = input('client_id')
-	tenant_id = input('tenant_id')
-	client_secret = input('client_secret')
+  subscription_id = input('subscription_id')
+  client_id = input('client_id')
+  tenant_id = input('tenant_id')
+  client_secret = input('client_secret')
 
-    script = <<-EOH
+  script = <<-EOH
         $tenantId, $clientId, $clientSecret = "#{tenant_id}", "#{client_id}", "#{client_secret}"
 
         $secureSecret = ConvertTo-SecureString $clientSecret -AsPlainText -Force
@@ -116,27 +116,29 @@ control 'azure-foundations-cis-2.2.1' do
         else {
             Write-Output "No trusted locations found"
         }
-    EOH
+  EOH
 
-    pwsh_output = powershell(script).stdout.strip
+  pwsh_output = powershell(script).stdout.strip
 
-    describe 'FIRST Azure Conditional Access Named Locations' do
-        subject { pwsh_output }
-            it 'should indicate that at least one trusted location exists' do
-            expect(subject).to eq('At least one trusted location exists')
-        end
+  describe 'FIRST Azure Conditional Access Named Locations' do
+    subject { pwsh_output }
+    it 'should indicate that at least one trusted location exists' do
+      expect(subject).to eq('At least one trusted location exists')
     end
+  end
 
-    script_2 = <<-EOH
+  script_2 = <<-EOH
         $tenantId, $clientId, $clientSecret = "#{tenant_id}", "#{client_id}", "#{client_secret}"
-        Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential
+
+        #THIS SHOULD WORK - lmk if you get the same error that im getting, which is a good sign.
+        $secureSecret = ConvertTo-SecureString $clientSecret -AsPlainText -Force
+        $credential = New-Object System.Management.Automation.PSCredential($clientId, $secureSecret)
+        Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential > $null 2>&1
 
         #THIS WORKS
         # Connect-MgGraph -NoWelcome
 
-        #THIS SHOULD WORK
-        $secureSecret = ConvertTo-SecureString $clientSecret -AsPlainText -Force
-        $credential = New-Object System.Management.Automation.PSCredential($clientId, $secureSecret)
+
         Connect-MgGraph -TenantId $tenantId -ClientSecret $credential -NoWelcome
 
         $results = Get-MgIdentityConditionalAccessNamedLocation | ForEach-Object {
@@ -154,14 +156,14 @@ control 'azure-foundations-cis-2.2.1' do
         else {
             Write-Output "No trusted locations found"
         }
-    EOH
+  EOH
 
-    pwsh_output_2 = powershell(script_2).stdout.strip
+  pwsh_output_2 = powershell(script_2).stdout.strip
 
-    describe "Azure Conditional Access Named Locations" do
-        subject { pwsh_output_2 }
-            it "should indicate that at least one trusted location exists" do
-                expect(subject).to eq("At least one trusted location exists")
-        end
+  describe 'Azure Conditional Access Named Locations' do
+    subject { pwsh_output_2 }
+    it 'should indicate that at least one trusted location exists' do
+      expect(subject).to eq('At least one trusted location exists')
     end
+  end
 end
