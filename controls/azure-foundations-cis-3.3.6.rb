@@ -1,26 +1,26 @@
 control 'azure-foundations-cis-3.3.6' do
-    title "Enable Role Based Access Control for Azure Key Vault"
-    desc "The recommended way to access Key Vaults is to use the Azure Role-Based Access
+  title 'Enable Role Based Access Control for Azure Key Vault'
+  desc "The recommended way to access Key Vaults is to use the Azure Role-Based Access
         Control (RBAC) permissions model.
         Azure RBAC is an authorization system built on Azure Resource Manager that provides
         fine-grained access management of Azure resources. It allows users to manage Key,
         Secret, and Certificate permissions. It provides one place to manage all permissions
         across all key vaults."
 
-    desc 'rationale',
-        "The new RBAC permissions model for Key Vaults enables a much finer grained access
+  desc 'rationale',
+       "The new RBAC permissions model for Key Vaults enables a much finer grained access
         control for key vault secrets, keys, certificates, etc., than the vault access policy. This in
         turn will permit the use of privileged identity management over these roles, thus
         securing the key vaults with JIT Access management."
 
-    desc 'impact',
-        "Implementation needs to be properly designed from the ground up, as this is a
+  desc 'impact',
+       "Implementation needs to be properly designed from the ground up, as this is a
         fundamental change to the way key vaults are accessed/managed. Changing
         permissions to key vaults will result in loss of service as permissions are re-applied. For
         the least amount of downtime, map your current groups and users to their
         corresponding permission needs."
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. From Azure Home open the Portal Menu in the top left corner
         2. Select Key Vaults
@@ -45,7 +45,7 @@ control 'azure-foundations-cis-3.3.6' do
         • Policy ID: 12d4fa5e-1f9f-4c21-97a9-b99b3c6611b5 - Name: 'Azure Key Vault
         should use RBAC permission model'"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         Key Vaults can be configured to use Azure role-based access control on creation.
         For existing Key Vaults:
@@ -70,17 +70,17 @@ control 'azure-foundations-cis-3.3.6' do
         Update-AzKeyVault -ResourceGroupName <resource_group> -VaultName <vault_name>
         -EnableRbacAuthorization $True"
 
-    impact 0.5
-    tag nist: ['AC-3','AC-5','AC-6','MP-2','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['3.3','6.8'] }]
+  impact 0.5
+  tag nist: ['AC-3', 'AC-5', 'AC-6', 'MP-2', 'AC-2', 'AC-5', 'AC-6', 'AC-6(1)', 'AC-6(7)', 'AU-9(4)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['3.3', '6.8'] }]
 
-    ref 'https://docs.microsoft.com/en-gb/azure/key-vault/general/rbac-migration#vault-access-policy-to-azure-rbac-migration-steps'
-    ref 'https://docs.microsoft.com/en-gb/azure/role-based-access-control/role-assignments-portal?tabs=current'
-    ref 'https://docs.microsoft.com/en-gb/azure/role-based-access-control/overview'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
+  ref 'https://docs.microsoft.com/en-gb/azure/key-vault/general/rbac-migration#vault-access-policy-to-azure-rbac-migration-steps'
+  ref 'https://docs.microsoft.com/en-gb/azure/role-based-access-control/role-assignments-portal?tabs=current'
+  ref 'https://docs.microsoft.com/en-gb/azure/role-based-access-control/overview'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

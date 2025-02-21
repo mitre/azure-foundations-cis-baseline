@@ -1,20 +1,20 @@
 control 'azure-foundations-cis-3.3.2' do
-    title "Ensure that the Expiration Date is set for all Keys in Non-RBAC Key Vaults."
-    desc "Ensure that all Keys in Non Role Based Access Control (RBAC) Azure Key Vaults have an expiration date set."
+  title 'Ensure that the Expiration Date is set for all Keys in Non-RBAC Key Vaults.'
+  desc 'Ensure that all Keys in Non Role Based Access Control (RBAC) Azure Key Vaults have an expiration date set.'
 
-    desc 'rationale',
-        "Azure Key Vault enables users to store and use cryptographic keys within the Microsoft
+  desc 'rationale',
+       "Azure Key Vault enables users to store and use cryptographic keys within the Microsoft
         Azure environment. The exp (expiration date) attribute identifies the expiration date on
         or after which the key MUST NOT be used for a cryptographic operation. By default,
         keys never expire. It is thus recommended that keys be rotated in the key vault and set
         an explicit expiration date for all keys. This ensures that the keys cannot be used
         beyond their assigned lifetimes"
 
-    desc 'impact',
-        "Keys cannot be used beyond their assigned expiration dates respectively. Keys need to
+  desc 'impact',
+       "Keys cannot be used beyond their assigned expiration dates respectively. Keys need to
         be rotated periodically wherever they are used."
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. Go to Key vaults.
         2. For each Key vault, click on Keys.
@@ -47,7 +47,7 @@ control 'azure-foundations-cis-3.3.2' do
         • Policy ID: 152b15f7-8e1f-4c1f-ab71-8c010ba5dbc0 - Name: 'Key Vault keys
         should have an expiration date'"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. Go to Key vaults.
         2. For each Key vault, click on Keys.
@@ -67,17 +67,17 @@ control 'azure-foundations-cis-3.3.2' do
         Set-AzKeyVaultKeyAttribute -VaultName <VaultName> -Name <KeyName> -Expires
         <DateTime>"
 
-    impact 0.5
-    tag nist: ['AU-11','CM-12','SI-12','AC-1','AC-2','AC-2(1)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['3.1','6.2'] }]
+  impact 0.5
+  tag nist: ['AU-11', 'CM-12', 'SI-12', 'AC-1', 'AC-2', 'AC-2(1)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['3.1', '6.2'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/key-vault/key-vault-whatis'
-    ref 'https://docs.microsoft.com/en-us/rest/api/keyvault/about-keys--secrets-and-certificates#key-vault-keys'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-6-use-a-secure-key-management-process'
-    ref 'https://docs.microsoft.com/en-us/powershell/module/az.keyvault/set-azkeyvaultkeyattribute?view=azps-0.10.0'
+  ref 'https://docs.microsoft.com/en-us/azure/key-vault/key-vault-whatis'
+  ref 'https://docs.microsoft.com/en-us/rest/api/keyvault/about-keys--secrets-and-certificates#key-vault-keys'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-6-use-a-secure-key-management-process'
+  ref 'https://docs.microsoft.com/en-us/powershell/module/az.keyvault/set-azkeyvaultkeyattribute?view=azps-0.10.0'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

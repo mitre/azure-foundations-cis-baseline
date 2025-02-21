@@ -1,27 +1,27 @@
 control 'azure-foundations-cis-4.17' do
-    title "Ensure that `Allow Blob Anonymous Access` is set to `Disabled`"
-    desc "The Azure Storage setting ‘Allow Blob Anonymous Access’ (aka
+  title 'Ensure that `Allow Blob Anonymous Access` is set to `Disabled`'
+  desc "The Azure Storage setting ‘Allow Blob Anonymous Access’ (aka
         'allowBlobPublicAccess') controls whether anonymous access is allowed for blob data
         in a storage account. When this property is set to True, it enables public read access to
         blob data, which can be convenient for sharing data but may carry security risks. When
         set to False, it disallows public access to blob data, providing a more secure storage
         environment."
 
-    desc 'rationale',
-        "If 'Allow Blob Anonymous Access' is enabled, blobs can be accessed by adding the
+  desc 'rationale',
+       "If 'Allow Blob Anonymous Access' is enabled, blobs can be accessed by adding the
         blob name to the URL to see the contents. An attacker can enumerate a blob using
         methods, such as brute force, and access them.
         Exfiltration of data by brute force enumeration of items from a storage account may
         occur if this setting is set to 'Enabled'."
 
-    desc 'impact',
-        "Additional consideration may be required for exceptional circumstances where elements
+  desc 'impact',
+       "Additional consideration may be required for exceptional circumstances where elements
         of a storage account require public accessibility. In these circumstances, it is highly
         recommended that all data stored in the public facing storage account be reviewed for
         sensitive or potentially compromising data, and that sensitive or compromising data is
         never stored in these storage accounts."
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. Go to Storage Accounts.
         2. For each storage account, under Settings, click Configuration.
@@ -40,7 +40,7 @@ control 'azure-foundations-cis-4.17' do
         • Policy ID: 4fa4b6c0-31ca-4c0d-b10d-24b96f62a751 - Name: '[Preview]: Storage
         account public access should be disallowed'"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. Go to Storage Accounts.
         2. For each storage account, under Settings, click Configuration.
@@ -53,26 +53,26 @@ control 'azure-foundations-cis-4.17' do
         $storageAccount.AllowBlobPublicAccess = $false
         Set-AzStorageAccount -InputObject $storageAccount"
 
-    impact 0.5
-    tag nist: ['AC-3','AC-5','AC-6','MP-2']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['3.3'] }]
+  impact 0.5
+  tag nist: ['AC-3', 'AC-5', 'AC-6', 'MP-2']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['3.3'] }]
 
-    ref 'https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-prevent?tabs=portal'
-    ref 'https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-prevent?source=recommendations&tabs=portal'
-    ref 'https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-prevent-classic?tabs=portal'
+  ref 'https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-prevent?tabs=portal'
+  ref 'https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-prevent?source=recommendations&tabs=portal'
+  ref 'https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-prevent-classic?tabs=portal'
 
-    rg_sa_list = input('resource_groups_and_storage_accounts')
+  rg_sa_list = input('resource_groups_and_storage_accounts')
 
-    rg_sa_list.each do |pair|
-        resource_group, storage_account = pair.split('.')
+  rg_sa_list.each do |pair|
+    resource_group, storage_account = pair.split('.')
 
-        allow_blob_public_access = json(command: "az storage account show --name #{storage_account} --query allowBlobPublicAccess").params
+    allow_blob_public_access = json(command: "az storage account show --name #{storage_account} --query allowBlobPublicAccess").params
 
-        describe "Storage Account: #{storage_account} (Resource Group: #{resource_group})" do
-            it 'should have allowBlobPublicAccess set to false' do
-                expect(allow_blob_public_access).to cmp false
-            end
-        end
+    describe "Storage Account: #{storage_account} (Resource Group: #{resource_group})" do
+      it 'should have allowBlobPublicAccess set to false' do
+        expect(allow_blob_public_access).to cmp false
+      end
     end
+  end
 end

@@ -1,6 +1,6 @@
 control 'azure-foundations-cis-4.8' do
-    title "Ensure 'Allow Azure services on the trusted services list to access this storage account' is Enabled for Storage Account Access"
-    desc "NOTE: This recommendation assumes that the Public network access parameter is
+  title "Ensure 'Allow Azure services on the trusted services list to access this storage account' is Enabled for Storage Account Access"
+  desc "NOTE: This recommendation assumes that the Public network access parameter is
         set to Enabled from selected virtual networks and IP addresses. Please
         ensure the prerequisite recommendation has been implemented before proceeding:
         • Ensure Default Network Access Rule for Storage Accounts is Set to Deny
@@ -15,19 +15,19 @@ control 'azure-foundations-cis-4.8' do
         Azure Networking Services, and Azure Site Recovery (when registered in the
         subscription)."
 
-    desc 'rationale',
-        "Turning on firewall rules for storage account will block access to incoming requests for
+  desc 'rationale',
+       "Turning on firewall rules for storage account will block access to incoming requests for
         data, including from other Azure services. We can re-enable this functionality by
         enabling 'Trusted Azure Services' through networking exceptions."
 
-    desc 'impact',
+  desc 'impact',
        "This creates authentication credentials for services that need access to storage
         resources so that services will no longer need to communicate via network request.
         There may be a temporary loss of communication as you set each Storage Account. It
         is recommended to not do this on mission-critical resources during business hours."
 
-    desc 'check',
-        "Audit from Azure Portal
+  desc 'check',
+       "Audit from Azure Portal
         1. Go to Storage Accounts.
         2. For each storage account, under Security + networking, click Networking.
         3. Click on the Firewalls and virtual networks heading.
@@ -52,7 +52,7 @@ control 'azure-foundations-cis-4.8' do
         • Policy ID: c9d007d0-c057-4772-b18c-01e546713bcd - Name: 'Storage accounts
         should allow access from trusted Microsoft services"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. Go to Storage Accounts.
         2. For each storage account, under Security + networking, click Networking.
@@ -65,29 +65,29 @@ control 'azure-foundations-cis-4.8' do
         az storage account update --name <StorageAccountName> --resource-group
         <resourceGroupName> --bypass AzureServices"
 
-    impact 0.5
-    tag nist: ['AC-3','AC-5','AC-6','MP-2','AC-17','AC-17(1)','SI-4']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['3.3','13.5'] }]
+  impact 0.5
+  tag nist: ['AC-3', 'AC-5', 'AC-6', 'MP-2', 'AC-17', 'AC-17(1)', 'SI-4']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['3.3', '13.5'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
 
-    subscription_id = input('subscription_id')
-    rg_sa_list = input('resource_groups_and_storage_accounts')
+  subscription_id = input('subscription_id')
+  rg_sa_list = input('resource_groups_and_storage_accounts')
 
-    rg_sa_list.each do |pair|
-        resource_group, storage_account = pair.split('.')
+  rg_sa_list.each do |pair|
+    resource_group, storage_account = pair.split('.')
 
-        describe "Storage Account Network Ruleset Bypass for '#{storage_account}' in Resource Group '#{resource_group}'" do
-            script = <<-EOH
+    describe "Storage Account Network Ruleset Bypass for '#{storage_account}' in Resource Group '#{resource_group}'" do
+      script = <<-EOH
                 Set-AzContext -Subscription #{subscription_id} | Out-Null
                 (Get-AzStorageAccountNetworkRuleset -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").Bypass
-            EOH
+      EOH
 
-            describe powershell(script) do
-                its('stdout.strip') { should cmp 'AzureServices' }
-            end
-        end
+      describe powershell(script) do
+        its('stdout.strip') { should cmp 'AzureServices' }
+      end
     end
+  end
 end

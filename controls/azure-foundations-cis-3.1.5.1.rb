@@ -1,17 +1,17 @@
 control 'azure-foundations-cis-3.1.5.1' do
-    title "Ensure That Microsoft Defender for Storage Is Set To 'On'"
-    desc "Turning on Microsoft Defender for Storage enables threat detection for Storage,
+  title "Ensure That Microsoft Defender for Storage Is Set To 'On'"
+  desc "Turning on Microsoft Defender for Storage enables threat detection for Storage,
         providing threat intelligence, anomaly detection, and behavior analytics in the Microsoft
         Defender for Cloud."
 
-    desc 'rationale',
-        "Enabling Microsoft Defender for Storage allows for greater defense-in-depth, with threat
+  desc 'rationale',
+       "Enabling Microsoft Defender for Storage allows for greater defense-in-depth, with threat
         detection provided by the Microsoft Security Response Center (MSRC)."
 
-    desc 'impact',
-        "Turning on Microsoft Defender for Storage incurs an additional cost per resource."
+  desc 'impact',
+       'Turning on Microsoft Defender for Storage incurs an additional cost per resource.'
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. Go to Microsoft Defender for Cloud.
         2. Select Environment Settings blade.
@@ -33,7 +33,7 @@ control 'azure-foundations-cis-3.1.5.1' do
         • Policy ID: 308fbb08-4ab8-4e67-9b29-592e93fb94fa - Name: 'Microsoft Defender
         for Storage (Classic) should be enabled'"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. Go to Microsoft Defender for Cloud.
         2. Select Environment Settings blade.
@@ -47,27 +47,27 @@ control 'azure-foundations-cis-3.1.5.1' do
         From PowerShell
         Set-AzSecurityPricing -Name 'StorageAccounts' -PricingTier 'Standard'"
 
-    impact 0.5
-    tag nist: ['RA-5']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.5'] }]
+  impact 0.5
+  tag nist: ['RA-5']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['7.5'] }]
 
-    ref "https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities"
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/list'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
-    ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
+  ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/list'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
+  ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
 
-    script = <<-EOH
+  script = <<-EOH
         (Get-AzSecurityPricing -Name 'StorageAccounts').PricingTier
-    EOH
+  EOH
 
-    pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
-    describe "Ensure That Microsoft Defender for Storage" do   
-        subject { pwsh_output.stdout.strip }
-        it "is set to 'On'" do
-            expect(subject).to eq('Standard')
-        end
+  describe 'Ensure That Microsoft Defender for Storage' do
+    subject { pwsh_output.stdout.strip }
+    it "is set to 'On'" do
+      expect(subject).to eq('Standard')
     end
+  end
 end

@@ -1,17 +1,17 @@
 control 'azure-foundations-cis-3.1.13' do
-    title "Ensure 'Additional email addresses' is Configured with a Security Contact Email"
-    desc "Microsoft Defender for Cloud emails the subscription owners whenever a high-severity
+  title "Ensure 'Additional email addresses' is Configured with a Security Contact Email"
+  desc "Microsoft Defender for Cloud emails the subscription owners whenever a high-severity
             alert is triggered for their subscription. You should provide a security contact email
             address as an additional email address."
 
-    desc 'rationale',
-        "Microsoft Defender for Cloud emails the Subscription Owner to notify them about
+  desc 'rationale',
+       "Microsoft Defender for Cloud emails the Subscription Owner to notify them about
         security alerts. Adding your Security Contact's email address to the 'Additional email
         addresses' field ensures that your organization's Security Team is included in these
         alerts. This ensures that the proper people are aware of any potential compromise in
         order to mitigate the risk in a timely fashion."
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. From Azure Home select the Portal Menu.
         2. Select Microsoft Defender for Cloud.
@@ -38,7 +38,7 @@ control 'azure-foundations-cis-3.1.13' do
         • Policy ID: 4f4f78b8-e367-4b10-a341-d9a4ad5cf1c7 - Name: 'Subscriptions
         should have a contact email address for security issues'"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Defender for Cloud
@@ -71,17 +71,17 @@ control 'azure-foundations-cis-3.1.13' do
         }
         }"
 
-    impact 0.5
-    tag nist: ['IR-6','IR-6(3)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['17.2'] }]
+  impact 0.5
+  tag nist: ['IR-6', 'IR-6(3)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['17.2'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-provide-security-contact-details'
-    ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-provide-security-contact-details'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/security-contacts'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
+  ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-provide-security-contact-details'
+  ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-provide-security-contact-details'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/security-contacts'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

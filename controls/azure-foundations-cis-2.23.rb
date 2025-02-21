@@ -1,18 +1,18 @@
 control 'azure-foundations-cis-2.23' do
-    title 'Ensure That No Custom Subscription Administrator Roles Exist'
-    desc "The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access."
+  title 'Ensure That No Custom Subscription Administrator Roles Exist'
+  desc 'The principle of least privilege should be followed and only necessary privileges should be assigned instead of allowing full administrative access.'
 
-    desc 'rationale',
-        "Classic subscription admin roles offer basic access management and include Account
+  desc 'rationale',
+       "Classic subscription admin roles offer basic access management and include Account
         Administrator, Service Administrator, and Co-Administrators. It is recommended the
         least necessary permissions be given initially. Permissions can be added as needed by
         the account holder. This ensures the account holder cannot perform actions which were
         not intended."
 
-    desc 'impact',
-        "Subscriptions will need to be handled by Administrators with permissions."
+  desc 'impact',
+       'Subscriptions will need to be handled by Administrators with permissions.'
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. From Azure Home select the Portal Menu.
         2. Select Subscriptions.
@@ -41,7 +41,7 @@ control 'azure-foundations-cis-2.23' do
         • Policy ID: a451c1ef-c6ca-483d-87ed-f49761e3ffb5 - Name: 'Audit usage of
         custom RBAC roles'"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu.
         2. Select Subscriptions.
@@ -63,19 +63,19 @@ control 'azure-foundations-cis-2.23' do
         Ensure impact is assessed before deleting a custom role granting subscription
         administrator privileges."
 
-    impact 0.5
-    tag nist: ['AC-6(2)','AC-6(5)','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['5.4','6.8'] }]
+  impact 0.5
+  tag nist: ['AC-6(2)', 'AC-6(5)', 'AC-2', 'AC-5', 'AC-6', 'AC-6(1)', 'AC-6(7)', 'AU-9(4)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['5.4', '6.8'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/billing/billing-add-change-azure-subscription-administrator'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-1-separate-and-limit-highly-privilegedadministrative-users'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-7-follow-just-enough-administration-least-privilege-principle'
+  ref 'https://docs.microsoft.com/en-us/azure/billing/billing-add-change-azure-subscription-administrator'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-1-separate-and-limit-highly-privilegedadministrative-users'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-7-follow-just-enough-administration-least-privilege-principle'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

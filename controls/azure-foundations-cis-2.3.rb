@@ -1,16 +1,16 @@
 control 'azure-foundations-cis-2.3' do
-    title "Ensure that 'Restrict non-admin users from creating tenants' is set to 'Yes'"
-    desc "Require administrators or appropriately delegated users to create new tenants."
+  title "Ensure that 'Restrict non-admin users from creating tenants' is set to 'Yes'"
+  desc 'Require administrators or appropriately delegated users to create new tenants.'
 
-    desc 'rationale',
-        "It is recommended to only allow an administrator to create new tenants. This prevent
+  desc 'rationale',
+       "It is recommended to only allow an administrator to create new tenants. This prevent
         users from creating new Microsoft Entra ID or Azure AD B2C tenants and ensures that
         only authorized users are able to do so."
 
-    desc 'impact',
-        "Enforcing this setting will ensure that only authorized users are able to create new tenants."
+  desc 'impact',
+       'Enforcing this setting will ensure that only authorized users are able to create new tenants.'
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
@@ -25,7 +25,7 @@ control 'azure-foundations-cis-2.3' do
         Review the 'DefaultUserRolePermissions' section of the output. Ensure that
         AllowedToCreateTenants is not 'True'."
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
@@ -45,16 +45,16 @@ control 'azure-foundations-cis-2.3' do
         Update-MgPolicyAuthorizationPolicy -AuthorizationPolicyId -BodyParameter
         $params"
 
-    impact 0.5
-    tag nist: ['AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['6.8'] }]
+  impact 0.5
+  tag nist: ['AC-2', 'AC-5', 'AC-6', 'AC-6(1)', 'AC-6(7)', 'AU-9(4)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['6.8'] }]
 
-    ref 'https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions'
-    ref 'https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#tenant-creator'
-    ref 'https://blog.admindroid.com/disable-users-creating-new-azure-ad-tenants-in-microsoft-365/'
+  ref 'https://learn.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions'
+  ref 'https://learn.microsoft.com/en-us/azure/active-directory/roles/permissions-reference#tenant-creator'
+  ref 'https://blog.admindroid.com/disable-users-creating-new-azure-ad-tenants-in-microsoft-365/'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

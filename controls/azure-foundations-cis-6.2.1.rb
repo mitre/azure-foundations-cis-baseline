@@ -1,12 +1,12 @@
 control 'azure-foundations-cis-6.2.1' do
-	title 'Ensure that Activity Log Alert exists for Create Policy Assignment'
-	desc 'Create an activity log alert for the Create Policy Assignment event.'
+  title 'Ensure that Activity Log Alert exists for Create Policy Assignment'
+  desc 'Create an activity log alert for the Create Policy Assignment event.'
 
-	desc 'rationale',
-		'Monitoring for create policy assignment events gives insight into changes done in "Azure policy - assignments" and can reduce the time it takes to detect unsolicited changes.'
+  desc 'rationale',
+       'Monitoring for create policy assignment events gives insight into changes done in "Azure policy - assignments" and can reduce the time it takes to detect unsolicited changes.'
 
-	desc 'check',
-		"%(Audit from Azure Portal
+  desc 'check',
+       "%(Audit from Azure Portal
 				1. Navigate to the Monitor blade.
 				2. Click on Alerts.
 				3. In the Alerts window, click on Alert rules.
@@ -24,8 +24,8 @@ control 'azure-foundations-cis-6.2.1' do
 				If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the associated Policy definition in Azure. If referencing a printed copy, you can search Policy IDs from this URL: https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
 					• Policy ID: c5447c04-a4d7-4ba8-a263-c9ee321a6858 - Name: 'An activity log alert should exist for specific Policy operations')"
 
-	desc 'fix',
-		'Remediate from Azure Portal
+  desc 'fix',
+       'Remediate from Azure Portal
 				1. Navigate to the Monitor blade.
 				2. Select Alerts.
 				3. Select Create.
@@ -58,25 +58,25 @@ control 'azure-foundations-cis-6.2.1' do
 				Create the Activity Log Alert Rule for Microsoft.Authorization/policyAssignments/write
 					New-AzActivityLogAlert -Name "<activity alert rule name>" -ResourceGroupName "<resource group name>" -Condition $conditions -Scope $scope -Location global -Action $actionObject -Subscription <subscription ID> -Enabled $true'
 
-	impact 0.5
-	tag nist: ['AU-3', 'AU-3(1)', 'AU-7', 'AU-12']
-	tag severity: 'medium'
-	tag cis_controls: [{ '8' => ['8.5'] }]
+  impact 0.5
+  tag nist: ['AU-3', 'AU-3(1)', 'AU-7', 'AU-12']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['8.5'] }]
 
-	ref 'https://azure.microsoft.com/en-us/updates/classic-alerting-monitoring-retirement'
-	ref 'https://docs.microsoft.com/en-in/azure/azure-monitor/platform/alerts-activity-log'
-	ref 'https://docs.microsoft.com/en-in/rest/api/monitor/activitylogalerts/createorupdate'
-	ref 'https://docs.microsoft.com/en-in/rest/api/monitor/activitylogalerts/listbysubscriptionid'
-	ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
-	ref 'https://docs.microsoft.com/en-in/rest/api/policy/policy-assignments'
-	ref 'https://docs.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-log'
+  ref 'https://azure.microsoft.com/en-us/updates/classic-alerting-monitoring-retirement'
+  ref 'https://docs.microsoft.com/en-in/azure/azure-monitor/platform/alerts-activity-log'
+  ref 'https://docs.microsoft.com/en-in/rest/api/monitor/activitylogalerts/createorupdate'
+  ref 'https://docs.microsoft.com/en-in/rest/api/monitor/activitylogalerts/listbysubscriptionid'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
+  ref 'https://docs.microsoft.com/en-in/rest/api/policy/policy-assignments'
+  ref 'https://docs.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-log'
 
-	subscription_id = input('subscription_id')
-	client_id = input('client_id')
-	tenant_id = input('tenant_id')
-	client_secret = input('client_secret')
-	
-	activity_log_exists_cpa_script = %(
+  subscription_id = input('subscription_id')
+  client_id = input('client_id')
+  tenant_id = input('tenant_id')
+  client_secret = input('client_secret')
+
+  activity_log_exists_cpa_script = %(
 		$tenantId, $clientId, $clientSecret = "#{tenant_id}", "#{client_id}", "#{client_secret}"
 		$credential = New-Object System.Management.Automation.PSCredential($clientId, (ConvertTo-SecureString $clientSecret -AsPlainText -Force))
 		Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential
@@ -86,12 +86,12 @@ control 'azure-foundations-cis-6.2.1' do
 		Select-Object Location, Name, Enabled, ResourceGroupName, ConditionAllOf
 	)
 
-	pwsh_output = powershell(activity_log_exists_cpa_script)
+  pwsh_output = powershell(activity_log_exists_cpa_script)
 
-	describe 'Ensure that the subscriptions output for the activity log alert rule for Create Policy Assignments' do
-		subject { pwsh_output.stdout.strip }
-			it 'is not empty' do
-			expect(subject).not_to be_empty
-		end
-	end
+  describe 'Ensure that the subscriptions output for the activity log alert rule for Create Policy Assignments' do
+    subject { pwsh_output.stdout.strip }
+    it 'is not empty' do
+      expect(subject).not_to be_empty
+    end
+  end
 end

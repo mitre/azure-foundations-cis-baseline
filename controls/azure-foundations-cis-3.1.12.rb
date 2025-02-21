@@ -1,13 +1,13 @@
 control 'azure-foundations-cis-3.1.12' do
-    title "Ensure That 'All users with the following roles' is set to 'Owner'"
-    desc "Enable security alert emails to subscription owners."
+  title "Ensure That 'All users with the following roles' is set to 'Owner'"
+  desc 'Enable security alert emails to subscription owners.'
 
-    desc 'rationale',
-        "Enabling security alert emails to subscription owners ensures that they receive security
+  desc 'rationale',
+       "Enabling security alert emails to subscription owners ensures that they receive security
         alert emails from Microsoft. This ensures that they are aware of any potential security
         issues and can mitigate the risk in a timely fashion."
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Defender for Cloud
@@ -25,7 +25,7 @@ control 'azure-foundations-cis-3.1.12' do
         curityContacts?api-version=2020-01-01-preview'| jq '.[] |
         select(.name=='default').properties.notificationsByRole'"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Defender for Cloud
@@ -58,17 +58,17 @@ control 'azure-foundations-cis-3.1.12' do
         }
         }"
 
-    impact 0.5
-    tag nist: ['IR-6','IR-6(3)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['17.2'] }]
+  impact 0.5
+  tag nist: ['IR-6', 'IR-6(3)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['17.2'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-provide-security-contact-details'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/securitycontacts/list'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/security-contacts'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
+  ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-provide-security-contact-details'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/securitycontacts/list'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/security-contacts'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

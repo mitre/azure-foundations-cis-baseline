@@ -1,11 +1,11 @@
 control 'azure-foundations-cis-4.7' do
-    title "Ensure Default Network Access Rule for Storage Accounts is Set to Deny"
-    desc "Restricting default network access helps to provide a new layer of security, since
+  title 'Ensure Default Network Access Rule for Storage Accounts is Set to Deny'
+  desc "Restricting default network access helps to provide a new layer of security, since
         storage accounts accept connections from clients on any network. To limit access to
         selected networks, the default action must be changed."
 
-    desc 'rationale',
-        "Storage accounts should be configured to deny access to traffic from all networks
+  desc 'rationale',
+       "Storage accounts should be configured to deny access to traffic from all networks
         (including internet traffic). Access can be granted to traffic from specific Azure Virtual
         networks, allowing a secure network boundary for specific applications to be built.
         Access can also be granted to public internet IP address ranges to enable connections
@@ -14,12 +14,12 @@ control 'azure-foundations-cis-4.7' do
         allowed network, applications continue to require proper authorization (a valid access
         key or SAS token) to access the storage account."
 
-    desc 'impact',
-        "All allowed networks will need to be whitelisted on each specific network, creating
+  desc 'impact',
+       "All allowed networks will need to be whitelisted on each specific network, creating
         administrative overhead. This may result in loss of network connectivity, so do not turn
         on for critical resources during business hours."
 
-    desc 'check',
+  desc 'check',
        "From Azure Console
         1. Go to Storage Accounts
         2. For each storage account, Click on the Networking blade.
@@ -47,7 +47,7 @@ control 'azure-foundations-cis-4.7' do
         • Policy ID: 2a1a9cdf-e04d-429a-8416-3bfb72a1b26f - Name: 'Storage accounts
         should restrict network access using virtual network rules'"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Console
         1. Go to Storage Accounts
         2. For each storage account, Click on the Networking blade
@@ -60,30 +60,30 @@ control 'azure-foundations-cis-4.7' do
         az storage account update --name <StorageAccountName> --resource-group
         <resourceGroupName> --default-action Deny"
 
-    impact 0.5
-    tag nist: ['PL-8','PM-7','SA-8','CM-7','CP-6','CP-7','SC-7']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['12.2'] }]
+  impact 0.5
+  tag nist: ['PL-8', 'PM-7', 'SA-8', 'CM-7', 'CP-6', 'CP-7', 'SC-7']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['12.2'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
 
-    subscription_id = input('subscription_id')
-    rg_sa_list = input('resource_groups_and_storage_accounts')
+  subscription_id = input('subscription_id')
+  rg_sa_list = input('resource_groups_and_storage_accounts')
 
-    rg_sa_list.each do |pair|
-        resource_group, storage_account = pair.split('.')
+  rg_sa_list.each do |pair|
+    resource_group, storage_account = pair.split('.')
 
-        describe "Storage Account Network Ruleset for '#{storage_account}' in Resource Group '#{resource_group}'" do
-            script = <<-EOH
+    describe "Storage Account Network Ruleset for '#{storage_account}' in Resource Group '#{resource_group}'" do
+      script = <<-EOH
                 Set-AzContext -Subscription #{subscription_id} | Out-Null
                 (Get-AzStorageAccountNetworkRuleset -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").DefaultAction
-            EOH
+      EOH
 
-            describe powershell(script) do
-                its('stdout.strip') { should cmp 'Deny' }
-            end
-        end
+      describe powershell(script) do
+        its('stdout.strip') { should cmp 'Deny' }
+      end
     end
+  end
 end

@@ -1,6 +1,6 @@
 control 'azure-foundations-cis-4.10' do
-    title "Ensure Soft Delete is Enabled for Azure Containers and Blob Storage"
-    desc "The Azure Storage blobs contain data like ePHI or Financial, which can be secret or
+  title 'Ensure Soft Delete is Enabled for Azure Containers and Blob Storage'
+  desc "The Azure Storage blobs contain data like ePHI or Financial, which can be secret or
         personal. Data that is erroneously modified or deleted by an application or other storage
         account user will cause data loss or unavailability.
         It is recommended that both Azure Containers with attached Blob Storage and
@@ -8,18 +8,18 @@ control 'azure-foundations-cis-4.10' do
         delete configuration. This is to save and recover data when blobs or blob snapshots are
         deleted."
 
-    desc 'rationale',
-        "Containers and Blob Storage data can be incorrectly deleted. An attacker/malicious
+  desc 'rationale',
+       "Containers and Blob Storage data can be incorrectly deleted. An attacker/malicious
         user may do this deliberately in order to cause disruption. Deleting an Azure Storage
         blob causes immediate data loss. Enabling this configuration for Azure storage ensures
         that even if blobs/data were deleted from the storage account, Blobs/data objects are
         recoverable for a particular time which is set in the 'Retention policies,' ranging from 7
         days to 365 days."
 
-    desc 'impact',
-        "Additional storage costs may be incurred as snapshots are retained."
+  desc 'impact',
+       'Additional storage costs may be incurred as snapshots are retained.'
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. Go to Storage Accounts.
         2. For each Storage Account, under Data management, go to Data protection.
@@ -39,7 +39,7 @@ control 'azure-foundations-cis-4.10' do
         --account-name <storageAccount>
         --resource-group <resourceGroup>"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. Go to Storage Accounts.
         2. For each Storage Account, under Data management, go to Data protection.
@@ -59,16 +59,16 @@ control 'azure-foundations-cis-4.10' do
         --account-name <storageAccount>
         --resource-group <resourceGroup>"
 
-    impact 0.5
-    tag nist: ['CP-2','CP-10']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['11.1'] }]
+  impact 0.5
+  tag nist: ['CP-2', 'CP-10']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['11.1'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-soft-delete'
-    ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/soft-delete-container-overview'
-    ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/soft-delete-container-enable?tabs=azure-portal'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-soft-delete'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/soft-delete-container-overview'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/soft-delete-container-enable?tabs=azure-portal'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

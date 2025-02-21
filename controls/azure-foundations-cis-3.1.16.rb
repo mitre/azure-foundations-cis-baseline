@@ -1,22 +1,22 @@
 control 'azure-foundations-cis-3.1.16' do
-    title "[LEGACY] Ensure That Microsoft Defender for DNS Is Set To 'On'"
-    desc "NOTE: As of August 1, customers with an existing subscription to Defender for DNS
+  title "[LEGACY] Ensure That Microsoft Defender for DNS Is Set To 'On'"
+  desc "NOTE: As of August 1, customers with an existing subscription to Defender for DNS
         can continue to use the service, but new subscribers will receive alerts about suspicious
         DNS activity as part of Defender for Servers P2.]
         Microsoft Defender for DNS scans all network traffic exiting from within a subscription."
 
-    desc 'rationale',
-        "DNS lookups within a subscription are scanned and compared to a dynamic list of
+  desc 'rationale',
+       "DNS lookups within a subscription are scanned and compared to a dynamic list of
         websites that might be potential security threats. These threats could be a result of a
         security breach within your services, thus scanning for them could prevent a potential
         security threat from being introduced."
 
-    desc 'impact',
-        "Enabling Microsoft Defender for DNS requires enabling Microsoft Defender for your
+  desc 'impact',
+       "Enabling Microsoft Defender for DNS requires enabling Microsoft Defender for your
         subscription. Both will incur additional charges, with Defender for DNS being a small
         amount per million queries."
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. Go to Microsoft Defender for Cloud
         2. Select Environment Settings blade
@@ -37,7 +37,7 @@ control 'azure-foundations-cis-3.1.16' do
         • Policy ID: bdc59948-5574-49b3-bb91-76b7c986428d - Name: 'Azure Defender
         for DNS should be enabled'"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. Go to Microsoft Defender for Cloud.
         2. Select Environment Settings blade.
@@ -52,29 +52,29 @@ control 'azure-foundations-cis-3.1.16' do
         Enable Standard pricing tier for DNS:
         Set-AzSecurityPricing -Name 'DNS' -PricingTier 'Standard'"
 
-    impact 0.5
-    tag nist: ['SC-20','SC-21','SC-22','RA-5','SI-4','SI-4(4)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['4.9','7.5','13.6'] }]
+  impact 0.5
+  tag nist: ['SC-20', 'SC-21', 'SC-22', 'RA-5', 'SI-4', 'SI-4(4)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['4.9', '7.5', '13.6'] }]
 
-    ref 'https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/'
-    ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/baselines/dns-security-baseline'
-    ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-dns-alerts'
-    ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security'
-    ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/alerts-overview'
-    ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/security-controls-v3-network-security#ns-10-ensure-domain-name-system-dns-security'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
+  ref 'https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/'
+  ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/baselines/dns-security-baseline'
+  ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-dns-alerts'
+  ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security'
+  ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/alerts-overview'
+  ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/security-controls-v3-network-security#ns-10-ensure-domain-name-system-dns-security'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
 
-    script = <<-EOH
+  script = <<-EOH
         (Get-AzSecurityPricing -Name 'DNS').PricingTier
-    EOH
+  EOH
 
-    pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
-    describe "Ensure That Microsoft Defender for Resource Manager" do   
-        subject { pwsh_output.stdout.strip }
-        it "is set to 'On'" do
-            expect(subject).to eq('Standard')
-        end
+  describe 'Ensure That Microsoft Defender for Resource Manager' do
+    subject { pwsh_output.stdout.strip }
+    it "is set to 'On'" do
+      expect(subject).to eq('Standard')
     end
+  end
 end

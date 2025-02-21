@@ -1,6 +1,6 @@
 control 'azure-foundations-cis-3.1.4.1' do
-    title "Ensure That Microsoft Defender for Containers Is Set To 'On'"
-    desc "Turning on Microsoft Defender for Containers enables threat detection for Container
+  title "Ensure That Microsoft Defender for Containers Is Set To 'On'"
+  desc "Turning on Microsoft Defender for Containers enables threat detection for Container
         Registries including Kubernetes, providing threat intelligence, anomaly detection, and
         behavior analytics in the Microsoft Defender for Cloud. The following services will be
         enabled for container instances:
@@ -9,15 +9,15 @@ control 'azure-foundations-cis-3.1.4.1' do
         • Agentless discovery for Kubernetes
         • Agentless container vulnerability assessment"
 
-    desc 'rationale',
-        "Enabling Microsoft Defender for Container Registries allows for greater defense-in-
+  desc 'rationale',
+       "Enabling Microsoft Defender for Container Registries allows for greater defense-in-
         depth, with threat detection provided by the Microsoft Security Response Center
         (MSRC)."
 
-    desc 'impact',
-        "Turning on Microsoft Defender for Containers incurs an additional cost per resource."
+  desc 'impact',
+       'Turning on Microsoft Defender for Containers incurs an additional cost per resource.'
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. Go to Microsoft Defender for Cloud.
         2. Under Management, select Environment Settings.
@@ -45,7 +45,7 @@ control 'azure-foundations-cis-3.1.4.1' do
         • Policy ID: 1c988dd6-ade4-430f-a608-2a3e5b0a6d38 - Name: 'Microsoft
         Defender for Containers should be enabled'"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. Go to Microsoft Defender for Cloud.
         2. Under Management, select Environment Settings.
@@ -62,28 +62,28 @@ control 'azure-foundations-cis-3.1.4.1' do
         Use the below command to enable Standard pricing tier for Containers.
         Set-AzSecurityPricing -Name 'Containers' -PricingTier 'Standard'"
 
-    impact 0.5
-    tag nist: ['RA-5']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.5'] }]
+  impact 0.5
+  tag nist: ['RA-5']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['7.5'] }]
 
-    ref "https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities"
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/list'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
-    ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
-    ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-containers-introduction?tabs=defender-for-container-arch-aks'
+  ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/list'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
+  ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
+  ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-containers-introduction?tabs=defender-for-container-arch-aks'
 
-    script = <<-EOH
+  script = <<-EOH
         (Get-AzSecurityPricing -Name 'Containers').PricingTier
-    EOH
+  EOH
 
-    pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
-    describe "Ensure That Microsoft Defender for Containers" do   
-        subject { pwsh_output.stdout.strip }
-        it "is set to 'On'" do
-            expect(subject).to eq('Standard')
-        end
+  describe 'Ensure That Microsoft Defender for Containers' do
+    subject { pwsh_output.stdout.strip }
+    it "is set to 'On'" do
+      expect(subject).to eq('Standard')
     end
+  end
 end

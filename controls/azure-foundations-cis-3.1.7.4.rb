@@ -1,20 +1,20 @@
 control 'azure-foundations-cis-3.1.7.4' do
-    title "Ensure That Microsoft Defender for SQL Servers on Machines Is Set To 'On'"
-    desc "Turning on Microsoft Defender for SQL servers on machines enables threat detection
+  title "Ensure That Microsoft Defender for SQL Servers on Machines Is Set To 'On'"
+  desc "Turning on Microsoft Defender for SQL servers on machines enables threat detection
         for SQL servers on machines, providing threat intelligence, anomaly detection, and
         behavior analytics in Microsoft Defender for Cloud."
 
-    desc 'rationale',
-        "Enabling Microsoft Defender for SQL servers on machines allows for greater defense-
+  desc 'rationale',
+       "Enabling Microsoft Defender for SQL servers on machines allows for greater defense-
         in-depth, functionality for discovering and classifying sensitive data, surfacing and
         mitigating potential database vulnerabilities, and detecting anomalous activities that
         could indicate a threat to your database."
 
-    desc 'impact',
-        "Turning on Microsoft Defender for SQL servers on machines incurs an additional cost
+  desc 'impact',
+       "Turning on Microsoft Defender for SQL servers on machines incurs an additional cost
         per resource."
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. Go to Microsoft Defender for Cloud.
         2. Select Environment Settings blade.
@@ -41,7 +41,7 @@ control 'azure-foundations-cis-3.1.7.4' do
         • Policy ID: abfb4388-5bf4-4ad7-ba82-2cd2f41ceae9 - Name: 'Azure Defender for
         SQL should be enabled for unprotected Azure SQL servers'"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. Go to Microsoft Defender for Cloud.
         2. Select Environment Settings blade.
@@ -59,28 +59,28 @@ control 'azure-foundations-cis-3.1.7.4' do
         Set-AzSecurityPricing -Name 'SqlServerVirtualMachines' -PricingTier
         'Standard'"
 
-    impact 0.5
-    tag nist: ['RA-5']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.5'] }]
+  impact 0.5
+  tag nist: ['RA-5']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['7.5'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/security-center/defender-for-sql-usage'
-    ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
-    ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-2-monitor-anomalies-and-threats-targeting-sensitive-data'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
+  ref 'https://docs.microsoft.com/en-us/azure/security-center/defender-for-sql-usage'
+  ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
+  ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-2-monitor-anomalies-and-threats-targeting-sensitive-data'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
 
-    script = <<-EOH
+  script = <<-EOH
         (Get-AzSecurityPricing -Name 'SqlServerVirtualMachines').PricingTier
-    EOH
+  EOH
 
-    pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
-    describe "Ensure That Microsoft Defender for SQL Servers on Machines" do   
-        subject { pwsh_output.stdout.strip }
-        it "Is Set To 'On'" do
-            expect(subject).to eq('Standard')
-        end
+  describe 'Ensure That Microsoft Defender for SQL Servers on Machines' do
+    subject { pwsh_output.stdout.strip }
+    it "Is Set To 'On'" do
+      expect(subject).to eq('Standard')
     end
+  end
 end

@@ -1,6 +1,6 @@
 control 'azure-foundations-cis-3.3.5' do
-    title "Ensure the Key Vault is Recoverable"
-    desc "The Key Vault contains object keys, secrets, and certificates. Accidental unavailability of
+  title 'Ensure the Key Vault is Recoverable'
+  desc "The Key Vault contains object keys, secrets, and certificates. Accidental unavailability of
         a Key Vault can cause immediate data loss or loss of security functions (authentication,
         validation, verification, non-repudiation, etc.) supported by the Key Vault objects.
         It is recommended the Key Vault be made recoverable by enabling the 'Do Not Purge'
@@ -13,8 +13,8 @@ control 'azure-foundations-cis-3.3.5' do
         WARNING: A current limitation is that role assignments disappearing when Key Vault is
         deleted. All role assignments will need to be recreated after recovery"
 
-    desc 'rationale',
-        "There could be scenarios where users accidentally run delete/purge commands on Key
+  desc 'rationale',
+       "There could be scenarios where users accidentally run delete/purge commands on Key
         Vault or an attacker/malicious user deliberately does so in order to cause disruption.
         Deleting or purging a Key Vault leads to immediate data loss, as keys encrypting data
         and secrets/certificates allowing access/services will become non-accessible.
@@ -28,10 +28,10 @@ control 'azure-foundations-cis-3.3.5' do
         Enabling the enablePurgeProtection parameter on Key Vaults ensures that Key Vaults
         and their objects cannot be deleted/purged permanently."
 
-    desc 'impact',
-        "Once purge-protection and soft-delete are enabled for a Key Vault, the action is irreversible."
+  desc 'impact',
+       'Once purge-protection and soft-delete are enabled for a Key Vault, the action is irreversible.'
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. Go to Key Vaults.
         2. For each Key Vault.
@@ -64,7 +64,7 @@ control 'azure-foundations-cis-3.3.5' do
         • Policy ID: 1e66c121-a66a-4b1f-9b83-0fd99bf0fc2d - Name: 'Key vaults should
         have soft delete enabled'"
 
-    desc 'fix',
+  desc 'fix',
        "To enable 'Do Not Purge' and 'Soft Delete' for a Key Vault:
         Remediate from Azure Portal
         1. Go to Key Vaults.
@@ -88,17 +88,17 @@ control 'azure-foundations-cis-3.3.5' do
         NOTE: In February 2025, Microsoft will enable soft-delete protection on all key vaults,
         and users will no longer be able to opt out of or turn off soft-delete."
 
-    impact 0.5
-    tag nist: ['CP-2','CP-10']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['11.1'] }]
+  impact 0.5
+  tag nist: ['CP-2', 'CP-10']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['11.1'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/key-vault/key-vault-soft-delete-cli'
-    ref 'https://learn.microsoft.com/en-us/azure/key-vault/general/soft-delete-overview'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-8-define-and-implement-backup-and-recovery-strategy'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
+  ref 'https://docs.microsoft.com/en-us/azure/key-vault/key-vault-soft-delete-cli'
+  ref 'https://learn.microsoft.com/en-us/azure/key-vault/general/soft-delete-overview'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-8-define-and-implement-backup-and-recovery-strategy'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

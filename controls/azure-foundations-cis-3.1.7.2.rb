@@ -1,20 +1,20 @@
 control 'azure-foundations-cis-3.1.7.2' do
-    title "Ensure That Microsoft Defender for Open-Source Relational Databases Is Set To 'On'"
-    desc "Turning on Microsoft Defender for Open-source relational databases enables threat
+  title "Ensure That Microsoft Defender for Open-Source Relational Databases Is Set To 'On'"
+  desc "Turning on Microsoft Defender for Open-source relational databases enables threat
         detection for Open-source relational databases, providing threat intelligence, anomaly
         detection, and behavior analytics in the Microsoft Defender for Cloud."
 
-    desc 'rationale',
-        "Enabling Microsoft Defender for Open-source relational databases allows for greater
+  desc 'rationale',
+       "Enabling Microsoft Defender for Open-source relational databases allows for greater
         defense-in-depth, with threat detection provided by the Microsoft Security Response
         Center (MSRC)"
 
-    desc 'impact',
+  desc 'impact',
        "Turning on Microsoft Defender for Open-source relational databases incurs an
         additional cost per resource."
 
-    desc 'check',
-        "From Azure Portal
+  desc 'check',
+       "From Azure Portal
         1. Go to Microsoft Defender for Cloud.
         2. Select Environment Settings blade.
         3. Click on the subscription name.
@@ -36,7 +36,7 @@ control 'azure-foundations-cis-3.1.7.2' do
         • Policy ID: 0a9fbe0d-c5c4-4da8-87d8-f4fd77338835 - Name: 'Azure Defender for
         open-source relational databases should be enabled'"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. Go to Microsoft Defender for Cloud.
         2. Select Environment Settings blade.
@@ -56,27 +56,27 @@ control 'azure-foundations-cis-3.1.7.2' do
         set-azsecuritypricing -name 'OpenSourceRelationalDatabases' -pricingtier
         'Standard'"
 
-    impact 0.5
-    tag nist: ['RA-5']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.5'] }]
+  impact 0.5
+  tag nist: ['RA-5']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['7.5'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
-    ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-2-monitor-anomalies-and-threats-targeting-sensitive-data'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
+  ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
+  ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-2-monitor-anomalies-and-threats-targeting-sensitive-data'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
 
-    script = <<-EOH
+  script = <<-EOH
         (Get-AzSecurityPricing -Name 'OpenSourceRelationalDatabases').PricingTier
-    EOH
+  EOH
 
-    pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
-    describe "Ensure That Microsoft Defender for Open-Source Relational Databases" do   
-        subject { pwsh_output.stdout.strip }
-        it "is set to 'On'" do
-            expect(subject).to eq('Standard')
-        end
+  describe 'Ensure That Microsoft Defender for Open-Source Relational Databases' do
+    subject { pwsh_output.stdout.strip }
+    it "is set to 'On'" do
+      expect(subject).to eq('Standard')
     end
+  end
 end

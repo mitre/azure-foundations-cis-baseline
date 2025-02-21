@@ -1,25 +1,25 @@
 control 'azure-foundations-cis-2.2.2' do
-    title 'Ensure that an exclusionary Geographic Access Policy is considered'
-    desc "CAUTION: If these policies are created without first auditing and testing the result,
+  title 'Ensure that an exclusionary Geographic Access Policy is considered'
+  desc "CAUTION: If these policies are created without first auditing and testing the result,
         misconfiguration can potentially lock out administrators or create undesired access
         issues.
         Conditional Access Policies can be used to block access from geographic locations that
         are deemed out-of-scope for your organization or application. The scope and variables
         for this policy should be carefully examined and defined."
 
-    desc 'rationale',
-        "Conditional Access, when used as a deny list for the tenant or subscription, is able to
+  desc 'rationale',
+       "Conditional Access, when used as a deny list for the tenant or subscription, is able to
         prevent ingress or egress of traffic to countries that are outside of the scope of interest
         (e.g.: customers, suppliers) or jurisdiction of an organization. This is an effective way to
         prevent unnecessary and long-lasting exposure to international threats such as APTs."
 
-    desc 'impact',
-        "Microsoft Entra ID P1 or P2 is required. Limiting access geographically will deny access
+  desc 'impact',
+       "Microsoft Entra ID P1 or P2 is required. Limiting access geographically will deny access
         to users that are traveling or working remotely in a different part of the world. A point-to-
         site or site to site tunnel such as a VPN is recommended to address exceptions to
         geographic access policies."
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. From Azure Home open the Portal menu in the top left, and select Microsoft
         Entra ID.
@@ -53,7 +53,7 @@ control 'azure-foundations-cis-2.2.2' do
         Included Locations and Excluded Locations columns. If not, a policy containing
         these options has not been created and is considered a finding."
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         Part 1 of 2 - Create the policy and enable it in Report-only mode.
         1. From Azure Home open the portal menu in the top left, and select Microsoft
@@ -148,16 +148,16 @@ control 'azure-foundations-cis-2.2.2' do
         New-MgIdentityConditionalAccessPolicy -Name 'Policy Name' -State
         <enabled|disabled> -Conditions $conditions -GrantControls $controls"
 
-    impact 0.5
-    tag nist: ['AC-2(1)','AC-3']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['6.7'] }]
+  impact 0.5
+  tag nist: ['AC-2(1)', 'AC-3']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['6.7'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-location'
-    ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-report-only'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
+  ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-location'
+  ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-report-only'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

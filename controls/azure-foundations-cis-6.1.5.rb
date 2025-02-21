@@ -1,15 +1,15 @@
 control 'azure-foundations-cis-6.1.5' do
-  title "Ensure that Network Security Group Flow logs are captured and sent to Log Analytics"
-  desc "Ensure that network flow logs are captured and fed into a central log analytics workspace."
+  title 'Ensure that Network Security Group Flow logs are captured and sent to Log Analytics'
+  desc 'Ensure that network flow logs are captured and fed into a central log analytics workspace.'
 
   desc 'rationale',
-      "Network Flow Logs provide valuable insight into the flow of traffic around your network and feed into both Azure Monitor and Azure Sentinel (if in use), permitting the generation of visual flow diagrams to aid with analyzing for lateral movement, etc."
+       'Network Flow Logs provide valuable insight into the flow of traffic around your network and feed into both Azure Monitor and Azure Sentinel (if in use), permitting the generation of visual flow diagrams to aid with analyzing for lateral movement, etc.'
 
   desc 'impact'
-    'The impact of configuring NSG Flow logs is primarily one of cost and configuration. If deployed, it will create storage accounts that hold minimal amounts of data on a 5-day lifecycle before feeding to Log Analytics Workspace. This will increase the amount of data stored and used by Azure Monitor.'
+  'The impact of configuring NSG Flow logs is primarily one of cost and configuration. If deployed, it will create storage accounts that hold minimal amounts of data on a 5-day lifecycle before feeding to Log Analytics Workspace. This will increase the amount of data stored and used by Azure Monitor.'
 
   desc 'check',
-     "Audit from Azure Portal
+       "Audit from Azure Portal
         1. Navigate to Network Watcher.
         2. Under Logs, select Flow logs.
         3. Click Add filter.
@@ -17,14 +17,14 @@ control 'azure-foundations-cis-6.1.5' do
         5. From the Value drop-down, check Network security group only.
         6. Click Apply.
         7. Ensure that at least one network security group flow log is listed and is configured to send logs to a Log Analytics Workspace.
-    Audit from Azure Policy 
+    Audit from Azure Policy
       If referencing a digital copy of this Benchmark, clicking a Policy ID will open a link to the associated Policy definition in Azure. If referencing a printed copy, you can search Policy IDs from this URL: https://portal.azure.com/#view/Microsoft_Azure_Policy/PolicyMenuBlade/~/Definitions
         • Policy ID: 27960feb-a23c-4577-8d36-ef8b5f35e0be - Name: 'All flow log resources should be in enabled state'
         • Policy ID: c251913d-7d24-4958-af87-478ed3b9ba41 - Name: 'Flow logs should be configured for every network security group'
         • Policy ID: 4c3c6c5f-0d47-4402-99b8-aa543dd8bcee - Name: 'Flow logs should be configured for every virtual network'"
 
   desc 'fix',
-     'Remediate from Azure Portal
+       'Remediate from Azure Portal
         1. Navigate to Network Watcher.
         2. Under Logs, select Flow logs.
         3. Select + Create.
@@ -56,6 +56,6 @@ control 'azure-foundations-cis-6.1.5' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-4-enable-network-logging-for-security-investigation'
 
   describe 'Ensure that Network Security Group Flow logs are captured and sent to Log Analytics' do
-      skip 'The check for this control needs to be done manually'
+    skip 'The check for this control needs to be done manually'
   end
 end

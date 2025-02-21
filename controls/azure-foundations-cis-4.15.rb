@@ -1,18 +1,18 @@
 control 'azure-foundations-cis-4.15' do
-    title "Ensure the 'Minimum TLS version' for storage accounts is set to 'Version 1.2'"
-    desc "In some cases, Azure Storage sets the minimum TLS version to be version 1.0 by
+  title "Ensure the 'Minimum TLS version' for storage accounts is set to 'Version 1.2'"
+  desc "In some cases, Azure Storage sets the minimum TLS version to be version 1.0 by
         default. TLS 1.0 is a legacy version and has known vulnerabilities. This minimum TLS
         version can be configured to be later protocols such as TLS 1.2."
 
-    desc 'rationale',
-        "TLS 1.0 has known vulnerabilities and has been replaced by later versions of the TLS
+  desc 'rationale',
+       "TLS 1.0 has known vulnerabilities and has been replaced by later versions of the TLS
         protocol. Continued use of this legacy protocol affects the security of data in transit."
 
-    desc 'impact',
-        "When set to TLS 1.2 all requests must leverage this version of the protocol. Applications
+  desc 'impact',
+       "When set to TLS 1.2 all requests must leverage this version of the protocol. Applications
         leveraging legacy versions of the protocol will fail."
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. Go to Storage Accounts.
         2. For each storage account, under Settings, click Configuration.
@@ -38,7 +38,7 @@ control 'azure-foundations-cis-4.15' do
         • Policy ID: fe83a0eb-a853-422d-aac2-1bffd182c5d0 - Name: 'Storage accounts
         should have the specified minimum TLS version'"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. Go to Storage Accounts.
         2. For each storage account, under Settings, click Configuration.
@@ -55,29 +55,29 @@ control 'azure-foundations-cis-4.15' do
         -ResourceGroupName <RESOURCEGROUPNAME> `
         -MinimumTlsVersion TLS1_2"
 
-    impact 0.5
-    tag nist: ['AC-17(2)','IA-5','IA-5(1)','SC-8','SC-8(1)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['3.10'] }]
+  impact 0.5
+  tag nist: ['AC-17(2)', 'IA-5', 'IA-5(1)', 'SC-8', 'SC-8(1)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['3.10'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/storage/common/transport-layer-security-configure-minimum-version?tabs=portal'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-3-encrypt-sensitive-data-in-transit'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/common/transport-layer-security-configure-minimum-version?tabs=portal'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-3-encrypt-sensitive-data-in-transit'
 
-    subscription_id = input('subscription_id')
-    rg_sa_list = input('resource_groups_and_storage_accounts')
+  subscription_id = input('subscription_id')
+  rg_sa_list = input('resource_groups_and_storage_accounts')
 
-    rg_sa_list.each do |pair|
-        resource_group, storage_account = pair.split('.')
+  rg_sa_list.each do |pair|
+    resource_group, storage_account = pair.split('.')
 
-        describe "Minimum TLS version for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-            script = <<-EOH
+    describe "Minimum TLS version for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+      script = <<-EOH
                 Set-AzContext -Subscription #{subscription_id} | Out-Null
                 (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").MinimumTlsVersion
-            EOH
+      EOH
 
-            describe powershell(script) do
-                its('stdout.strip') { should cmp 'TLS1_2' }
-            end
-        end
+      describe powershell(script) do
+        its('stdout.strip') { should cmp 'TLS1_2' }
+      end
     end
+  end
 end

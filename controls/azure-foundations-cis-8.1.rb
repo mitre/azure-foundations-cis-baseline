@@ -62,7 +62,7 @@ control 'azure-foundations-cis-8.1' do
 
   subscription_id = input('subscription_id')
   bastion_list = command("az network bastion list --subscription #{subscription_id}").stdout.strip
-  
+
   describe 'Ensure the bastions for resource groups' do
     subject { bastion_list }
     it 'are not empty' do

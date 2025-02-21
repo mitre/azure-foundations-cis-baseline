@@ -1,6 +1,6 @@
 control 'azure-foundations-cis-3.1.3.3' do
-    title "Ensure that 'Endpoint protection' component status is set to 'On'"
-    desc "This integration setting enables Microsoft Defender for Endpoint (formerly 'Advanced
+  title "Ensure that 'Endpoint protection' component status is set to 'On'"
+  desc "This integration setting enables Microsoft Defender for Endpoint (formerly 'Advanced
         Threat Protection' or 'ATP' or 'WDATP' - see additional info) to communicate with
         Microsoft Defender for Cloud.
         IMPORTANT: When enabling integration between DfE & DfC it needs to be taken into
@@ -12,19 +12,19 @@ control 'azure-foundations-cis-3.1.3.3' do
         lower there is additional integration that needs to be switched on and agents
         need to be aligned."
 
-    desc 'rationale',
-        "Microsoft Defender for Endpoint integration brings comprehensive Endpoint Detection
+  desc 'rationale',
+       "Microsoft Defender for Endpoint integration brings comprehensive Endpoint Detection
         and Response (EDR) capabilities within Microsoft Defender for Cloud. This integration
         helps to spot abnormalities, as well as detect and respond to advanced attacks on
         endpoints monitored by Microsoft Defender for Cloud.
         MDE works only with Standard Tier subscriptions."
 
-    desc 'impact',
-        "Endpoint protection requires licensing and is included in these plans:
+  desc 'impact',
+       "Endpoint protection requires licensing and is included in these plans:
         • Defender for Servers plan 1
         • Defender for Servers plan 2"
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Defender for Cloud
@@ -57,7 +57,7 @@ control 'azure-foundations-cis-3.1.3.3' do
         ---- -------
         WDATP True"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu.
         2. Go to Microsoft Defender for Cloud.
@@ -86,30 +86,30 @@ control 'azure-foundations-cis-3.1.3.3' do
         }
         }"
 
-    impact 0.5
-    tag nist: ['RA-5','SI-3']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.5','10.1','13.2'] }]
+  impact 0.5
+  tag nist: ['RA-5', 'SI-3']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['7.5', '10.1', '13.2'] }]
 
-    ref 'https://docs.microsoft.com/en-in/azure/defender-for-cloud/integration-defender-for-endpoint?tabs=windows'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/settings/list'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/settings/update'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-endpoint-security#es-1-use-endpoint-detection-and-response-edr'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-endpoint-security#es-2-use-modern-anti-malware-software'
+  ref 'https://docs.microsoft.com/en-in/azure/defender-for-cloud/integration-defender-for-endpoint?tabs=windows'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/settings/list'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/settings/update'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-endpoint-security#es-1-use-endpoint-detection-and-response-edr'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-endpoint-security#es-2-use-modern-anti-malware-software'
 
-    subscription_id = input('subscription_id')
+  subscription_id = input('subscription_id')
 
-    script = <<-EOH
+  script = <<-EOH
         Set-AzContext -Subscription #{subscription_id} | Out-Null
         (Get-AzSecuritySetting | Where-Object { $_.name -eq 'WDATP' }).enabled
-    EOH
+  EOH
 
-    pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
-    describe "Ensure that 'Endpoint protection' component status" do   
-        subject { pwsh_output.stdout.strip }
-        it "is set to 'On'" do
-            expect(subject).to eq('True')
-        end
+  describe "Ensure that 'Endpoint protection' component status" do
+    subject { pwsh_output.stdout.strip }
+    it "is set to 'On'" do
+      expect(subject).to eq('True')
     end
+  end
 end

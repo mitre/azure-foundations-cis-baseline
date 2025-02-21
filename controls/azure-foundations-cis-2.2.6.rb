@@ -1,24 +1,24 @@
 control 'azure-foundations-cis-2.2.6' do
-    title 'Ensure Multi-factor Authentication is Required for Risky Sign-ins'
-    desc "Entra ID tracks the behavior of sign-in events. If the Entra ID domain is licensed with
+  title 'Ensure Multi-factor Authentication is Required for Risky Sign-ins'
+  desc "Entra ID tracks the behavior of sign-in events. If the Entra ID domain is licensed with
         P2, the sign-in behavior can be used as a detection mechanism for additional scrutiny
         during the sign-in event. If this policy is set up, then Risky Sign-in events will prompt
         users to use multi-factor authentication (MFA) tokens on login for additional verification."
 
-    desc 'rationale',
-        "Enabling multi-factor authentication is a recommended setting to limit the potential of
+  desc 'rationale',
+       "Enabling multi-factor authentication is a recommended setting to limit the potential of
         accounts being compromised and limiting access to authenticated personnel. Enabling
         this policy allows Entra ID's risk-detection mechanisms to force additional scrutiny on
         the login event, providing a deterrent response to potentially malicious sign-in events,
         and adding an additional authentication layer as a reaction to potentially malicious
         behavior."
 
-    desc 'impact',
-        "Risk Policies for Conditional Access require Microsoft Entra ID P2. Additional overhead
+  desc 'impact',
+       "Risk Policies for Conditional Access require Microsoft Entra ID P2. Additional overhead
         to support or maintain these policies may also be required if users lose access to their
         MFA tokens."
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. From Azure Home select the Portal Menu in the top left and select Microsoft
         Entra ID.
@@ -32,7 +32,7 @@ control 'azure-foundations-cis-2.2.6' do
         8. View under Exclude to determine which users and groups to whom the policy is
         not applied."
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu in the top left and select Microsoft
         Entra ID.
@@ -61,17 +61,17 @@ control 'azure-foundations-cis-2.2.6' do
         After testing the policy in report-only mode, update the Enable policy setting from
         Report-only to On."
 
-    impact 0.5
-    tag nist: ['IA-2(1)','IA-2(2)','AC-19','AC-2(1)','AC-3']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['6.3','6.4','6.7'] }]
+  impact 0.5
+  tag nist: ['IA-2(1)', 'IA-2(2)', 'AC-19', 'AC-2(1)', 'AC-3']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['6.3', '6.4', '6.7'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-risk'
-    ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/troubleshoot-conditional-access-what-if'
-    ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-insights-reporting'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
+  ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-policy-risk'
+  ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/troubleshoot-conditional-access-what-if'
+  ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/howto-conditional-access-insights-reporting'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
 
-    describe 'Ensure Multi-factor Authentication is Required for Risky Sign-ins' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'Ensure Multi-factor Authentication is Required for Risky Sign-ins' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

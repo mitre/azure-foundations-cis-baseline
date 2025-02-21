@@ -1,9 +1,9 @@
 control 'azure-foundations-cis-3.1.10' do
-    title "Ensure that Microsoft Defender Recommendation for 'Apply system updates' status is 'Completed'"
-    desc "Ensure that the latest OS patches for all virtual machines are applied."
+  title "Ensure that Microsoft Defender Recommendation for 'Apply system updates' status is 'Completed'"
+  desc 'Ensure that the latest OS patches for all virtual machines are applied.'
 
-    desc 'rationale',
-        "Windows and Linux virtual machines should be kept updated to:
+  desc 'rationale',
+       "Windows and Linux virtual machines should be kept updated to:
         • Address a specific bug or flaw
         • Improve an OS or application’s general stability
         • Fix a security vulnerability
@@ -13,12 +13,12 @@ control 'azure-foundations-cis-3.1.10' do
         latest updates in Linux systems. If a VM is missing a system update, the security center
         will recommend system updates be applied."
 
-    desc 'impact',
-        "Running Microsoft Defender for Cloud incurs additional charges for each resource
+  desc 'impact',
+       "Running Microsoft Defender for Cloud incurs additional charges for each resource
         monitored. Please see attached reference for exact charges per hour."
-        
-    desc 'check',
-        "From Azure Portal
+
+  desc 'check',
+       "From Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Defender for Cloud
         3. Then the Recommendations blade
@@ -33,21 +33,21 @@ control 'azure-foundations-cis-3.1.10' do
         • Policy ID: bd876905-5b84-4f73-ab2d-2e7a7c4568d9 - Name: '[Preview]:
         Machines should be configured to periodically check for missing system updates'"
 
-    desc 'fix',
+  desc 'fix',
        "Follow Microsoft Azure documentation to apply security patches from the security
         center. Alternatively, you can employ your own patch assessment and management tool
         to periodically assess, report, and install the required security patches for your OS."
 
-    impact 0.5
-    tag nist: ['RA-5','RA-7','SI-2','SI-2(2)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.3'] }]
+  impact 0.5
+  tag nist: ['RA-5', 'RA-7', 'SI-2', 'SI-2(2)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['7.3'] }]
 
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-posture-vulnerability-management#pv-6-rapidly-and-automatically-remediate-vulnerabilities'
-    ref 'https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/'
-    ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/deploy-vulnerability-assessment-vm'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-posture-vulnerability-management#pv-6-rapidly-and-automatically-remediate-vulnerabilities'
+  ref 'https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/'
+  ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/deploy-vulnerability-assessment-vm'
 
-    describe "Ensure that Microsoft Defender Recommendation for 'Apply system updates' status is 'Completed'" do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe "Ensure that Microsoft Defender Recommendation for 'Apply system updates' status is 'Completed'" do
+    skip 'The check for this control needs to be done manually'
+  end
 end

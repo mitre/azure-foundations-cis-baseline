@@ -1,9 +1,9 @@
 control 'azure-foundations-cis-4.1' do
-    title "Ensure that 'Secure transfer required' is set to 'Enabled'"
-    desc "Enable data encryption in transit."
+  title "Ensure that 'Secure transfer required' is set to 'Enabled'"
+  desc 'Enable data encryption in transit.'
 
-    desc 'rationale',
-        "The secure transfer option enhances the security of a storage account by only allowing
+  desc 'rationale',
+       "The secure transfer option enhances the security of a storage account by only allowing
         requests to the storage account by a secure connection. For example, when calling
         REST APIs to access storage accounts, the connection must use HTTPS. Any requests
         using HTTP will be rejected when 'secure transfer required' is enabled. When using the
@@ -12,7 +12,7 @@ control 'azure-foundations-cis-4.1' do
         Because Azure storage doesn’t support HTTPS for custom domain names, this option is
         not applied when using a custom domain name."
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. Go to Storage Accounts
         2. For each storage account, go to Configuration
@@ -30,7 +30,7 @@ control 'azure-foundations-cis-4.1' do
         • Policy ID: 404c3081-a854-4457-ae30-26a93ef643f9 - Name: 'Secure transfer to
         storage accounts should be enabled'"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. Go to Storage Accounts.
         2. For each storage account, under Settings, click Configuration.
@@ -40,19 +40,19 @@ control 'azure-foundations-cis-4.1' do
         Use the below command to enable Secure transfer required for a Storage
         Account
         az storage account update --name <storageAccountName> --resource-group
-        <resourceGroupName> --https-only true"    
+        <resourceGroupName> --https-only true"
 
-    impact 0.5
-    tag nist: ['AC-17(2)','IA-5','IA-5(1)','SC-8','SC-8(1)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['3.10'] }]
+  impact 0.5
+  tag nist: ['AC-17(2)', 'IA-5', 'IA-5(1)', 'SC-8', 'SC-8(1)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['3.10'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/security-recommendations#encryption-in-transit'
-    ref 'https://docs.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest#az_storage_account_list'
-    ref 'https://docs.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest#az_storage_account_update'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-3-encrypt-sensitive-data-in-transit'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/security-recommendations#encryption-in-transit'
+  ref 'https://docs.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest#az_storage_account_list'
+  ref 'https://docs.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest#az_storage_account_update'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-3-encrypt-sensitive-data-in-transit'
 
-    describe "Ensure that 'Secure transfer required' is set to 'Enabled'" do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe "Ensure that 'Secure transfer required' is set to 'Enabled'" do
+    skip 'The check for this control needs to be done manually'
+  end
 end

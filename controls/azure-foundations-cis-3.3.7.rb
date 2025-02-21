@@ -1,21 +1,21 @@
 control 'azure-foundations-cis-3.3.7' do
-    title "Ensure that Private Endpoints are Used for Azure Key VaultEnsure that Private Endpoints are Used for Azure Key Vault"
-    desc "Ensure that all Keys in Role Based Access Control (RBAC) Azure Key Vaults have an
+  title 'Ensure that Private Endpoints are Used for Azure Key VaultEnsure that Private Endpoints are Used for Azure Key Vault'
+  desc "Ensure that all Keys in Role Based Access Control (RBAC) Azure Key Vaults have an
         expiration date set."
 
-    desc 'rationale',
-        "Private endpoints will keep network requests to Azure Key Vault limited to the endpoints
+  desc 'rationale',
+       "Private endpoints will keep network requests to Azure Key Vault limited to the endpoints
         attached to the resources that are whitelisted to communicate with each other.
         Assigning the Key Vault to a network without an endpoint will allow other resources on
         that network to view all traffic from the Key Vault to its destination. In spite of the
         complexity in configuration, this is recommended for high security secrets."
 
-    desc 'impact',
-        "Incorrect or poorly-timed changing of network configuration could result in service
+  desc 'impact',
+       "Incorrect or poorly-timed changing of network configuration could result in service
         interruption. There are also additional costs tiers for running a private endpoint per
         petabyte or more of networking traffic."
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. From Azure Home open the Portal Menu in the top left.
         2. Select Key Vaults.
@@ -41,7 +41,7 @@ control 'azure-foundations-cis-3.3.7' do
         • Policy ID: a6abeaec-4d90-4a02-805f-6b26c4d3fbe9 - Name: 'Azure Key Vaults
         should use private link"
 
-    desc 'fix',
+  desc 'fix',
        "Please see the additional information about the requirements needed before
         starting this remediation procedure.
         Remediate from Azure Portal
@@ -95,22 +95,22 @@ control 'azure-foundations-cis-3.3.7' do
         nslookup <keyVaultName>.vault.azure.net
         nslookup <keyVaultName>.privatelink.vaultcore.azure.n"
 
-    impact 0.5
-    tag nist: ['PL-8','PM-7','SA-8','CM-7','CP-6','CP-7','SC-7']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['12.2'] }]
+  impact 0.5
+  tag nist: ['PL-8', 'PM-7', 'SA-8', 'CM-7', 'CP-6', 'CP-7', 'SC-7']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['12.2'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/private-link/private-endpoint-overview'
-    ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-private-endpoints'
-    ref 'https://azure.microsoft.com/en-us/pricing/details/private-link/'
-    ref 'https://docs.microsoft.com/en-us/azure/key-vault/general/private-link-service?tabs=portal'
-    ref 'https://docs.microsoft.com/en-us/azure/virtual-network/quick-create-portal'
-    ref 'https://docs.microsoft.com/en-us/azure/private-link/tutorial-private-endpoint-storage-portal'
-    ref 'https://docs.microsoft.com/en-us/azure/bastion/bastion-overview'
-    ref 'https://docs.microsoft.com/azure/dns/private-dns-getstarted-cli#create-an-additional-dns-record'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
+  ref 'https://docs.microsoft.com/en-us/azure/private-link/private-endpoint-overview'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-private-endpoints'
+  ref 'https://azure.microsoft.com/en-us/pricing/details/private-link/'
+  ref 'https://docs.microsoft.com/en-us/azure/key-vault/general/private-link-service?tabs=portal'
+  ref 'https://docs.microsoft.com/en-us/azure/virtual-network/quick-create-portal'
+  ref 'https://docs.microsoft.com/en-us/azure/private-link/tutorial-private-endpoint-storage-portal'
+  ref 'https://docs.microsoft.com/en-us/azure/bastion/bastion-overview'
+  ref 'https://docs.microsoft.com/azure/dns/private-dns-getstarted-cli#create-an-additional-dns-record'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

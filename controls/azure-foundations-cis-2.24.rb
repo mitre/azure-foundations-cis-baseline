@@ -1,20 +1,20 @@
 control 'azure-foundations-cis-2.24' do
-    title 'Ensure a Custom Role is Assigned Permissions for Administering Resource Locks'
-    desc "Resource locking is a powerful protection mechanism that can prevent inadvertent
+  title 'Ensure a Custom Role is Assigned Permissions for Administering Resource Locks'
+  desc "Resource locking is a powerful protection mechanism that can prevent inadvertent
         modification/deletion of resources within Azure subscriptions/Resource Groups and is a
         recommended NIST configuration."
 
-    desc 'rationale',
-        "Given the resource lock functionality is outside of standard Role Based Access
+  desc 'rationale',
+       "Given the resource lock functionality is outside of standard Role Based Access
         Control(RBAC), it would be prudent to create a resource lock administrator role to
         prevent inadvertent unlocking of resources."
 
-    desc 'impact',
-        "By adding this role, specific permissions may be granted for managing just resource
+  desc 'impact',
+       "By adding this role, specific permissions may be granted for managing just resource
         locks rather than needing to provide the wide Owner or User Access Administrator role,
         reducing the risk of the user being able to do unintentional damage."
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. In the Azure portal, open a subscription or resource group where you want to
         view assigned roles.
@@ -24,7 +24,7 @@ control 'azure-foundations-cis-2.24' do
         Lock Administrator
         5. Ensure that the role is assigned to the appropriate users."
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. In the Azure portal, open a subscription or resource group where you want the
         custom role to be assigned.
@@ -61,20 +61,20 @@ control 'azure-foundations-cis-2.24' do
         MG-Name')
         New-AzRoleDefinition -Role $role"
 
-    impact 0.5
-    tag nist: ['AC-3','AC-5','AC-6','MP-2','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['3.3','6.8'] }]
+  impact 0.5
+  tag nist: ['AC-3', 'AC-5', 'AC-6', 'MP-2', 'AC-2', 'AC-5', 'AC-6', 'AC-6(1)', 'AC-6(7)', 'AU-9(4)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['3.3', '6.8'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles'
-    ref 'https://docs.microsoft.com/en-us/azure/role-based-access-control/check-access'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-1-separate-and-limit-highly-privilegedadministrative-users'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-7-follow-just-enough-administration-least-privilege-principle'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
+  ref 'https://docs.microsoft.com/en-us/azure/role-based-access-control/custom-roles'
+  ref 'https://docs.microsoft.com/en-us/azure/role-based-access-control/check-access'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-1-separate-and-limit-highly-privilegedadministrative-users'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-7-follow-just-enough-administration-least-privilege-principle'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
 
-    describe 'Ensure a Custom Role is Assigned Permissions for Administering Resource Locks' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'Ensure a Custom Role is Assigned Permissions for Administering Resource Locks' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

@@ -1,10 +1,10 @@
 control 'azure-foundations-cis-4.2' do
-    title "Ensure that ‘Enable Infrastructure Encryption’ for Each Storage Account in Azure Storage is Set to ‘enabled"
-    desc "Enabling encryption at the hardware level on top of the default software encryption for
+  title 'Ensure that ‘Enable Infrastructure Encryption’ for Each Storage Account in Azure Storage is Set to ‘enabled'
+  desc "Enabling encryption at the hardware level on top of the default software encryption for
         Storage Accounts accessing Azure storage solutions."
 
-    desc 'rationale',
-        "Azure Storage automatically encrypts all data in a storage account at the network level
+  desc 'rationale',
+       "Azure Storage automatically encrypts all data in a storage account at the network level
         using 256-bit AES encryption, which is one of the strongest, FIPS 140-2-compliant block
         ciphers available. Customers who require higher levels of assurance that their data is
         secure can also enable 256-bit AES encryption at the Azure Storage infrastructure level
@@ -14,9 +14,9 @@ control 'azure-foundations-cis-4.2' do
         scenario, the additional layer of encryption continues to protect your data. For the most
         secure implementation of key based encryption, it is recommended to use a Customer
         Managed asymmetric RSA 2048 Key in Azure Key Vault."
-    
-    desc 'impact',
-        "The read and write speeds to the storage will be impacted if both default encryption and
+
+  desc 'impact',
+       "The read and write speeds to the storage will be impacted if both default encryption and
         Infrastructure Encryption are checked, as a secondary form of encryption requires more
         resource overhead for the cryptography of information. This performance impact should
         be considered in an analysis for justifying use of the feature in your environment.
@@ -24,7 +24,7 @@ control 'azure-foundations-cis-4.2' do
         leading to overhead of key management. The key will also need to be backed up in a
         secure location, as loss of the key will mean loss of the information in the storage."
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. From Azure Portal select the portal menu in the top left.
         2. Select Storage Accounts.
@@ -52,7 +52,7 @@ control 'azure-foundations-cis-4.2' do
         • Policy ID: 4733ea7b-a883-42fe-8cac-97454c2a9e4a - Name: 'Storage accounts
         should have infrastructure encryption'"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. During Storage Account creation, in the Encryption tab, check the box next to
         Enable infrastructure encryption.
@@ -77,17 +77,17 @@ control 'azure-foundations-cis-4.2' do
         If infrastructure encryption was not enabled on blob storage creation, there is no official
         way to enable it. Please see the additional information section."
 
-    impact 0.5
-    tag nist: ['IA-5(1)','SC-28','SC-28(1)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['3.11'] }]
+  impact 0.5
+  tag nist: ['IA-5(1)', 'SC-28', 'SC-28(1)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['3.11'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-encryption-status'
-    ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-service-encryption'
-    ref 'https://docs.microsoft.com/en-us/azure/storage/common/infrastructure-encryption-enable'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-4-enable-data-at-rest-encryption-by-default'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-encryption-status'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-service-encryption'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/common/infrastructure-encryption-enable'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-4-enable-data-at-rest-encryption-by-default'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

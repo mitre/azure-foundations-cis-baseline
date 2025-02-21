@@ -1,20 +1,20 @@
 control 'azure-foundations-cis-3.1.1.1' do
-	title "Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs' is Set to 'On'"
-		desc "Enable automatic provisioning of the monitoring agent to collect security data.
+  title "Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs' is Set to 'On'"
+  desc "Enable automatic provisioning of the monitoring agent to collect security data.
 		DEPRECATION PLANNED: The Log Analytics Agent is slated for deprecation in
 		August 2024. The Microsoft Defender for Endpoint agent, in tandem with new agentless
 		capabilities will be providing replacement functionality. More detail is available here:
 		https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/microsoft-
 		defender-for-cloud-strategy-and-plan-towards-log/ba-p/3883341."
 
-  	desc 'rationale',
-		"When Log Analytics agent for Azure VMs is turned on, Microsoft Defender for Cloud
+  desc 'rationale',
+       "When Log Analytics agent for Azure VMs is turned on, Microsoft Defender for Cloud
 		provisions the Microsoft Monitoring Agent on all existing supported Azure virtual
 		machines and any new ones that are created. The Microsoft Monitoring Agent scans for
 		various security-related configurations and events such as system updates, OS
 		vulnerabilities, endpoint protection, and provides alerts."
 
-  	desc 'check',
+  desc 'check',
        "From Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Defender for Cloud
@@ -46,7 +46,7 @@ control 'azure-foundations-cis-3.1.1.1' do
         • Policy ID: 475aae12-b88a-4572-8b36-9b712b2b3a17 - Name: 'Auto
         provisioning of the Log Analytics agent should be enabled on your subscription'"
 
-  	desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Defender for Cloud
@@ -80,31 +80,31 @@ control 'azure-foundations-cis-3.1.1.1' do
         }
         }"
 
-	impact 0.5
-	tag nist: ['RA-5']
-	tag severity: 'medium'
-	tag cis_controls: [{ '8' => ['7.5', '7.6'] }]
+  impact 0.5
+  tag nist: ['RA-5']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['7.5', '7.6'] }]
 
-	ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-data-security'
-	ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-enable-data-collection'
-	ref 'https://msdn.microsoft.com/en-us/library/mt704062.aspx'
-	ref 'https://msdn.microsoft.com/en-us/library/mt704063.aspx'
-	ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/autoprovisioningsettings/list'
-	ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/autoprovisioningsettings/create'
-	ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-5-centralize-security-log-management-and-analysis'
-	ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
-	ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
+  ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-data-security'
+  ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-enable-data-collection'
+  ref 'https://msdn.microsoft.com/en-us/library/mt704062.aspx'
+  ref 'https://msdn.microsoft.com/en-us/library/mt704063.aspx'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/autoprovisioningsettings/list'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/autoprovisioningsettings/create'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-5-centralize-security-log-management-and-analysis'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
 
-	script = <<-EOH
+  script = <<-EOH
 		(Get-AzSecurityAutoProvisioningSetting -Name 'default').AutoProvision
-	EOH
+  EOH
 
-	pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
-	describe "Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs'" do
-		subject { pwsh_output.stdout.strip }
-               it "is set to 'On'" do
-                    expect(subject).to eq('On')
-		end
-	end
+  describe "Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs'" do
+    subject { pwsh_output.stdout.strip }
+    it "is set to 'On'" do
+      expect(subject).to eq('On')
+    end
+  end
 end

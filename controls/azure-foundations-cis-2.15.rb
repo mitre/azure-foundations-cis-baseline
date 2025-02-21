@@ -1,9 +1,9 @@
 control 'azure-foundations-cis-2.15' do
-    title "Ensure That 'Guest users access restrictions' is set to 'Guest user access is restricted to properties and memberships of their own directory objects' "
-    desc "Limit guest user permissions."
+  title "Ensure That 'Guest users access restrictions' is set to 'Guest user access is restricted to properties and memberships of their own directory objects' "
+  desc 'Limit guest user permissions.'
 
-    desc 'rationale',
-        "Limiting guest access ensures that guest accounts do not have permission for certain
+  desc 'rationale',
+       "Limiting guest access ensures that guest accounts do not have permission for certain
         directory tasks, such as enumerating users, groups or other directory resources, and
         cannot be assigned to administrative roles in your directory. Guest access has three
         levels of restriction.
@@ -15,8 +15,8 @@ control 'azure-foundations-cis-2.15' do
         The recommended option is the 3rd, most restrictive: 'Guest user access is restricted to
         their own directory object'."
 
-    desc 'impact',
-        "This may create additional requests for permissions to access resources that
+  desc 'impact',
+       "This may create additional requests for permissions to access resources that
         administrators will need to approve.
         According to https://learn.microsoft.com/en-us/azure/active-directory/enterprise-
         users/users-restrict-guest-permissions#services-currently-not-supported
@@ -27,7 +27,7 @@ control 'azure-foundations-cis-2.15' do
         • Yammer
         • Planner in SharePoint"
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
@@ -51,7 +51,7 @@ control 'azure-foundations-cis-2.15' do
         If the GuestUserRoleID property does not equal 2af84b1e-32c8-42b7-82bc-
         daa82404023b then it is not set to most restrictive."
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select Microsoft Entra ID
@@ -70,18 +70,18 @@ control 'azure-foundations-cis-2.15' do
         3. Ensure that the GuestUserRoleId is equal to the earlier entered value of
         2af84b1e-32c8-42b7-82bc-daa82404023b."
 
-    impact 0.5
-    tag nist: ['AC-3','AC-5','AC-6','MP-2','RA-2','AC-2(1)','AC-3','AC-2','AC-5','AC-6','AC-6(1)','AC-6(7)','AU-9(4)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['3.3','3.7','6.7','6.8'] }]
+  impact 0.5
+  tag nist: ['AC-3', 'AC-5', 'AC-6', 'MP-2', 'RA-2', 'AC-2(1)', 'AC-3', 'AC-2', 'AC-5', 'AC-6', 'AC-6(1)', 'AC-6(7)', 'AU-9(4)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['3.3', '3.7', '6.7', '6.8'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions#member-and-guest-users'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
-    ref 'https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/users-restrict-guest-permissions'
+  ref 'https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/users-default-permissions#member-and-guest-users'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
+  ref 'https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/users-restrict-guest-permissions'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

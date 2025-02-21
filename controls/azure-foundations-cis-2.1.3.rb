@@ -1,24 +1,24 @@
 control 'azure-foundations-cis-2.1.3' do
-    title "Ensure that 'Multi-Factor Auth Status' is 'Enabled' for all Non-Privileged Users"
-    desc "[IMPORTANT - Please read the section overview: If your organization pays for
+  title "Ensure that 'Multi-Factor Auth Status' is 'Enabled' for all Non-Privileged Users"
+  desc "[IMPORTANT - Please read the section overview: If your organization pays for
         Microsoft Entra ID licensing (included in Microsoft 365 E3, E5, or F5, and EM&S E3 or
         E5 licenses) and CAN use Conditional Access, ignore the recommendations in this
         section and proceed to the Conditional Access section.]
         Enable multi-factor authentication for all non-privileged users."
 
-    desc 'rationale',
-        "Multi-factor authentication requires an individual to present a minimum of two separate
+  desc 'rationale',
+       "Multi-factor authentication requires an individual to present a minimum of two separate
         forms of authentication before access is granted. Multi-factor authentication provides
         additional assurance that the individual attempting to gain access is who they claim to
         be. With multi-factor authentication, an attacker would need to compromise at least two
         different authentication mechanisms, increasing the difficulty of compromise and thus
         reducing the risk."
 
-    desc 'impact',
-        "Users would require two forms of authentication before any access is granted. Also, this
+  desc 'impact',
+       "Users would require two forms of authentication before any access is granted. Also, this
         requires an overhead for managing dual forms of authentication."
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. From Azure Home select the Portal Menu
         2. Select the Microsoft Entra ID blade
@@ -60,7 +60,7 @@ control 'azure-foundations-cis-2.1.3' do
         • Policy ID: 81b3ccb4-e6e8-4e4a-8d05-5df25cd29fd4 - Name: 'Accounts with
         read permissions on Azure resources should be MFA enabled"
 
-    desc 'fix',
+  desc 'fix',
        "Follow Microsoft Azure documentation and enable multi-factor authentication in your
         environment.
         https://docs.microsoft.com/en-us/azure/active-directory/authentication/tutorial-enable-
@@ -73,16 +73,16 @@ control 'azure-foundations-cis-2.1.3' do
         getstarted#enable-multi-factor-authentication-with-conditional-access
         https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-mfasettings"
 
-    impact 0.5
-    tag nist: ['IA-2(1)','IA-2(2)','AC-19']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['6.3','6.4'] }]
+  impact 0.5
+  tag nist: ['IA-2(1)', 'IA-2(2)', 'AC-19']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['6.3', '6.4'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/multi-factor-authentication/multi-factor-authentication'
-    ref 'https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-4-authenticate-server-and-services'
+  ref 'https://docs.microsoft.com/en-us/azure/multi-factor-authentication/multi-factor-authentication'
+  ref 'https://learn.microsoft.com/en-us/entra/identity/authentication/howto-mfa-userstates'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-4-authenticate-server-and-services'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

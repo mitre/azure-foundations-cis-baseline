@@ -1,20 +1,20 @@
 control 'azure-foundations-cis-3.1.7.3' do
-    title "Ensure That Microsoft Defender for (Managed Instance) Azure SQL Databases Is Set To 'On'"
-    desc "Turning on Microsoft Defender for Azure SQL Databases enables threat detection for
+  title "Ensure That Microsoft Defender for (Managed Instance) Azure SQL Databases Is Set To 'On'"
+  desc "Turning on Microsoft Defender for Azure SQL Databases enables threat detection for
         Managed Instance Azure SQL databases, providing threat intelligence, anomaly
         detection, and behavior analytics in Microsoft Defender for Cloud."
 
-    desc 'rationale',
-        "Enabling Microsoft Defender for Azure SQL Databases allows for greater defense-in-
+  desc 'rationale',
+       "Enabling Microsoft Defender for Azure SQL Databases allows for greater defense-in-
         depth, includes functionality for discovering and classifying sensitive data, surfacing and
         mitigating potential database vulnerabilities, and detecting anomalous activities that
         could indicate a threat to your database."
 
-    desc 'impact',
-        "Turning on Microsoft Defender for Azure SQL Databases incurs an additional cost per
+  desc 'impact',
+       "Turning on Microsoft Defender for Azure SQL Databases incurs an additional cost per
         resource."
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. Go to Microsoft Defender for Cloud.
         2. Select Environment Settings blade.
@@ -40,7 +40,7 @@ control 'azure-foundations-cis-3.1.7.3' do
         • Policy ID: abfb7388-5bf4-4ad7-ba99-2cd2f41cebb9 - Name: 'Azure Defender for
         SQL should be enabled for unprotected SQL Managed Instances'"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. Go to Microsoft Defender for Cloud.
         2. Select Environment Settings blade.
@@ -57,28 +57,28 @@ control 'azure-foundations-cis-3.1.7.3' do
         Run the following command:
         Set-AzSecurityPricing -Name 'SqlServers' -PricingTier 'Standard'"
 
-    impact 0.5
-    tag nist: ['RA-5']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.5'] }]
+  impact 0.5
+  tag nist: ['RA-5']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['7.5'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/list'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
-    ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-2-monitor-anomalies-and-threats-targeting-sensitive-data'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
+  ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/list'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
+  ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-2-monitor-anomalies-and-threats-targeting-sensitive-data'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
 
-    script = <<-EOH
+  script = <<-EOH
         (Get-AzSecurityPricing -Name 'SqlServers').PricingTier
-    EOH
+  EOH
 
-    pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
-    describe "Ensure That Microsoft Defender for (Managed Instance) Azure SQL Databases" do   
-        subject { pwsh_output.stdout.strip }
-        it "is set to 'On'" do
-            expect(subject).to eq('Standard')
-        end
+  describe 'Ensure That Microsoft Defender for (Managed Instance) Azure SQL Databases' do
+    subject { pwsh_output.stdout.strip }
+    it "is set to 'On'" do
+      expect(subject).to eq('Standard')
     end
+  end
 end

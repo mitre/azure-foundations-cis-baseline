@@ -1,6 +1,6 @@
 control 'azure-foundations-cis-3.1.15' do
-    title "Ensure that Microsoft Defender External Attack Surface Monitoring (EASM) is enabled"
-    desc "An organization's attack surface is the collection of assets with a public network
+  title 'Ensure that Microsoft Defender External Attack Surface Monitoring (EASM) is enabled'
+  desc "An organization's attack surface is the collection of assets with a public network
         identifier or URI that an external threat actor can see or access from outside your cloud.
         It is the set of points on the boundary of a system, a system element, system
         component, or an environment where an attacker can try to enter, cause an effect on, or
@@ -21,13 +21,13 @@ control 'azure-foundations-cis-3.1.15' do
         Results are classified High/Medium/Low and some of them include proposed
         mitigations."
 
-    desc 'rationale',
-        "This tool can monitor the externally exposed resources of an organization, provide
+  desc 'rationale',
+       "This tool can monitor the externally exposed resources of an organization, provide
         valuable insights, and export these findings in a variety of formats (including CSV) for
         use in vulnerability management operations and red/purple team exercises."
 
-    desc 'impact',
-        "Microsoft Defender EASM workspaces are currently available as Azure Resources with
+  desc 'impact',
+       "Microsoft Defender EASM workspaces are currently available as Azure Resources with
         a 30-day free trial period but can quickly accrue significant charges. The costs are
         calculated daily as (Number of 'billable' inventory items) x (item cost per day;
         approximately: $0.017).
@@ -39,25 +39,25 @@ control 'azure-foundations-cis-3.1.15' do
         day or $2500-5000 USD/month at the time of publication.
         If the workspace is deleted by the last day of a free trial period, no charges are billed."
 
-    desc 'check',
+  desc 'check',
        "To view Defender EASM workspaces created for your Subscriptions, search for EASM
         in the Azure Portal using the search box."
 
-    desc 'fix',
+  desc 'fix',
        "To begin remediation, a Microsoft Defender EASM workspace must be created. The
         resources and inventory items added to this workspace will depend on your
         environment."
 
-    impact 0.5
-    tag nist: ['RA-5']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.6'] }]
+  impact 0.5
+  tag nist: ['RA-5']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['7.6'] }]
 
-    ref 'https://learn.microsoft.com/en-us/azure/external-attack-surface-management/'
-    ref 'https://learn.microsoft.com/en-us/azure/external-attack-surface-management/deploying-the-defender-easm-azure-resource?source=recommendations'
-    ref 'https://www.microsoft.com/en-us/security/blog/2022/08/02/microsoft-announces-new-solutions-for-threat-intelligence-and-attack-surface-management/'
+  ref 'https://learn.microsoft.com/en-us/azure/external-attack-surface-management/'
+  ref 'https://learn.microsoft.com/en-us/azure/external-attack-surface-management/deploying-the-defender-easm-azure-resource?source=recommendations'
+  ref 'https://www.microsoft.com/en-us/security/blog/2022/08/02/microsoft-announces-new-solutions-for-threat-intelligence-and-attack-surface-management/'
 
-    describe 'Ensure that Microsoft Defender External Attack Surface Monitoring (EASM) is enabled' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'Ensure that Microsoft Defender External Attack Surface Monitoring (EASM) is enabled' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

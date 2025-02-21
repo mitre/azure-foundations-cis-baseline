@@ -1,12 +1,12 @@
 control 'azure-foundations-cis-4.6' do
-    title "Ensure that 'Public Network Access' is `Disabled' for storage accounts"
-    desc "Disallowing public network access for a storage account overrides the public access
+  title "Ensure that 'Public Network Access' is `Disabled' for storage accounts"
+  desc "Disallowing public network access for a storage account overrides the public access
         settings for individual containers in that storage account for Azure Resource Manager
         Deployment Model storage accounts. Azure Storage accounts that use the classic
         deployment model will be retired on August 31, 2024."
 
-    desc 'rationale',
-        "The default network configuration for a storage account permits a user with appropriate
+  desc 'rationale',
+       "The default network configuration for a storage account permits a user with appropriate
         permissions to configure public network access to containers and blobs in a storage
         account. Keep in mind that public access to a container is always turned off by default
         and must be explicitly configured to permit anonymous requests. It grants read-only
@@ -16,10 +16,10 @@ control 'azure-foundations-cis-4.6' do
         token or Azure AD RBAC should be used for providing controlled and timed access to
         blob containers."
 
-    desc 'impact',
-        "Access will have to be managed using shared access signatures or via Azure AD RBAC."
+  desc 'impact',
+       'Access will have to be managed using shared access signatures or via Azure AD RBAC.'
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. Go to Storage Accounts
         2. For each storage account, under the Security + networking section, click
@@ -41,7 +41,7 @@ control 'azure-foundations-cis-4.6' do
         • Policy ID: b2982f36-99f2-4db5-8eff-283140c09693 - Name: 'Storage accounts
         should disable public network access'"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         First, follow Microsoft documentation and create shared access signature tokens for
         your blob containers. Then,
@@ -60,36 +60,36 @@ control 'azure-foundations-cis-4.6' do
         Set-AzStorageAccount -ResourceGroupName <resource group name> -Name <storage
         account name> -PublicNetworkAccess Disabled"
 
-    impact 0.5
-    tag nist: ['AC-3','AC-5','AC-6','MP-2']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['3.3'] }]
+  impact 0.5
+  tag nist: ['AC-3', 'AC-5', 'AC-6', 'MP-2']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['3.3'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/storage-manage-access-to-resources'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
-    ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/assign-azure-role-data-access'
-    ref 'https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/storage-manage-access-to-resources'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/assign-azure-role-data-access'
+  ref 'https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal'
 
-    # rg_sa_list = input('resource_groups_and_storage_accounts')
+  # rg_sa_list = input('resource_groups_and_storage_accounts')
 
-    # rg_sa_list.each do |pair|
-    #     resource_group, storage_account = pair.split('.')
+  # rg_sa_list.each do |pair|
+  #     resource_group, storage_account = pair.split('.')
 
-    #     describe "Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-    #         script = <<-EOH
-    #             (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").PublicNetworkAccess
-    #         EOH
+  #     describe "Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+  #         script = <<-EOH
+  #             (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").PublicNetworkAccess
+  #         EOH
 
-    #         describe powershell(script) do
-    #             its('stdout.strip') { should cmp 'Disabled' }
-    #         end
-    #     end
-    # end
+  #         describe powershell(script) do
+  #             its('stdout.strip') { should cmp 'Disabled' }
+  #         end
+  #     end
+  # end
 
-	rg_sa_list = input('resource_groups_and_storage_accounts')
+  rg_sa_list = input('resource_groups_and_storage_accounts')
 
-	script = <<-EOH
+  script = <<-EOH
 		$rg_sa_list = ConvertFrom-Json '#{rg_sa_list.to_json}'
 
 		$nonCompliantResources = @()
@@ -120,14 +120,14 @@ control 'azure-foundations-cis-4.6' do
 			else {
 				$nonCompliantResources -join ","
 			}
-		EOH
+  EOH
 
-	pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
-	describe "Storage Accounts with non-disabled Public Network Access" do
-		subject { pwsh_output.stdout.strip.split(',').map(&:strip).reject { |x| x.empty? } }
-			it "should be empty (i.e. all storage accounts have PublicNetworkAccess set to Disabled)" do
-				expect(subject).to be_empty
-		end
-	end
+  describe 'Storage Accounts with non-disabled Public Network Access' do
+    subject { pwsh_output.stdout.strip.split(',').map(&:strip).reject { |x| x.empty? } }
+    it 'should be empty (i.e. all storage accounts have PublicNetworkAccess set to Disabled)' do
+      expect(subject).to be_empty
+    end
+  end
 end

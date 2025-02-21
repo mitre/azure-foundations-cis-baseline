@@ -1,6 +1,6 @@
 control 'azure-foundations-cis-4.14' do
-    title "Ensure Storage Logging is Enabled for Table Service for 'Read', 'Write', and 'Delete' Requests"
-    desc "Azure Table storage is a service that stores structured NoSQL data in the cloud,
+  title "Ensure Storage Logging is Enabled for Table Service for 'Read', 'Write', and 'Delete' Requests"
+  desc "Azure Table storage is a service that stores structured NoSQL data in the cloud,
         providing a key/attribute store with a schema-less design. Storage Logging happens
         server-side and allows details for both successful and failed requests to be recorded in
         the storage account. These logs allow users to see the details of read, write, and delete
@@ -9,20 +9,20 @@ control 'azure-foundations-cis-4.14' do
         latency, and server latency; authentication details; concurrency information; and the
         sizes of the request and response messages."
 
-    desc 'rationale',
-        "Storage Analytics logs contain detailed information about successful and failed requests
+  desc 'rationale',
+       "Storage Analytics logs contain detailed information about successful and failed requests
         to a storage service. This information can be used to monitor each individual request to
         a storage service for increased security or diagnostics. Requests are logged on a best-
         effort basis.
         Storage Analytics logging is not enabled by default for your storage account."
 
-    desc 'impact',
-        "Being a level 2, enabling this setting can have a high impact on the cost of data storage
+  desc 'impact',
+       "Being a level 2, enabling this setting can have a high impact on the cost of data storage
         used for logging more data per each request. Do not enable this without determining
         your need for this level of logging or forget to check in on data usage and projected
         cost."
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. Go to Storage Accounts.
         2. For each storage account, under Monitoring, click Diagnostics settings.
@@ -44,7 +44,7 @@ control 'azure-foundations-cis-4.14' do
         • Policy ID: 2fb86bf3-d221-43d1-96d1-2434af34eaa0 - Name: 'Configure
         diagnostic settings for Table Services to Log Analytics workspace'"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. Go to Storage Accounts.
         2. For each storage account, under Monitoring, click Diagnostics settings.
@@ -58,35 +58,35 @@ control 'azure-foundations-cis-4.14' do
         Remediate from Azure CLI
         Use the below command to enable the Storage Logging for Table service.
         az storage logging update --account-name <storageAccountName> --account-key
-        <storageAccountKey> --services t --log rwd --retention 90"    
+        <storageAccountKey> --services t --log rwd --retention 90"
 
-    impact 0.5
-    tag nist: ['AU-3','AU-3(1)','AU-7','AU-12']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['8.5'] }]
+  impact 0.5
+  tag nist: ['AU-3', 'AU-3(1)', 'AU-7', 'AU-12']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['8.5'] }]
 
-    ref 'https://docs.microsoft.com/en-us/rest/api/storageservices/about-storage-analytics-logging'
-    ref 'https://docs.microsoft.com/en-us/cli/azure/storage/logging?view=azure-cli-latest'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
+  ref 'https://docs.microsoft.com/en-us/rest/api/storageservices/about-storage-analytics-logging'
+  ref 'https://docs.microsoft.com/en-us/cli/azure/storage/logging?view=azure-cli-latest'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
 
-    rg_sa_list = input('resource_groups_and_storage_accounts')
-    
-    rg_sa_list.each do |pair|
-        resource_group, storage_account = pair.split('.')
+  rg_sa_list = input('resource_groups_and_storage_accounts')
 
-        output = json(command:"az storage logging show --services t --account-name #{storage_account}").params
+  rg_sa_list.each do |pair|
+    resource_group, storage_account = pair.split('.')
 
-        describe 'Storage Queue Logging Settings' do
-            subject { output['table'] }
-            it 'has delete logging enabled' do
-                expect(subject['delete']).to cmp true
-            end
-            it 'has read logging enabled' do
-                expect(subject['read']).to cmp true
-            end
-            it 'has write logging enabled' do
-                expect(subject['write']).to cmp true
-            end
-        end
+    output = json(command: "az storage logging show --services t --account-name #{storage_account}").params
+
+    describe 'Storage Queue Logging Settings' do
+      subject { output['table'] }
+      it 'has delete logging enabled' do
+        expect(subject['delete']).to cmp true
+      end
+      it 'has read logging enabled' do
+        expect(subject['read']).to cmp true
+      end
+      it 'has write logging enabled' do
+        expect(subject['write']).to cmp true
+      end
     end
+  end
 end

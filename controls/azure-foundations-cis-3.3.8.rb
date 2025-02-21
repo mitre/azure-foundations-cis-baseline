@@ -1,19 +1,19 @@
 control 'azure-foundations-cis-3.3.8' do
-    title "Ensure Automatic Key Rotation is Enabled Within Azure Key Vault for the Supported Services "
-    desc "Automatic Key Rotation is available in Public Preview. The currently supported
+  title 'Ensure Automatic Key Rotation is Enabled Within Azure Key Vault for the Supported Services '
+  desc "Automatic Key Rotation is available in Public Preview. The currently supported
         applications are Key Vault, Managed Disks, and Storage accounts accessing keys
         within Key Vault. The number of supported applications will incrementally increased."
 
-    desc 'rationale',
-        "Once set up, Automatic Private Key Rotation removes the need for manual
+  desc 'rationale',
+       "Once set up, Automatic Private Key Rotation removes the need for manual
         administration when keys expire at intervals determined by your organization's policy.
         The recommended key lifetime is 2 years. Your organization should determine its own
         key expiration policy."
 
-    desc 'impact',
-        "There are an additional costs per operation in running the needed applications."
+  desc 'impact',
+       'There are an additional costs per operation in running the needed applications.'
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. From Azure Portal select the Portal Menu in the top left.
         2. Select Key Vaults.
@@ -41,7 +41,7 @@ control 'azure-foundations-cis-3.3.8' do
         a rotation policy ensuring that their rotation is scheduled within the specified
         number of days after creation.'"
 
-    desc 'fix',
+  desc 'fix',
        "Note: Azure CLI and Powershell use ISO8601 flags to input timespans. Every timespan
         input will be in the format P<timespanInISO8601Format>(Y,M,D). The leading P is
         required with it denoting period. The (Y,M,D) are for the duration of Year, Month,and
@@ -122,21 +122,21 @@ control 'azure-foundations-cis-3.3.8' do
         }
         #>"
 
-    impact 0.5
-    tag nist: ['AU-11','CM-12','SI-12','AC-1','AC-2','AC-2(1)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['3.1','6.2'] }]
+  impact 0.5
+  tag nist: ['AU-11', 'CM-12', 'SI-12', 'AC-1', 'AC-2', 'AC-2(1)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['3.1', '6.2'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/key-vault/keys/how-to-configure-key-rotation'
-    ref 'https://docs.microsoft.com/en-us/azure/storage/common/customer-managed-keys-overview#update-the-key-version'
-    ref 'https://docs.microsoft.com/en-us/azure/virtual-machines/windows/disks-enable-customer-managed-keys-powershell#set-up-an-azure-key-vault-and-diskencryptionset-optionally-with-automatic-key-rotation'
-    ref 'https://azure.microsoft.com/en-us/updates/public-preview-automatic-key-rotation-of-customermanaged-keys-for-encrypting-azure-managed-disks/'
-    ref 'https://docs.microsoft.com/en-us/cli/azure/keyvault/key/rotation-policy?view=azure-cli-latest#az-keyvault-key-rotation-policy-update'
-    ref 'https://docs.microsoft.com/en-us/powershell/module/az.keyvault/set-azkeyvaultkeyrotationpolicy?view=azps-8.1.0'
-    ref 'https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/scalar-data-types/timespan'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-6-use-a-secure-key-management-process'
+  ref 'https://docs.microsoft.com/en-us/azure/key-vault/keys/how-to-configure-key-rotation'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/common/customer-managed-keys-overview#update-the-key-version'
+  ref 'https://docs.microsoft.com/en-us/azure/virtual-machines/windows/disks-enable-customer-managed-keys-powershell#set-up-an-azure-key-vault-and-diskencryptionset-optionally-with-automatic-key-rotation'
+  ref 'https://azure.microsoft.com/en-us/updates/public-preview-automatic-key-rotation-of-customermanaged-keys-for-encrypting-azure-managed-disks/'
+  ref 'https://docs.microsoft.com/en-us/cli/azure/keyvault/key/rotation-policy?view=azure-cli-latest#az-keyvault-key-rotation-policy-update'
+  ref 'https://docs.microsoft.com/en-us/powershell/module/az.keyvault/set-azkeyvaultkeyrotationpolicy?view=azps-8.1.0'
+  ref 'https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/scalar-data-types/timespan'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-6-use-a-secure-key-management-process'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

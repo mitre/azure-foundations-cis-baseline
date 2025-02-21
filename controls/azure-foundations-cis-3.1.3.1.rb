@@ -1,21 +1,21 @@
 control 'azure-foundations-cis-3.1.3.1' do
-    title "Ensure That Microsoft Defender for Servers Is Set to 'On'"
-    desc "Turning on Microsoft Defender for Servers enables threat detection for Servers,
+  title "Ensure That Microsoft Defender for Servers Is Set to 'On'"
+  desc "Turning on Microsoft Defender for Servers enables threat detection for Servers,
         providing threat intelligence, anomaly detection, and behavior analytics in the Microsoft
         Defender for Cloud."
 
-    desc 'rationale',
-        "Enabling Microsoft Defender for Servers allows for greater defense-in-depth, with threat
+  desc 'rationale',
+       "Enabling Microsoft Defender for Servers allows for greater defense-in-depth, with threat
         detection provided by the Microsoft Security Response Center (MSRC)."
 
-    desc 'impact',
-        "Turning on Microsoft Defender for Servers in Microsoft Defender for Cloud incurs an
+  desc 'impact',
+       "Turning on Microsoft Defender for Servers in Microsoft Defender for Cloud incurs an
         additional cost per resource.
         Two Defender for Servers plans exist:
         • Plan 1: Subscription only
         • Plan 2: Subscription and workspace"
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. Go to Microsoft Defender for Cloud
         2. Under Management, select Environment Settings
@@ -40,7 +40,7 @@ control 'azure-foundations-cis-3.1.3.1' do
         • Policy ID: 4da35fc9-c9e7-4960-aec9-797fe7d9051d - Name: 'Azure Defender
         for servers should be enabled'"
 
-    desc 'fix',
+  desc 'fix',
        "Remediate from Azure Portal
         1. Go to Microsoft Defender for Cloud
         2. Under Management, select Environment Settings
@@ -56,27 +56,27 @@ control 'azure-foundations-cis-3.1.3.1' do
         Run the following command:
         Set-AzSecurityPricing -Name 'VirtualMachines' -PricingTier 'Standard'"
 
-    impact 0.5
-    tag nist: ['RA-5','SI-3']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.5','10.1'] }]
+  impact 0.5
+  tag nist: ['RA-5', 'SI-3']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['7.5', '10.1'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/list'
-    ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
-    ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-endpoint-security#es-1-use-endpoint-detection-and-response-edr'
+  ref 'https://docs.microsoft.com/en-us/azure/security-center/security-center-detection-capabilities'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/list'
+  ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/pricings/update'
+  ref 'https://docs.microsoft.com/en-us/powershell/module/az.security/get-azsecuritypricing'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-endpoint-security#es-1-use-endpoint-detection-and-response-edr'
 
-    script = <<-EOH
+  script = <<-EOH
         (Get-AzSecurityPricing -Name 'VirtualMachines').PricingTier
-    EOH
+  EOH
 
-	pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
-    describe "Ensure That Microsoft Defender for Servers" do   
-        subject { pwsh_output.stdout.strip }
-        it "is set to 'On'" do
-            expect(subject).to eq('Standard')
-        end
+  describe 'Ensure That Microsoft Defender for Servers' do
+    subject { pwsh_output.stdout.strip }
+    it "is set to 'On'" do
+      expect(subject).to eq('Standard')
     end
+  end
 end

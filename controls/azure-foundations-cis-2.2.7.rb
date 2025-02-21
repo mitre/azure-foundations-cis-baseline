@@ -1,12 +1,12 @@
 control 'azure-foundations-cis-2.2.7' do
-    title 'Ensure Multifactor Authentication is Required for Windows Azure Service Management API'
-    desc "This recommendation ensures that users accessing the Windows Azure Service
+  title 'Ensure Multifactor Authentication is Required for Windows Azure Service Management API'
+  desc "This recommendation ensures that users accessing the Windows Azure Service
         Management API (i.e. Azure Powershell, Azure CLI, Azure Resource Manager API,
         etc.) are required to use multifactor authentication (MFA) credentials when accessing
         resources through the Windows Azure Service Management API."
 
-    desc 'rationale',
-        "Administrative access to the Windows Azure Service Management API should be
+  desc 'rationale',
+       "Administrative access to the Windows Azure Service Management API should be
         secured with a higher level of scrutiny to authenticating mechanisms. Enabling
         multifactor authentication is recommended to reduce the potential for abuse of
         Administrative actions, and to prevent intruders or compromised admin credentials from
@@ -17,14 +17,14 @@ control 'azure-foundations-cis-2.2.7' do
         include 'All Users' to ensure that all users not specifically excepted will be required to
         use MFA to access the Azure Service Management API."
 
-    desc 'impact',
-        "Conditional Access policies require Microsoft Entra ID P1 or P2 licenses. Similarly, they
+  desc 'impact',
+       "Conditional Access policies require Microsoft Entra ID P1 or P2 licenses. Similarly, they
         may require additional overhead to maintain if users lose access to their MFA. Any
         users or groups which are granted an exception to this policy should be carefully
         tracked, be granted only minimal necessary privileges, and conditional access
         exceptions should be regularly reviewed or investigated."
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. From the Azure Admin Portal dashboard, open Microsoft Entra ID.
         2. In the menu on the left of the Entra ID blade, click Security.
@@ -42,7 +42,7 @@ control 'azure-foundations-cis-2.2.7' do
         radio button is selected.
         11. Under Select, ensure that Windows Azure Service Management API is listed."
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. From the Azure Admin Portal dashboard, open Microsoft Entra ID.
         2. Click Security in the Entra ID blade.
@@ -69,17 +69,17 @@ control 'azure-foundations-cis-2.2.7' do
         After testing the policy in report-only mode, update the Enable policy setting from
         Report-only to On."
 
-    impact 0.5
-    tag nist: ['IA-2(1)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['6.5'] }]
+  impact 0.5
+  tag nist: ['IA-2(1)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['6.5'] }]
 
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
-    ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-users-groups'
-    ref 'https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-policy-azure-management'
-    ref 'https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-conditional-access-cloud-apps#windows-azure-service-management-api'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
+  ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-users-groups'
+  ref 'https://learn.microsoft.com/en-us/entra/identity/conditional-access/howto-conditional-access-policy-azure-management'
+  ref 'https://learn.microsoft.com/en-us/entra/identity/conditional-access/concept-conditional-access-cloud-apps#windows-azure-service-management-api'
 
-    describe 'Ensure Multifactor Authentication is Required for Windows Azure Service Management API' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'Ensure Multifactor Authentication is Required for Windows Azure Service Management API' do
+    skip 'The check for this control needs to be done manually'
+  end
 end

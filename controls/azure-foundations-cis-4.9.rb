@@ -1,6 +1,6 @@
 control 'azure-foundations-cis-4.9' do
-    title "Ensure Private Endpoints are used to access Storage Accounts"
-    desc "Use private endpoints for your Azure Storage accounts to allow clients and services to
+  title 'Ensure Private Endpoints are used to access Storage Accounts'
+  desc "Use private endpoints for your Azure Storage accounts to allow clients and services to
         securely access data located over a network via an encrypted Private Link. To do this,
         the private endpoint uses an IP address from the VNet for each service. Network traffic
         between disparate services securely traverses encrypted over the VNet. This VNet can
@@ -9,15 +9,15 @@ control 'azure-foundations-cis-4.9' do
         together. This creates further security through segmenting network traffic and
         preventing outside sources from accessing it."
 
-    desc 'rationale',
-        "Securing traffic between services through encryption protects the data from easy
+  desc 'rationale',
+       "Securing traffic between services through encryption protects the data from easy
         interception and reading."
-    
-    desc 'impact',
-        "A Private Endpoint costs approximately US$7.30 per month. If an Azure Virtual Network
+
+  desc 'impact',
+       "A Private Endpoint costs approximately US$7.30 per month. If an Azure Virtual Network
         is not implemented correctly, this may result in the loss of critical network traffic."
 
-    desc 'check',
+  desc 'check',
        "Audit from Azure Portal
         1. Open the Storage Accounts blade.
         2. For each listed Storage Account, perform the following check:
@@ -49,7 +49,7 @@ control 'azure-foundations-cis-4.9' do
         • Policy ID: 6edd7eda-6dd8-40f7-810d-67160c639cd9 - Name: 'Storage accounts
         should use private link'"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. Open the Storage Accounts blade
         2. For each listed Storage Account, perform the following:
@@ -120,33 +120,33 @@ control 'azure-foundations-cis-4.9' do
         <blob|blob_secondary|file|file_secondary|table|table_secondary|queue|queue_se
         condary|web|web_secondary|dfs|dfs_secondary>"
 
-    impact 0.5
-    tag nist: ['PL-8','PM-7','SA-8','CM-7','CP-6','CP-7','SC-7']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['12.2'] }]
+  impact 0.5
+  tag nist: ['PL-8', 'PM-7', 'SA-8', 'CM-7', 'CP-6', 'CP-7', 'SC-7']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['12.2'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-private-endpoints'
-    ref 'https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview'
-    ref 'https://docs.microsoft.com/en-us/azure/private-link/create-private-endpoint-portal'
-    ref 'https://docs.microsoft.com/en-us/azure/private-link/create-private-endpoint-cli?tabs=dynamic-ip'
-    ref 'https://docs.microsoft.com/en-us/azure/private-link/create-private-endpoint-powershell?tabs=dynamic-ip'
-    ref 'https://docs.microsoft.com/en-us/azure/private-link/tutorial-private-endpoint-storage-portal'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-private-endpoints'
+  ref 'https://docs.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview'
+  ref 'https://docs.microsoft.com/en-us/azure/private-link/create-private-endpoint-portal'
+  ref 'https://docs.microsoft.com/en-us/azure/private-link/create-private-endpoint-cli?tabs=dynamic-ip'
+  ref 'https://docs.microsoft.com/en-us/azure/private-link/create-private-endpoint-powershell?tabs=dynamic-ip'
+  ref 'https://docs.microsoft.com/en-us/azure/private-link/tutorial-private-endpoint-storage-portal'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
 
-    rg_sa_list = input('resource_groups_and_storage_accounts')
+  rg_sa_list = input('resource_groups_and_storage_accounts')
 
-    rg_sa_list.each do |pair|
-        resource_group, storage_account = pair.split('.')
+  rg_sa_list.each do |pair|
+    resource_group, storage_account = pair.split('.')
 
-        describe "Private Endpoint Check for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-            script = <<-EOH
+    describe "Private Endpoint Check for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+      script = <<-EOH
                 $storageAccount = Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}"
                 Get-AzPrivateEndpoint -ResourceGroup "#{resource_group}" | Where-Object { $_.PrivateLinkServiceConnectionsText -match $storageAccount.id }
-            EOH
+      EOH
 
-            describe powershell(script) do
-                its('stdout.strip') { should_not be_empty }
-            end
-        end
+      describe powershell(script) do
+        its('stdout.strip') { should_not be_empty }
+      end
     end
+  end
 end

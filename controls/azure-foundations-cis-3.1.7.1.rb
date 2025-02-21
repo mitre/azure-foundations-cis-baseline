@@ -1,19 +1,19 @@
 control 'azure-foundations-cis-3.1.7.1' do
-    title "Ensure That Microsoft Defender for Azure Cosmos DB Is Set To 'On'"
-    desc "Microsoft Defender for Azure Cosmos DB scans all incoming network requests for
+  title "Ensure That Microsoft Defender for Azure Cosmos DB Is Set To 'On'"
+  desc "Microsoft Defender for Azure Cosmos DB scans all incoming network requests for
         threats to your Azure Cosmos DB resources."
 
-    desc 'rationale',
-        "In scanning Azure Cosmos DB requests within a subscription, requests are compared to
+  desc 'rationale',
+       "In scanning Azure Cosmos DB requests within a subscription, requests are compared to
         a heuristic list of potential security threats. These threats could be a result of a security
         breach within your services, thus scanning for them could prevent a potential security
         threat from being introduced."
 
-    desc 'impact',
-        "Enabling Microsoft Defender for Azure Cosmos DB requires enabling Microsoft
+  desc 'impact',
+       "Enabling Microsoft Defender for Azure Cosmos DB requires enabling Microsoft
         Defender for your subscription. Both will incur additional charges."
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. Go to Microsoft Defender for Cloud
         2. Select Environment Settings blade
@@ -35,7 +35,7 @@ control 'azure-foundations-cis-3.1.7.1' do
         • Policy ID: adbe85b5-83e6-4350-ab58-bf3a4f736e5e - Name: 'Microsoft
         Defender for Azure Cosmos DB should be enabled'"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. Go to Microsoft Defender for Cloud.
         2. Select Environment Settings blade.
@@ -52,28 +52,28 @@ control 'azure-foundations-cis-3.1.7.1' do
         Use the below command to enable Standard pricing tier for Azure Cosmos DB
         Set-AzSecurityPricing -Name 'CosmosDbs' -PricingTier 'Standard"
 
-    impact 0.5
-    tag nist: ['RA-5']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['7.5'] }]
+  impact 0.5
+  tag nist: ['RA-5']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['7.5'] }]
 
-    ref 'https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/'
-    ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security'
-    ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/alerts-overview'
-    ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/baselines/cosmos-db-security-baseline'
-    ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/quickstart-enable-database-protections'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
+  ref 'https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/'
+  ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security'
+  ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/alerts-overview'
+  ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/baselines/cosmos-db-security-baseline'
+  ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/quickstart-enable-database-protections'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
 
-    script = <<-EOH
+  script = <<-EOH
         (Get-AzSecurityPricing -Name 'CosmosDbs').PricingTier
-    EOH
+  EOH
 
-    pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
-    describe "Ensure That Microsoft Defender for Azure Cosmos DB" do   
-        subject { pwsh_output.stdout.strip }
-        it "Is Set To 'On'" do
-            expect(subject).to eq('Standard')
-        end
+  describe 'Ensure That Microsoft Defender for Azure Cosmos DB' do
+    subject { pwsh_output.stdout.strip }
+    it "Is Set To 'On'" do
+      expect(subject).to eq('Standard')
     end
+  end
 end

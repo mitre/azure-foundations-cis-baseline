@@ -1,9 +1,9 @@
 control 'azure-foundations-cis-4.4' do
-    title "Ensure that Storage Account Access Keys are Periodically Regenerated"
-    desc "For increased security, regenerate storage account access keys periodically."
+  title 'Ensure that Storage Account Access Keys are Periodically Regenerated'
+  desc 'For increased security, regenerate storage account access keys periodically.'
 
-    desc 'rationale',
-        "When a storage account is created, Azure generates two 512-bit storage access keys
+  desc 'rationale',
+       "When a storage account is created, Azure generates two 512-bit storage access keys
         which are used for authentication when the storage account is accessed. Rotating these
         keys periodically ensures that any inadvertent access or exposure does not result from
         the compromise of these keys.
@@ -16,12 +16,12 @@ control 'azure-foundations-cis-4.4' do
         necessary. Your organization's security requirements should dictate the appropriate
         setting."
 
-    desc 'impact',
-        "Regenerating access keys can affect services in Azure as well as the organization's
+  desc 'impact',
+       "Regenerating access keys can affect services in Azure as well as the organization's
         applications that are dependent on the storage account. All clients who use the access
         key to access the storage account must be updated to use the new key."
 
-    desc 'check',
+  desc 'check',
        "From Azure Portal
         1. Go to Storage Accounts
         2. For each Storage Account, go to Access keys
@@ -41,7 +41,7 @@ control 'azure-foundations-cis-4.4' do
         'Microsoft.Storage/storageAccounts/regeneratekey/action' AND
         'status'/'localizedValue': 'Succeeded' 'status'/'Value': 'Succeeded'"
 
-    desc 'fix',
+  desc 'fix',
        "From Azure Portal
         1. Go to Storage Accounts
         2. For each Storage Account with outdated keys, go to Access keys
@@ -50,19 +50,19 @@ control 'azure-foundations-cis-4.4' do
         After Azure regenerates the Access Key, you can confirm that Access keys reflects a
         Last rotated date of (0 days ago)."
 
-    impact 0.5
-    tag nist: ['MA-4','AC-1','AC-2','AC-2(1)']
-    tag severity: 'medium'
-    tag cis_controls: [{ '8' => ['4.6','6.2'] }]
+  impact 0.5
+  tag nist: ['MA-4', 'AC-1', 'AC-2', 'AC-2(1)']
+  tag severity: 'medium'
+  tag cis_controls: [{ '8' => ['4.6', '6.2'] }]
 
-    ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-create-storage-account#regenerate-storage-access-keys'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-1-separate-and-limit-highly-privilegedadministrative-users'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-2-protect-identity-and-authentication-systems'
-    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
-    ref 'https://www.pcidssguide.com/pci-dss-key-rotation-requirements/'
-    ref 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'
+  ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-create-storage-account#regenerate-storage-access-keys'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-1-separate-and-limit-highly-privilegedadministrative-users'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-2-protect-identity-and-authentication-systems'
+  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
+  ref 'https://www.pcidssguide.com/pci-dss-key-rotation-requirements/'
+  ref 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'
 
-    describe 'benchmark' do
-        skip 'The check for this control needs to be done manually'
-    end
+  describe 'benchmark' do
+    skip 'The check for this control needs to be done manually'
+  end
 end
