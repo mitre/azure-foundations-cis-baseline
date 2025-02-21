@@ -1,5 +1,4 @@
 #Required Inputs
-subscription_id: "00000000-0000-0000-0000-000000000000"
 resource_groups_and_storage_accounts: 
   - "group1.account1"
 relevant_public_ip_addresses: #control 7.7
