@@ -72,7 +72,7 @@ control 'azure-foundations-cis-6.2.1' do
   ref 'https://docs.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-log'
 
   subscription_id = input('subscription_id')
-  puts(subscription_id)
+
   client_id = input('client_id')
   tenant_id = input('tenant_id')
   client_secret = input('client_secret')
