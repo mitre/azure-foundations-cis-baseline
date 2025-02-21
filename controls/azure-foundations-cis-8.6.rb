@@ -76,11 +76,11 @@ control 'azure-foundations-cis-8.6' do
         }
     }
   )
-  powershell_output = powershell(ensure_data_auth_mode_script)
+  pwsh_output = powershell(ensure_data_auth_mode_script)
   describe 'Ensure the number of resource group and disk combinations that has DataAccessAuthMode setting not set to AzureActiveDirectory' do
-    subject { powershell_output.stdout.strip }
+    subject { pwsh_output.stdout.strip }
     it 'is 0' do
-      failure_message = "The following resource/disks do not have the correct settings: #{powershell_output.stdout.strip}"
+      failure_message = "The following resource/disks do not have the correct settings: #{pwsh_output.stdout.strip}"
       expect(subject).to be_empty, failure_message
     end
   end

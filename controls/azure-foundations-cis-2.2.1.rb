@@ -1,97 +1,106 @@
 control 'azure-foundations-cis-2.2.1' do
-  title 'Ensure Trusted Locations Are Defined'
-  desc "Microsoft Entra ID Conditional Access allows an organization to configure Named
-        locations and configure whether those locations are trusted or untrusted. These
-        settings provide organizations the means to specify Geographical locations for use in
-        conditional access policies, or define actual IP addresses and IP ranges and whether or
-        not those IP addresses and/or ranges are trusted by the organization."
+    title 'Ensure Trusted Locations Are Defined'
+    desc "Microsoft Entra ID Conditional Access allows an organization to configure Named
+            locations and configure whether those locations are trusted or untrusted. These
+            settings provide organizations the means to specify Geographical locations for use in
+            conditional access policies, or define actual IP addresses and IP ranges and whether or
+            not those IP addresses and/or ranges are trusted by the organization."
 
-  desc 'rationale',
-       "Defining trusted source IP addresses or ranges helps organizations create and enforce
-        Conditional Access policies around those trusted or untrusted IP addresses and ranges.
-        Users authenticating from trusted IP addresses and/or ranges may have less access
-        restrictions or access requirements when compared to users that try to authenticate to
-        Microsoft Entra ID from untrusted locations or untrusted source IP addresses/ranges."
+    desc 'rationale',
+        "Defining trusted source IP addresses or ranges helps organizations create and enforce
+            Conditional Access policies around those trusted or untrusted IP addresses and ranges.
+            Users authenticating from trusted IP addresses and/or ranges may have less access
+            restrictions or access requirements when compared to users that try to authenticate to
+            Microsoft Entra ID from untrusted locations or untrusted source IP addresses/ranges."
 
-  desc 'impact',
-       "When configuring Named locations, the organization can create locations using
-        Geographical location data or by defining source IP addresses or ranges. Configuring
-        Named locations using a Country location does not provide the organization the ability
-        to mark those locations as trusted, and any Conditional Access policy relying on those
-        Countries location setting will not be able to use the All trusted locations setting
-        within the Conditional Access policy. They instead will have to rely on the Select
-        locations setting. This may add additional resource requirements when configuring,
-        and will require thorough organizational testing.
-        In general, Conditional Access policies may completely prevent users from
-        authenticating to Microsoft Entra ID, and thorough testing is recommended. To avoid
-        complete lockout, a 'Break Glass' account with full Global Administrator rights is
-        recommended in the event all other administrators are locked out of authenticating to
-        Microsoft Entra ID. This 'Break Glass' account should be excluded from Conditional
-        Access Policies and should be configured with the longest pass phrase feasible. This
-        account should only be used in the event of an emergency and complete administrator
-        lockout.
-        NOTE: Starting July 2024, Microsoft will begin requiring MFA for All Users - including
-        Break Glass Accounts. By the end of October 2024, this requirement will be enforced.
-        Physical FIDO2 security keys, or a certificate kept on secure removable storage can
-        fulfill this MFA requirement. If opting for a physical device, that device should be kept in
-        a very secure, documented physical location."
+    desc 'impact',
+        "When configuring Named locations, the organization can create locations using
+            Geographical location data or by defining source IP addresses or ranges. Configuring
+            Named locations using a Country location does not provide the organization the ability
+            to mark those locations as trusted, and any Conditional Access policy relying on those
+            Countries location setting will not be able to use the All trusted locations setting
+            within the Conditional Access policy. They instead will have to rely on the Select
+            locations setting. This may add additional resource requirements when configuring,
+            and will require thorough organizational testing.
+            In general, Conditional Access policies may completely prevent users from
+            authenticating to Microsoft Entra ID, and thorough testing is recommended. To avoid
+            complete lockout, a 'Break Glass' account with full Global Administrator rights is
+            recommended in the event all other administrators are locked out of authenticating to
+            Microsoft Entra ID. This 'Break Glass' account should be excluded from Conditional
+            Access Policies and should be configured with the longest pass phrase feasible. This
+            account should only be used in the event of an emergency and complete administrator
+            lockout.
+            NOTE: Starting July 2024, Microsoft will begin requiring MFA for All Users - including
+            Break Glass Accounts. By the end of October 2024, this requirement will be enforced.
+            Physical FIDO2 security keys, or a certificate kept on secure removable storage can
+            fulfill this MFA requirement. If opting for a physical device, that device should be kept in
+            a very secure, documented physical location."
 
-  desc 'check',
-       "From Azure Portal
-        1. In the Azure Portal, navigate to Microsoft Entra ID Conditional Access
-        2. Click on Manage
-        3. Click on Named Locations
-        Ensure there are IP ranges location settings configured and marked as Trusted
-        From PowerShell
-        Get-AzureADMSNamedLocationPolicy
-        In the output from the above command, for each Named location group, make sure at
-        least one entry contains the IsTrusted parameter with a value of True. Otherwise, if
-        there is no output as a result of the above command or all of the entries contain the
-        IsTrusted parameter with an empty value, a NULL value, or a value of False, the results
-        are out of compliance with this check."
+    desc 'check',
+        "From Azure Portal
+            1. In the Azure Portal, navigate to Microsoft Entra ID Conditional Access
+            2. Click on Manage
+            3. Click on Named Locations
+            Ensure there are IP ranges location settings configured and marked as Trusted
+            From PowerShell
+            Get-AzureADMSNamedLocationPolicy
+            In the output from the above command, for each Named location group, make sure at
+            least one entry contains the IsTrusted parameter with a value of True. Otherwise, if
+            there is no output as a result of the above command or all of the entries contain the
+            IsTrusted parameter with an empty value, a NULL value, or a value of False, the results
+            are out of compliance with this check."
 
-  desc 'fix',
-       "Remediate from Azure Portal
-        1. In the Azure Portal, navigate to Microsoft Entra ID
-        2. Under Manage, click Security
-        3. Under Protect, click Conditional Access
-        4. Under Manage, click Named locations
-        5. Within the Named locations blade, click on IP ranges location
-        6. Enter a name for this location setting in the Name text box
-        7. Click on the + sign
-        8. Add an IP Address Range in CIDR notation inside the text box that appears
-        9. Click on the Add button
-        10. Repeat steps 7 through 9 for each IP Range that needs to be added
-        11. If the information entered are trusted ranges, select the Mark as trusted
-        location check box
-        12. Once finished, click on Create
-        Remediate from PowerShell
-        Create a new trusted IP-based Named location policy
-        [System.Collections.Generic.List`1[Microsoft.Open.MSGraph.Model.IpRange]]$ipR
-        anges = @()
-        $ipRanges.Add('<first IP range in CIDR notation>')
-        $ipRanges.Add('<second IP range in CIDR notation>')
-        $ipRanges.Add('<third IP range in CIDR notation>')
-        New-MgIdentityConditionalAccessNamedLocation -dataType
-        '#microsoft.graph.ipNamedLocation' -DisplayName '<name of IP Named location
-        policy>' -IsTrusted $true -IpRanges $ipRanges
-        Set an existing IP-based Named location policy to trusted
-        Update-MgIdentityConditionalAccessNamedLocation -PolicyId '<ID of the
-        policy>' -dataType '#microsoft.graph.ipNamedLocation' -IsTrusted $true"
+    desc 'fix',
+        "Remediate from Azure Portal
+            1. In the Azure Portal, navigate to Microsoft Entra ID
+            2. Under Manage, click Security
+            3. Under Protect, click Conditional Access
+            4. Under Manage, click Named locations
+            5. Within the Named locations blade, click on IP ranges location
+            6. Enter a name for this location setting in the Name text box
+            7. Click on the + sign
+            8. Add an IP Address Range in CIDR notation inside the text box that appears
+            9. Click on the Add button
+            10. Repeat steps 7 through 9 for each IP Range that needs to be added
+            11. If the information entered are trusted ranges, select the Mark as trusted
+            location check box
+            12. Once finished, click on Create
+            Remediate from PowerShell
+            Create a new trusted IP-based Named location policy
+            [System.Collections.Generic.List`1[Microsoft.Open.MSGraph.Model.IpRange]]$ipR
+            anges = @()
+            $ipRanges.Add('<first IP range in CIDR notation>')
+            $ipRanges.Add('<second IP range in CIDR notation>')
+            $ipRanges.Add('<third IP range in CIDR notation>')
+            New-MgIdentityConditionalAccessNamedLocation -dataType
+            '#microsoft.graph.ipNamedLocation' -DisplayName '<name of IP Named location
+            policy>' -IsTrusted $true -IpRanges $ipRanges
+            Set an existing IP-based Named location policy to trusted
+            Update-MgIdentityConditionalAccessNamedLocation -PolicyId '<ID of the
+            policy>' -dataType '#microsoft.graph.ipNamedLocation' -IsTrusted $true"
 
-  impact 0.5
-  tag nist: ['AC-2(1)', 'AC-3']
-  tag severity: 'medium'
-  tag cis_controls: [{ '8' => ['6.7'] }]
+    impact 0.5
+    tag nist: ['AC-2(1)', 'AC-3']
+    tag severity: 'medium'
+    tag cis_controls: [{ '8' => ['6.7'] }]
 
-  ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/location-condition'
-  ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
+    ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/location-condition'
+    ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
 
-  subscription_id = input('subscription_id')
+    subscription_id = input('subscription_id')
+    client_id = input('client_id')
+	tenant_id = input('tenant_id')
+	client_secret = input('client_secret')
 
-  script = <<-EOH
-        Set-AzContext -Subscription #{subscription_id} | Out-Null
-        Connect-MgGraph -NoWelcome
+    script = <<-EOH
+        $tenantId, $clientId, $clientSecret = "#{tenant_id}", "#{client_id}", "#{client_secret}"
+
+        $secureSecret = ConvertTo-SecureString $clientSecret -AsPlainText -Force
+        $credential = New-Object System.Management.Automation.PSCredential($clientId, $secureSecret)
+
+        Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential
+        Connect-MgGraph -ClientId $clientId -TenantId $tenantId -ClientSecret $clientSecret -NoWelcome
+
         $results = Get-MgIdentityConditionalAccessNamedLocation | ForEach-Object {
             [PSCustomObject]@{
                 DisplayName = $_.DisplayName;
@@ -107,15 +116,52 @@ control 'azure-foundations-cis-2.2.1' do
         else {
             Write-Output "No trusted locations found"
         }
-  EOH
+    EOH
 
-  # pwsh_output = pwsh_graph_executor(script).run_script_in_graph
-  pwsh_output = powershell(script).stdout.strip
+    pwsh_output = powershell(script).stdout.strip
 
-  describe 'Azure Conditional Access Named Locations' do
-    subject { pwsh_output }
-    it 'should indicate that at least one trusted location exists' do
-      expect(subject).to eq('At least one trusted location exists')
+    describe 'FIRST Azure Conditional Access Named Locations' do
+        subject { pwsh_output }
+            it 'should indicate that at least one trusted location exists' do
+            expect(subject).to eq('At least one trusted location exists')
+        end
     end
-  end
+
+    script_2 = <<-EOH
+        $tenantId, $clientId, $clientSecret = "#{tenant_id}", "#{client_id}", "#{client_secret}"
+        Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential
+
+        #THIS WORKS
+        # Connect-MgGraph -NoWelcome
+
+        #THIS SHOULD WORK
+        $secureSecret = ConvertTo-SecureString $clientSecret -AsPlainText -Force
+        $credential = New-Object System.Management.Automation.PSCredential($clientId, $secureSecret)
+        Connect-MgGraph -TenantId $tenantId -ClientSecret $credential -NoWelcome
+
+        $results = Get-MgIdentityConditionalAccessNamedLocation | ForEach-Object {
+            [PSCustomObject]@{
+                DisplayName = $_.DisplayName;
+                IsTrusted   = $_.AdditionalProperties["isTrusted"]
+            }
+        }
+
+        $trusted = $results | Where-Object { $_.IsTrusted.ToString().ToLower() -eq "true" }
+
+        if ($trusted.Count -gt 0) {
+            Write-Output "At least one trusted location exists"
+        }
+        else {
+            Write-Output "No trusted locations found"
+        }
+    EOH
+
+    pwsh_output_2 = powershell(script_2).stdout.strip
+
+    describe "Azure Conditional Access Named Locations" do
+        subject { pwsh_output_2 }
+            it "should indicate that at least one trusted location exists" do
+                expect(subject).to eq("At least one trusted location exists")
+        end
+    end
 end

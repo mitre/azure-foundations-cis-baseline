@@ -1,6 +1,14 @@
-#Required Inputs
+#Azure Connection Settings
+subscription_id: "00000000-0000-0000-0000-000000000000"
+client_id: "00000000-0000-0000-0000-000000000000"
+tenant_id: "00000000-0000-0000-0000-000000000000"
+client_secret: "0000000000000000000000000000000000000000"
+
+#Resource Configuration
 resource_groups_and_storage_accounts: 
   - "group1.account1"
+
+#Control Specific
 relevant_public_ip_addresses: #control 7.7
   - "1"
   - "2"

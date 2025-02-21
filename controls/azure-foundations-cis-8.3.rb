@@ -83,11 +83,11 @@ control 'azure-foundations-cis-8.3' do
     }
   )
 
-  powershell_output = powershell(ensure_disks_encrypted_cmk_script)
+  pwsh_output = powershell(ensure_disks_encrypted_cmk_script)
   describe 'Ensure the number of resource group and disk combinations that do not have encryption state set to either "EncryptionAtRestWithCustomerKey" or "EncryptionAtRestWithPlatformKey"' do
-    subject { powershell_output.stdout.strip }
+    subject { pwsh_output.stdout.strip }
     it 'is 0' do
-      failure_message = "The following resource/disks do not have the correct encryption state: #{powershell_output.stdout.strip}"
+      failure_message = "The following resource/disks do not have the correct encryption state: #{pwsh_output.stdout.strip}"
       expect(subject).to be_empty, failure_message
     end
   end

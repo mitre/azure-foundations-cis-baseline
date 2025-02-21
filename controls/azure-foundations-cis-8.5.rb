@@ -92,11 +92,11 @@ control 'azure-foundations-cis-8.5' do
         }
     }
   )
-  powershell_output = powershell(ensure_disks_not_public_access_script)
+  pwsh_output = powershell(ensure_disks_not_public_access_script)
   describe 'Ensure the number of resource group and disk combinations that has PublicNetworkAccess not set to "Disabled" and NetworkAccessPolicy not set to either "AllowPrivate" or "DenyAll"' do
-    subject { powershell_output.stdout.strip }
+    subject { pwsh_output.stdout.strip }
     it 'is 0' do
-      failure_message = "The following resource/disks do not have the correct settings: #{powershell_output.stdout.strip}"
+      failure_message = "The following resource/disks do not have the correct settings: #{pwsh_output.stdout.strip}"
       expect(subject).to be_empty, failure_message
     end
   end

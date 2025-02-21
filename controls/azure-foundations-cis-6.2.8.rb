@@ -80,9 +80,9 @@ control 'azure-foundations-cis-6.2.8' do
             select-object Location,Name,Enabled,ResourceGroupName,ConditionAllOf
     )
 
-  powershell_output = powershell(activity_log_exists_delete_sql_server_script)
+  pwsh_output = powershell(activity_log_exists_delete_sql_server_script)
   describe 'Ensure that the subscriptions output for the activity log alert rule for Deleting a SQL Server Firewall Rule' do
-    subject { powershell_output.stdout.strip }
+    subject { pwsh_output.stdout.strip }
     it 'is not empty' do
       expect(subject).not_to be_empty
     end

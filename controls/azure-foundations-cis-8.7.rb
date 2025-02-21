@@ -91,11 +91,11 @@ control 'azure-foundations-cis-8.7' do
         }
     }
   )
-  powershell_output = powershell(only_approved_extensions_approved_script)
+  pwsh_output = powershell(only_approved_extensions_approved_script)
   describe 'Ensure the number of resource group/VMs that have non-approved Names, Extention Type, or Provisioning State settings' do
-    subject { powershell_output.stdout.strip }
+    subject { pwsh_output.stdout.strip }
     it 'is 0' do
-      failure_message = "The following resource groups/VM do not have the the approved settings are: #{powershell_output.stdout.strip}"
+      failure_message = "The following resource groups/VM do not have the the approved settings are: #{pwsh_output.stdout.strip}"
       expect(subject).to be_empty, failure_message
     end
   end

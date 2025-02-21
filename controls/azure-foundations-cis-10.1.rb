@@ -81,11 +81,11 @@ control 'azure-foundations-cis-10.1' do
             }
         }
   )
-  powershell_output = powershell(ensure_resource_locks_set_script)
+  pwsh_output = powershell(ensure_resource_locks_set_script)
   describe 'Ensure the number of resources with Properties setting not set to CanNotDelete or ReadOnly' do
-    subject { powershell_output.stdout.strip }
+    subject { pwsh_output.stdout.strip }
     it 'is 0' do
-      failure_message = "The following resources have issues: #{powershell_output.stdout.strip}"
+      failure_message = "The following resources have issues: #{pwsh_output.stdout.strip}"
       expect(subject).to be_empty, failure_message
     end
   end

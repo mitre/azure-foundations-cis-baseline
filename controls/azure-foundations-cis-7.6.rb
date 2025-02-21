@@ -56,11 +56,11 @@ control 'azure-foundations-cis-7.6' do
         Write-Output $output
     }
   )
-  powershell_output_provision_state = powershell(ensure_provision_state_succeeds_script)
+  pwsh_output_provision_state = powershell(ensure_provision_state_succeeds_script)
   describe 'Ensure the number of network watchers with ProvisioningState not set to Succeeded' do
-    subject { powershell_output_provision_state.stdout.strip }
+    subject { pwsh_output_provision_state.stdout.strip }
     it 'is 0' do
-      failure_message = "The following network watchers do not have ProvisioningState set to Succeeded: #{powershell_output_provision_state.stdout.strip}"
+      failure_message = "The following network watchers do not have ProvisioningState set to Succeeded: #{pwsh_output_provision_state.stdout.strip}"
       expect(subject).to be_empty, failure_message
     end
   end
@@ -72,11 +72,11 @@ control 'azure-foundations-cis-7.6' do
     if ($difference.Count -eq 0) { $null } else { $difference -join ', ' }
 
   )
-  powershell_output_location_watcher = powershell(ensure_locations_using_watcher_script)
+  pwsh_output_location_watcher = powershell(ensure_locations_using_watcher_script)
   describe 'Ensure the number of locations without a Network Watcher' do
-    subject { powershell_output_location_watcher.stdout.strip }
+    subject { pwsh_output_location_watcher.stdout.strip }
     it 'is 0' do
-      failure_message = "The following locations do not have Network Watchers: #{powershell_output_location_watcher.stdout.strip}"
+      failure_message = "The following locations do not have Network Watchers: #{pwsh_output_location_watcher.stdout.strip}"
       expect(subject).to be_empty, failure_message
     end
   end

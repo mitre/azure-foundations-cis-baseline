@@ -64,11 +64,11 @@ control 'azure-foundations-cis-8.2' do
     }
     $vmNames -join ', '
   )
-  powershell_output = powershell(ensure_vms_using_managed_disks_script)
+  pwsh_output = powershell(ensure_vms_using_managed_disks_script)
   describe 'Ensure the number of VMs with ManagedDisk state empty' do
-    subject { powershell_output.stdout.strip }
+    subject { pwsh_output.stdout.strip }
     it 'is 0' do
-      failure_message = "The following locations do not have Network Watchers: #{powershell_output.stdout.strip}"
+      failure_message = "The following locations do not have Network Watchers: #{pwsh_output.stdout.strip}"
       expect(subject).to be_empty, failure_message
     end
   end
