@@ -125,7 +125,7 @@ control 'azure-foundations-cis-4.6' do
   pwsh_output = pwsh_azure_executor(script).run_script_in_azure
 
   describe 'Storage Accounts with non-disabled Public Network Access' do
-    subject { pwsh_output.stdout.strip.split(',').map(&:strip).reject { |x| x.empty? } }
+    subject { pwsh_output.stdout.strip.split(',').map(&:strip).reject(&:empty?) }
     it 'should be empty (i.e. all storage accounts have PublicNetworkAccess set to Disabled)' do
       expect(subject).to be_empty
     end
