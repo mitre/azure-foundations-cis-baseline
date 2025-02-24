@@ -122,4 +122,4 @@ jobs:
       - name: Ensure ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} Meets Results Threshold
         uses: mitre/saf_action@v1
         with:
-          command_string: "validate threshold -i ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} -F ${{ env.THRESHOLD_FILE }}"
+          command_string: "validate threshold -i ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} -T ${{ env.THRESHOLD_FILE }}"
