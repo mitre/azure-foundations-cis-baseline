@@ -89,12 +89,12 @@ control 'azure-foundations-cis-5.1.2' do
     server_name    = server['ServerName']
 
     describe "Firewall rules for SQL Server #{server_name} in Resource Group #{resource_group}" do
-      firewall_script = <<-EOH
+      script = <<-EOH
         Get-AzSqlServerFirewallRule -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
       EOH
 
-      firewall_output = powershell(firewall_script).stdout.strip
-      firewall_rules  = json(content: firewall_output).params
+      output = powershell(script).stdout.strip
+      firewall_rules  = json(content: output).params
       firewall_rules = [firewall_rules] unless firewall_rules.is_a?(Array)
 
       firewall_rules.each do |rule|

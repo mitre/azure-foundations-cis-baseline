@@ -59,7 +59,57 @@ control 'azure-foundations-cis-5.1.3' do
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.sql/get-azsqlservertransparentdataencryptionprotector?view=azps-9.2.0'
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.sql/set-azsqlservertransparentdataencryptionprotector?view=azps-9.2.0'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  # Retrieve the expected key values from inputs.yml
+  expected_full_keys = input('key_vault_full_key_uri')
+
+  # Compute the allowed expected values for ServerKeyVaultKeyName and KeyId from each full key URI.
+  expected_values = expected_full_keys.map do |full_uri|
+    match = full_uri.match(%r{https://(.*)\.vault\.azure\.net/keys/([^/]+)/([^/]+)})
+    if match
+      key_vault_name = match[1]
+      key_name = match[2]
+      key_version = match[3]
+      {
+        "ServerKeyVaultKeyName" => "#{key_vault_name}_#{key_name}_#{key_version}",
+        "KeyId" => full_uri
+      }
+    end
+  end.compact
+
+  # Retrieve all SQL Servers.
+  sql_servers_script = <<-EOH
+    Get-AzSqlServer | ConvertTo-Json -Depth 10
+  EOH
+
+  sql_servers_output = powershell(sql_servers_script).stdout.strip
+  sql_servers = json(content: sql_servers_output).params
+  sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+
+  sql_servers.each do |server|
+    resource_group = server['ResourceGroupName']
+    server_name = server['ServerName']
+
+    describe "Transparent Data Encryption Protector for SQL Server #{server_name} (Resource Group: #{resource_group})" do
+      tde_script = <<-EOH
+        Get-AzSqlServerTransparentDataEncryptionProtector -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+      EOH
+
+      tde_output = powershell(tde_script).stdout.strip
+      tde = json(content: tde_output).params
+
+      it "should have Type set to 'AzureKeyVault'" do
+        expect(tde['Type']).to cmp 0
+      end
+
+      it "should have ServerKeyVaultKeyName in one of the allowed formats" do
+        allowed_names = expected_values.map { |v| v["ServerKeyVaultKeyName"] }
+        expect(allowed_names).to include(tde['ServerKeyVaultKeyName'])
+      end
+
+      it "should have KeyId in one of the allowed formats" do
+        allowed_ids = expected_values.map { |v| v["KeyId"] }
+        expect(allowed_ids).to include(tde['KeyId'])
+      end
+    end
   end
 end
