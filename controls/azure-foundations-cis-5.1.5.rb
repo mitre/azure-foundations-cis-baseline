@@ -50,7 +50,43 @@ control 'azure-foundations-cis-5.1.5' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-4-enable-data-at-rest-encryption-by-default'
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.sql/set-azsqldatabasetransparentdataencryption?view=azps-9.2.0'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  sql_servers_script = <<-EOH
+    Get-AzSqlServer | ConvertTo-Json -Depth 10
+  EOH
+
+  sql_servers_output = powershell(sql_servers_script).stdout.strip
+  sql_servers = json(content: sql_servers_output).params
+  sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+
+  sql_servers.each do |server|
+    resource_group = server['ResourceGroupName']
+    server_name = server['ServerName']
+
+    databases_script = <<-EOH
+      Get-AzSqlDatabase -ServerName "#{server_name}" -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+    EOH
+
+    databases_output = powershell(databases_script).stdout.strip
+    databases = json(content: databases_output).params
+    databases = [databases] unless databases.is_a?(Array)
+
+    databases.each do |db|
+      db_name = db['DatabaseName']
+
+      next if db_name.downcase == 'master'
+
+      describe "Transparent Data Encryption for database '#{db_name}' on SQL Server '#{server_name}' (Resource Group: #{resource_group})" do
+        tde_script = <<-EOH
+          Get-AzSqlDatabaseTransparentDataEncryption -ServerName "#{server_name}" -ResourceGroupName "#{resource_group}" -DatabaseName "#{db_name}" | ConvertTo-Json -Depth 10
+        EOH
+
+        tde_output = powershell(tde_script).stdout.strip
+        tde = json(content: tde_output).params
+
+        it 'should have DataEncryption (TDE) enabled' do
+          expect(tde['State']).to cmp 0
+        end
+      end
+    end
   end
 end
