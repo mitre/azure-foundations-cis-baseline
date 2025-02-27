@@ -79,7 +79,7 @@ control 'azure-foundations-cis-6.2.1' do
   activity_log_exists_cpa_script = %(
 		$tenantId, $clientId, $clientSecret = "#{tenant_id}", "#{client_id}", "#{client_secret}"
 		$credential = New-Object System.Management.Automation.PSCredential($clientId, (ConvertTo-SecureString $clientSecret -AsPlainText -Force))
-		Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential
+		Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential | Out-Null
 
 		Get-AzActivityLogAlert -SubscriptionId "#{subscription_id}" |
 		Where-Object { $_.ConditionAllOf.Equal -match "Microsoft.Authorization/policyAssignments/write" } |
@@ -88,7 +88,7 @@ control 'azure-foundations-cis-6.2.1' do
 
   pwsh_output = powershell(activity_log_exists_cpa_script)
 
-  describe 'Ensure that the subscriptions output for the activity log alert rule for Create Policy Assignments' do
+  describe 'Ensure that the subscription`s output for the activity log alert rule for Create Policy Assignments' do
     subject { pwsh_output.stdout.strip }
     it 'is not empty' do
       expect(subject).not_to be_empty
