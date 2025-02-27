@@ -8,7 +8,7 @@ client_secret: "0000000000000000000000000000000000000000"
 resource_groups_and_storage_accounts: 
   - "group1.account1"
 key_vault_full_key_uri:
-  - "https://test.vault.azure.net/keys/vault-key/current-version"
+  - "https://test.vault.azure.net/keys/vault-key-name/current-version"
 
 #Control Specific
 relevant_public_ip_addresses: #control 7.7
