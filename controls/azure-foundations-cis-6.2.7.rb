@@ -72,14 +72,22 @@ control 'azure-foundations-cis-6.2.7' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
 
   subscription_id = input('subscription_id')
+  client_id = input('client_id')
+  tenant_id = input('tenant_id')
+  client_secret = input('client_secret')
+
   activity_log_exists_create_update_sql_server_script = %(
+            $tenantId, $clientId, $clientSecret = "#{tenant_id}", "#{client_id}", "#{client_secret}"
+            $credential = New-Object System.Management.Automation.PSCredential($clientId, (ConvertTo-SecureString $clientSecret -AsPlainText -Force))
+            Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential | Out-Null
+
             Get-AzActivityLogAlert -SubscriptionId "#{subscription_id}"|
             where-object {$_.ConditionAllOf.Equal -match "Microsoft.Sql/servers/firewallRules/write"}|
             select-object Location,Name,Enabled,ResourceGroupName,ConditionAllOf
     )
 
   pwsh_output = powershell(activity_log_exists_create_update_sql_server_script)
-  describe 'Ensure that the subscriptions output for the activity log alert rule for Creating/Updating a SQL Server Firewall Rule' do
+  describe 'Ensure that the subscription`s output for the activity log alert rule for Creating/Updating a SQL Server Firewall Rule' do
     subject { pwsh_output.stdout.strip }
     it 'is not empty' do
       expect(subject).not_to be_empty
