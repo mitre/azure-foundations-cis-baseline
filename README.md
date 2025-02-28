@@ -305,6 +305,7 @@ This profile requires the following Azure services to be properly configured in 
 - Microsoft Entra ID
 - Key Vaults
 - Log Analytics workspaces
+- Network Watcher
 - Storage Accounts
 
 ### Control and Automation Status
