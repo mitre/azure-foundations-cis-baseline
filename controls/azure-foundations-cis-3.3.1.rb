@@ -78,7 +78,43 @@ control 'azure-foundations-cis-3.3.1' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-6-use-a-secure-key-management-process'
   ref 'https://docs.microsoft.com/en-us/powershell/module/az.keyvault/set-azkeyvaultkeyattribute?view=azps-0.10.0'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  rbac_keys_appropriate_expiry_date = input('rbac_keys_appropriate_expiry_date')
+  rbac_keys_dates_list = rbac_keys_appropriate_expiry_date.map { |key_date| "'#{key_date}'" }.join(', ')
+  expiration_date_set_all_keys_script = %(
+      $dateStrings = @(#{rbac_keys_dates_list})
+      $dateObjects = $dateStrings | ForEach-Object {
+            if ("null" -eq $_) {
+                  $null
+            } else {
+                  Get-Date $_
+            }
+      }
+      $keyVaults = Get-AzKeyVault
+      $vault_index = 0
+      foreach ($vault in $keyVaults) {
+      $vault_index++
+      $key_index = 0
+      $vaultDetails = Get-AzKeyVault -VaultName $vault.VaultName
+      if ($vaultDetails.EnableRbacAuthorization -eq $true) {
+            $keys = Get-AzKeyVaultKey -VaultName $vault.VaultName
+            foreach ($key in $keys) {
+                  $key_index++
+                  if ($key.Enabled -eq $true) {
+                        $new_index = $vault_index * $key_index - 1
+                        if ($dateObjects[$new_index] -ne $key.Expires) {
+                              Write-Host "Key '$($key.Name)' in Vault '$($vault.VaultName)' is enabled but does not have appropriate expiry date of $dateObjects[$new_index]."
+                        }
+                  }
+            }
+      }
+      }
+  )
+  pwsh_output = powershell(expiration_date_set_all_keys_script)
+  describe 'Ensure the the number of RBAC vault/key combinations with incorrect expiration dates' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "Error: #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end

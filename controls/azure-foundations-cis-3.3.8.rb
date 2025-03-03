@@ -136,7 +136,29 @@ control 'azure-foundations-cis-3.3.8' do
   ref 'https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/scalar-data-types/timespan'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-6-use-a-secure-key-management-process'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  vault_automatic_key_rotation_script = %(
+      $keyVaults = Get-AzKeyVault
+
+      foreach ($vault in $keyVaults) {
+            $vaultName = $vault.VaultName
+
+            $keys = Get-AzKeyVaultKey -VaultName $vaultName
+
+            foreach ($key in $keys) {
+                  $keyName = $key.Name
+                  $keyAction = (Get-AzKeyVaultKeyRotationPolicy -VaultName $vaultName -Name $keyName).LifetimeActions -join ", "
+                  if ($keyAction -notmatch "Rotate") {
+                        Write-Host "Key Vault: $vaultName, Key: $keyName"
+                  }
+            }
+      }
+  )
+  pwsh_output = powershell(vault_automatic_key_rotation_script)
+  describe 'Ensure the number of vaults/key pairs with LifetimeActions setting not set to "Rotate"' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The following vaults/key pair combinations do not have the LifetimeActions setting set to 'Rotate': \n #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end

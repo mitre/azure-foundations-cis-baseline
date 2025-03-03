@@ -22,3 +22,39 @@ unauthorized_extension_types: #control 8.7
   - "google"
 unauthorized_provision_states: #control 8.7
   - "test"
+# Control 3.3.1: Organize the expiration dates to correspond with the order of keys as they appear in the GUI.
+# For instance, provide the expiration date for Vault 1's Key 1 first, followed by the next key's expiration date.
+# If Vault 2's Key 1 is the second key in sequence, or if Vault 1 contains multiple keys, list them accordingly.
+# To omit an expiration date for a specific key, enter 'null'.
+# Ensure that the total number of expiration dates provided matches the total number of keys across all vaults.
+# Expected format for non-null dates: "M/d/yyyy h:mm:ss tt"
+rbac_keys_appropriate_expiry_date: 
+  - "2/28/2027 8:57:19 PM"
+  - "null"
+# Control 3.3.2: Organize the expiration dates to correspond with the order of keys as they appear in the GUI.
+# For instance, provide the expiration date for Vault 1's Key 1 first, followed by the next key's expiration date.
+# If Vault 2's Key 1 is the second key in sequence, or if Vault 1 contains multiple keys, list them accordingly.
+# To omit an expiration date for a specific key, enter 'null'.
+# Ensure that the total number of expiration dates provided matches the total number of keys across all vaults.
+# Expected format for non-null dates: "M/d/yyyy h:mm:ss tt"
+non_rbac_keys_appropriate_expiry_date: 
+  - "2/28/2027 8:57:19 PM"
+  - "null"
+# Control 3.3.3: Organize the expiration dates to correspond with the order of keys as they appear in the GUI.
+# For instance, provide the expiration date for Vault 1's Key 1 first, followed by the next key's expiration date.
+# If Vault 2's Key 1 is the second key in sequence, or if Vault 1 contains multiple keys, list them accordingly.
+# To omit an expiration date for a specific key, enter 'null'.
+# Ensure that the total number of expiration dates provided matches the total number of keys across all vaults.
+# Expected format for non-null dates: "M/d/yyyy h:mm:ss tt"
+rbac_secrets_appropriate_expiry_date: 
+  - "2/28/2027 8:57:19 PM"
+  - "null"
+# Control 3.3.4: Organize the expiration dates to correspond with the order of keys as they appear in the GUI.
+# For instance, provide the expiration date for Vault 1's Key 1 first, followed by the next key's expiration date.
+# If Vault 2's Key 1 is the second key in sequence, or if Vault 1 contains multiple keys, list them accordingly.
+# To omit an expiration date for a specific key, enter 'null'.
+# Ensure that the total number of expiration dates provided matches the total number of keys across all vaults.
+# Expected format for non-null dates: "M/d/yyyy h:mm:ss tt"
+non_rbac_secrets_appropriate_expiry_date: 
+  - "2/28/2027 8:57:19 PM"
+  - "null"

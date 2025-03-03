@@ -110,7 +110,28 @@ control 'azure-foundations-cis-3.3.7' do
   ref 'https://docs.microsoft.com/azure/dns/private-dns-getstarted-cli#create-an-additional-dns-record'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  subscription_id = input('subscription_id')
+  check_private_endpoints_non_null_script = %(
+      $keyVaults = Get-AzKeyVault
+
+      foreach ($vault in $keyVaults) {
+            $vaultName = $vault.VaultName
+            $vaultResourceGroup = $vault.ResourceGroupName
+
+            # Get the Key Vault details
+            $privateEndpointDetails = Get-AzPrivateEndpointConnection -PrivateLinkResourceId "/subscriptions/#{subscription_id}/resourceGroups/$vaultResourceGroup/providers/Microsoft.KeyVault/vaults/$vaultName/"
+
+            if ($privateEndpointDetails -eq $null) {
+                  Write-Host "$vaultName"
+            }
+      }
+  )
+  pwsh_output = powershell(check_private_endpoints_non_null_script)
+  describe 'Ensure the number of vaults with PrivateEndpointConnections set to null' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The following vaults have PrivateEndpointConnections set to null: #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end

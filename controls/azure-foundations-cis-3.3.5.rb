@@ -98,7 +98,28 @@ control 'azure-foundations-cis-3.3.5' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-8-define-and-implement-backup-and-recovery-strategy'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  check_key_vault_recoverable_script = %(
+      $keyVaults = Get-AzKeyVault
+
+      foreach ($vault in $keyVaults) {
+            $vaultName = $vault.VaultName
+            $vaultResourceGroup = $vault.ResourceGroupName
+
+            # Get the Key Vault details
+            $vaultDetails = Get-AzKeyVault -VaultName $vaultName -ResourceGroupName $vaultResourceGroup
+
+            if ($vaultDetails.EnablePurgeProtection -eq $false) {
+                  Write-Host "$vaultName"
+            }
+      }
+
+  )
+  pwsh_output = powershell(check_key_vault_recoverable_script)
+  describe 'Ensure the number of vaults with EnablePurgeProtection set to False' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The following vaults do not have EnablePurgeProtection set to True: #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end

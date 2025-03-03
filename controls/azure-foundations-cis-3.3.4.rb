@@ -75,7 +75,43 @@ control 'azure-foundations-cis-3.3.4' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-6-use-a-secure-key-management-process'
   ref 'https://docs.microsoft.com/en-us/powershell/module/az.keyvault/set-azkeyvaultsecret?view=azps-7.4.0'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  non_rbac_secrets_appropriate_expiry_date = input('non_rbac_secrets_appropriate_expiry_date')
+  non_rbac_secrets_dates_list = non_rbac_secrets_appropriate_expiry_date.map { |secret_date| "'#{secret_date}'" }.join(', ')
+  expiration_date_set_all_secrets_script = %(
+      $dateStrings = @(#{non_rbac_secrets_dates_list})
+      $dateObjects = $dateStrings | ForEach-Object {
+            if ("null" -eq $_) {
+                  $null
+            } else {
+                  Get-Date $_
+            }
+      }
+      $keyVaults = Get-AzKeyVault
+      $vault_index = 0
+      foreach ($vault in $keyVaults) {
+      $vault_index++
+      $secret_index = 0
+      $vaultDetails = Get-AzKeyVault -VaultName $vault.VaultName
+      if ($vaultDetails.EnableRbacAuthorization -eq $false) {
+            $secrets = Get-AzKeyVaultSecret -VaultName $vault.VaultName
+            foreach ($secret in $secrets) {
+                  $secret_index++
+                  if ($secret.Enabled -eq $true) {
+                        $new_index = $vault_index * $secret_index - 1
+                        if ($dateObjects[$new_index] -ne $secret.Expires) {
+                              Write-Host "Secret '$($secret.Name)' in Vault '$($vault.VaultName)' is enabled but does not have appropriate expiry date of $($dateObjects[$new_index])"
+                        }
+                  }
+            }
+      }
+      }
+  )
+  pwsh_output = powershell(expiration_date_set_all_secrets_script)
+  describe 'Ensure the the number of Non-RBAC vault/secret combinations with incorrect expiration dates' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "Error: #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end
