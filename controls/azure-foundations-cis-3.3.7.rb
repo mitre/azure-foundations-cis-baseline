@@ -113,7 +113,9 @@ control 'azure-foundations-cis-3.3.7' do
   subscription_id = input('subscription_id')
   check_private_endpoints_non_null_script = %(
       $keyVaults = Get-AzKeyVault
-
+      if ($keyVaults -eq $null){
+            Write-Output "No Key Vaults Found"
+      }
       foreach ($vault in $keyVaults) {
             $vaultName = $vault.VaultName
             $vaultResourceGroup = $vault.ResourceGroupName

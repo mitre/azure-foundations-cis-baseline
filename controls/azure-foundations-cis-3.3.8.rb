@@ -138,7 +138,9 @@ control 'azure-foundations-cis-3.3.8' do
 
   vault_automatic_key_rotation_script = %(
       $keyVaults = Get-AzKeyVault
-
+      if ($keyVaults -eq $null){
+            Write-Output "No Key Vaults Found"
+      }
       foreach ($vault in $keyVaults) {
             $vaultName = $vault.VaultName
 
