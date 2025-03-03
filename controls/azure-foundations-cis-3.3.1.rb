@@ -102,7 +102,7 @@ control 'azure-foundations-cis-3.3.1' do
                   if ($key.Enabled -eq $true) {
                         $new_index = $vault_index * $key_index - 1
                         if ($dateObjects[$new_index] -ne $key.Expires) {
-                              Write-Host "Key '$($key.Name)' in Vault '$($vault.VaultName)' is enabled but does not have appropriate expiry date of $dateObjects[$new_index]."
+                              Write-Host "Key '$($key.Name)' in Vault '$($vault.VaultName)' is enabled but does not have appropriate expiry date of $($dateObjects[$new_index])."
                         }
                   }
             }
