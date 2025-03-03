@@ -90,6 +90,9 @@ control 'azure-foundations-cis-3.3.1' do
             }
       }
       $keyVaults = Get-AzKeyVault
+      if ($keyVaults -eq $null){
+            Write-Output "No Key Vaults Found"
+      }
       $vault_index = 0
       foreach ($vault in $keyVaults) {
       $vault_index++
@@ -97,6 +100,9 @@ control 'azure-foundations-cis-3.3.1' do
       $vaultDetails = Get-AzKeyVault -VaultName $vault.VaultName
       if ($vaultDetails.EnableRbacAuthorization -eq $true) {
             $keys = Get-AzKeyVaultKey -VaultName $vault.VaultName
+            if ($keys -eq $null){
+            Write-Output "No Keys Found for Vault $($vault.VaultName)"
+            }
             foreach ($key in $keys) {
                   $key_index++
                   if ($key.Enabled -eq $true) {
