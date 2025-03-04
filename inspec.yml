@@ -6,8 +6,5 @@ copyright_email: saf@groups.mitre.org
 license: Apache-2.0
 summary: An InSpec Compliance Profile
 version: 0.1.0
-depends:
-  - name: inspec-pwsh
-    git: https://github.com/mitre/inspec-pwsh
 supports:
   platform: os

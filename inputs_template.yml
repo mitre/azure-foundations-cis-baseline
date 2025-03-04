@@ -1,60 +1,43 @@
-#Azure Connection Settings
+# Azure Connection Settings
 subscription_id: "00000000-0000-0000-0000-000000000000"
 client_id: "00000000-0000-0000-0000-000000000000"
 tenant_id: "00000000-0000-0000-0000-000000000000"
 client_secret: "0000000000000000000000000000000000000000"
 
-#Resource Configuration
-resource_groups_and_storage_accounts: 
+# Resource Configuration
+resource_groups_and_storage_accounts:
   - "group1.account1"
 key_vault_full_key_uri:
   - "https://test.vault.azure.net/keys/vault-key-name/current-version"
 
-#Control Specific
-relevant_public_ip_addresses: #control 7.7
+# Control 7.7
+relevant_public_ip_addresses:
   - "1"
   - "2"
+
+# Control 8.7
 resource_group_and_disk_name:
   - "group1.disk1"
-unauthorized_extension_names: #control 8.7
+unauthorized_extension_names:
   - "test"
-unauthorized_extension_types: #control 8.7
+unauthorized_extension_types:
   - "google"
-unauthorized_provision_states: #control 8.7
+unauthorized_provision_states:
   - "test"
-# Control 3.3.1: Organize the expiration dates to correspond with the order of keys as they appear in the GUI.
-# For instance, provide the expiration date for Vault 1's Key 1 first, followed by the next key's expiration date.
-# If Vault 2's Key 1 is the second key in sequence, or if Vault 1 contains multiple keys, list them accordingly.
-# To omit an expiration date for a specific key, enter 'null'.
-# Ensure that the total number of expiration dates provided matches the total number of keys across all vaults.
-# Expected format for non-null dates: "M/d/yyyy h:mm:ss tt"
-rbac_keys_appropriate_expiry_date: 
-  - "2/28/2027 8:57:19 PM"
+
+# Controls 3.3.1, 3.3.2, 3.3.3, 3.3.4
+# Provide expiration dates in the order the keys appear in the GUI
+# For example, list Vault 1’s Key 1 first, followed by subsequent keys and vaults in sequence.
+# Use "null" to omit a date. Format for dates: "M/d/yyyy h:mm:ss tt"
+rbac_keys_appropriate_expiry_date:
+  - "2/28/2027 8:57:19 PM"
   - "null"
-# Control 3.3.2: Organize the expiration dates to correspond with the order of keys as they appear in the GUI.
-# For instance, provide the expiration date for Vault 1's Key 1 first, followed by the next key's expiration date.
-# If Vault 2's Key 1 is the second key in sequence, or if Vault 1 contains multiple keys, list them accordingly.
-# To omit an expiration date for a specific key, enter 'null'.
-# Ensure that the total number of expiration dates provided matches the total number of keys across all vaults.
-# Expected format for non-null dates: "M/d/yyyy h:mm:ss tt"
-non_rbac_keys_appropriate_expiry_date: 
-  - "2/28/2027 8:57:19 PM"
+non_rbac_keys_appropriate_expiry_date:
+  - "2/28/2027 8:57:19 PM"
   - "null"
-# Control 3.3.3: Organize the expiration dates to correspond with the order of keys as they appear in the GUI.
-# For instance, provide the expiration date for Vault 1's Key 1 first, followed by the next key's expiration date.
-# If Vault 2's Key 1 is the second key in sequence, or if Vault 1 contains multiple keys, list them accordingly.
-# To omit an expiration date for a specific key, enter 'null'.
-# Ensure that the total number of expiration dates provided matches the total number of keys across all vaults.
-# Expected format for non-null dates: "M/d/yyyy h:mm:ss tt"
-rbac_secrets_appropriate_expiry_date: 
-  - "2/28/2027 8:57:19 PM"
+rbac_secrets_appropriate_expiry_date:
+  - "2/28/2027 8:57:19 PM"
   - "null"
-# Control 3.3.4: Organize the expiration dates to correspond with the order of keys as they appear in the GUI.
-# For instance, provide the expiration date for Vault 1's Key 1 first, followed by the next key's expiration date.
-# If Vault 2's Key 1 is the second key in sequence, or if Vault 1 contains multiple keys, list them accordingly.
-# To omit an expiration date for a specific key, enter 'null'.
-# Ensure that the total number of expiration dates provided matches the total number of keys across all vaults.
-# Expected format for non-null dates: "M/d/yyyy h:mm:ss tt"
-non_rbac_secrets_appropriate_expiry_date: 
-  - "2/28/2027 8:57:19 PM"
+non_rbac_secrets_appropriate_expiry_date:
+  - "2/28/2027 8:57:19 PM"
   - "null"

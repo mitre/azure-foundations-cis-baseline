@@ -23,12 +23,14 @@ The Azure CIS Benchmark includes security requirements for a Azure environment.
 - [CIS Benchmark Information](#benchmark-information)
 
 - [Requirements](#requirements)
+  - [Required Software](#required-software)
+  - [Azure Credentials](#azure-credentials)
 - [Getting Started](#getting-started)
   - [Intended Usage](#intended-usage)
   - [Tailoring to Your Environment](#tailoring-to-your-environment)
   - [Testing the Profile Controls](#testing-the-profile-controls)
+- [Setup the Profile](#setup-the-profile)
 - [Running the Profile](#running-the-profile)
-  - [Directly from Github](#directly-from-github)
   - [Different Run Options](#different-run-options)
 - [Using Heimdall for Viewing Test Results](#using-heimdall-for-viewing-test-results)
 - [Check Overview](#check-overview)
@@ -41,64 +43,47 @@ The original benchmark document that serves as the basis for this automated test
 
 ## Requirements
 
+### Required Software
+
+- [CINC-auditor](https://cinc.sh/start/auditor/) or [InSpec](https://docs.chef.io/inspec/install/)
+- [PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.4)
+  - [Microsoft Azure Powershell Module](https://learn.microsoft.com/en-us/powershell/azure/install-azure-powershell?view=azps-13.2.0)
+  - [Microsoft Graph Powershell Module](https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0)
+- [Ruby](https://www.ruby-lang.org/en/documentation/installation/)
+
 ### Azure Credentials
 
-Your Azure admin may need to be contacted to obtain some of these credentials. The following credentials are needed, as highlighted by the [train-pwsh](https://github.com/mitre/train-pwsh) documentation:
+To successfully authenticate your application with Azure, you need to obtain the following credentials from your app registration:
 
-- pwsh_path (path on machine where the PowerShell executable is stored)
+- subscription_id
+- client_id
+- tenant_id
+- client_secret
 
-As mentioned in the train-pwsh documentation, to run the gem, a `config.json` file is needed at the following directory: `~/.inspec/config.json`. A `config_template.json` file has been provided in this directory to reference what the file should look like. The values will need to be populated with your actual data.
+#### Follow these steps if you’re an Azure admin
 
-Some details to create credentials if you are a Azure admin:
+1. **Register Your App in Azure Portal**
 
-- Create an application registration within your account, which will provide you with the appropriate credentials to login such as Client ID and Tenant ID. You will need to create a Client Secret/Certificate as well. The following link provides more detail on how to setup an application registration: [Application_Registration_Steps](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate)
+    Log in to [Azure Portal](https://portal.azure.com/), navigate to **Azure Active Directory** → **App registrations**, and click **New registration**. Complete the required fields and register your application.
 
-### Ensure the Following Permissions on your Application Registration Account
+2. **Retrieve Application IDs**
 
-Request your Azure admin for these permissions to Azure modules or enable these permissions if you are the admin:
+    - **Client ID:** Located on the app’s **Overview** page.
+    - **Tenant ID:** Also available on the **Overview** page.
 
-- Microsoft Graph
-  - SecurityEvents.Read.All
-  - User.Read
-  - UserAuthenticationMethod.Read.All
-  - AuditLog.Read.All,
-  - Policy.Read.All
-- Office 365 Exchange Online
-  - Exchange.ManageAsApp
-- SharePoint
-  - Sites.FullControl.All
+3. **Create a Client Secret**
 
-### Required software and steps needed on the InSpec Runner
+    In your application’s menu, select **Manage** → **Certificates & secrets** → **New client secret**. Provide a description and set an expiration period. Copy the generated secret value immediately, as it will not be visible later.
 
-- git
-- [PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.4)
-- [InSpec](https://www.chef.io/products/chef-inspec/)
-- [train-pwsh](https://github.com/mitre/train-pwsh)
-- [inspec-pwsh](https://github.com/mitre/inspec-pwsh)
+4. **Get Subscription ID**
 
-Inspec, train-pwsh, inspec-pwsh are already included as gems in this profile and should not need separate downloads. The profile just needs to be ran with bundle exec to ensure the gems are loaded.
+    Go to **Subscriptions** in the portal, select your subscription, and copy the **Subscription ID**.
 
-It is also important to follow/understand the documentation for train-pwsh and inspec-pwsh that is linked above for this profile to run correctly. For context, the train-pwsh is the transport that is used to maintain a persistent connection with various PowerShell sessions. Meanwhile, inspec-pwsh is a resource pack that is used to connect controls using different modules to its corresponding session group (e.g. session for exchange, teams, exchange/graph, etc.). The documentation for inspec-pwsh has more detail about the resource pack.
+    Reference: [Application Registration Steps](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate)
 
-Additionally, for train-pwsh, the organization field will also need to be defined as a environment variable named `ORGANIZATION` as it is used in a profile. The train-pwsh documentation has more detail on how to create this environment variable. Additionally, it is important to note that train-pwsh is not being invoked using code in this profile, so the config.json file approach needs to be followed for train to run correctly. The documentation for train-pwsh goes into more detail on how to create the config.json and populate its contents with your Azure credentials that are used by this profile.
+#### Ensure Proper Azure Permissions
 
-### PowerShell Module Installation
-
-Ensure access and install the following PowerShell modules. The controls also have the module installation code when running the PowerShell queries for redundancy purposes:
-
-- [Microsoft.Graph](https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0#installation)
-- [ExchangeOnlineManagement](https://learn.microsoft.com/en-us/powershell/exchange/connect-to-exchange-online-powershell?view=exchange-ps)
-- [PnP.PowerShell](https://learn.microsoft.com/en-us/powershell/sharepoint/sharepoint-pnp/sharepoint-pnp-cmdlets)
-- [MicrosoftTeams](https://learn.microsoft.com/en-us/microsoftteams/teams-powershell-install)
-
-### Test O365 Example
-
-Upon obtaining the right permissions/credentials and downloading the correct modules/software, test that these permissions work by running the o365_example_baseline profile available at the following link: [O365 Profile](https://github.com/mitre/o365_example_baseline). If the o365 profile runs correctly, then this profile should be able to ran correctly. The o365_example_baseline profile contains a subset of controls from this profile, and also leverages `train-pwsh` and `inspec-pwsh`. It should serve as a good test to ensure that `train-pwsh` and `inspec-pwsh` are working properly.
-
-More details on how to use `train-pwsh` and `inspec-pwsh` are detailed below:
-
-- [train-pwsh](https://github.com/mitre/train-pwsh)
-- [inspec-pwsh](https://github.com/mitre/inspec-pwsh)
+  Verify that your runner account and service principal (app registration) both have Owner and Reader permissions. If not, request these privileges from your Azure administrator.
 
 ## Getting Started
 
@@ -115,7 +100,7 @@ It is intended and recommended that CINC Auditor and this profile executed from 
 (such as a DevOps orchestration server, an administrative management system, or a developer's workstation/laptop)
 against the target. This can be any Unix/Linux/MacOS or Windows runner host, with access to the Internet.
 
-> [!TIP] > **For the best security of the runner, always install on the runner the latest version of CINC Auditor and any other supporting language components.**
+> [TIP] > **For the best security of the runner, always install on the runner the latest version of CINC Auditor and any other supporting language components.**
 
 To install CINC Auditor on a UNIX/Linux/MacOS platform use the following command:
 
@@ -137,8 +122,6 @@ cinc-auditor -v
 
 Latest versions and other installation options are available at [CINC Auditor](https://cinc.sh/start/auditor/)'s website.
 
-[top](#table-of-contents)
-
 ### Intended Usage
 
 1. The latest `released` version of the profile is intended for use in A&A testing, as well as
@@ -148,8 +131,6 @@ Latest versions and other installation options are available at [CINC Auditor](h
 2. The `main` branch is a development branch that will become the next release of the profile.
    The `main` branch is intended for use in _developing and testing_ merge requests for the next
    release of the profile, and _is not intended_ be used for formal and ongoing testing on systems.
-
-[top](#table-of-contents)
 
 ### Tailoring to Your Environment
 
@@ -189,16 +170,14 @@ Customized inputs may be used at the CLI by providing an input file or a flag at
 
    Example: `[inspec or cinc-auditor] exec <my-profile.tar.gz> --input-file=<my_inputs_file.yml>`
 
-> [!TIP]
+> [TIP]
 > For additional information about `input` file examples reference the [MITRE SAF Training](https://mitre.github.io/saf-training/courses/beginner/06.html#input-file-example)
 
 Chef InSpec Resources:
 
-- [InSpec Profile Documentation](https://docs.chef.io/inspec/profiles/).
-- [InSpec Inputs](https://docs.chef.io/inspec/profiles/inputs/).
-- [inspec.yml](https://docs.chef.io/inspec/profiles/inspec_yml/).
-
-[top](#table-of-contents)
+- [InSpec Profile Documentation](https://docs.chef.io/inspec/profiles/)
+- [InSpec Inputs](https://docs.chef.io/inspec/profiles/inputs/)
+- [inspec.yml](https://docs.chef.io/inspec/profiles/inspec_yml/)
 
 ### Testing the Profile Controls
 
@@ -236,42 +215,107 @@ Ensure the controls are ready to be committed into the repo:
   bundle exec rake pre_commit_checks
 ```
 
-[top](#table-of-contents)
+## Setup the Profile
+
+1. **Clone the Repository**
+
+    Start by cloning the `azure-foundations-cis-baseline` repository from GitHub to your local machine:
+
+    ```sh
+    git clone https://github.com/mitre/azure-foundations-cis-baseline.git
+    cd azure-foundations-cis-baseline
+    ```
+
+2. **Clone the Repository**
+
+    Once the repository is cloned, install the required Ruby dependencies by running:
+
+    ```sh
+    bundle install
+    ```
+
+3. **Create and Update `inputs.yml` for Inspec**
+
+   Execute the following command to create the `inputs.yml` file by copying `inputs_template.yml` and renaming it to `inputs.yml`.
+   Update this file with your values.
+
+   ```sh
+   cp inputs_template.yml inputs.yml
+   ```
+
+### Example `inputs.yml`
+
+```yaml
+# Azure Connection Settings
+subscription_id: "00000000-0000-0000-0000-000000000000"
+client_id: "00000000-0000-0000-0000-000000000000"
+tenant_id: "00000000-0000-0000-0000-000000000000"
+client_secret: "0000000000000000000000000000000000000000"
+
+# Resource Configuration
+resource_groups_and_storage_accounts:
+  - "group1.account1"
+key_vault_full_key_uri:
+  - "https://test.vault.azure.net/keys/vault-key-name/current-version"
+
+# Control 7.7
+relevant_public_ip_addresses:
+  - "1"
+  - "2"
+
+# Control 8.7
+resource_group_and_disk_name:
+  - "group1.disk1"
+unauthorized_extension_names:
+  - "test"
+unauthorized_extension_types:
+  - "google"
+unauthorized_provision_states:
+  - "test"
+
+# Controls 3.3.1, 3.3.2, 3.3.3, 3.3.4
+# Provide expiration dates in the order the keys appear in the GUI
+# For example, list Vault 1’s Key 1 first, followed by subsequent keys and vaults in sequence.
+# Use "null" to omit a date. Format for dates: "M/d/yyyy h:mm:ss tt"
+rbac_keys_appropriate_expiry_date:
+  - "2/28/2027 8:57:19 PM"
+  - "null"
+non_rbac_keys_appropriate_expiry_date:
+  - "2/28/2027 8:57:19 PM"
+  - "null"
+rbac_secrets_appropriate_expiry_date:
+  - "2/28/2027 8:57:19 PM"
+  - "null"
+non_rbac_secrets_appropriate_expiry_date:
+  - "2/28/2027 8:57:19 PM"
+  - "null"
+```
 
 ## Running the Profile
-
-**Note**: Replace the profile's directory name - e.g. - `<Profile>` with `.` if currently in the profile's root directory.
-**Note 2**: The `<Name of Dictionary Storing Pwsh Options>` will be `pwsh-options` if exactly following train-pwsh documentation.
-
-```sh
-bundle exec cinc-auditor exec <Profile> -t pwsh://<Name of Dictionary Storing Pwsh Options> --controls=<control_id> --enhanced-outcomes --input-file=inputs.yml
-```
-
-#### Execute a Single Control and save results as JSON
-
-```sh
-bundle exec cinc-auditor exec <Profile> -t pwsh://<Name of Dictionary Storing Pwsh Options>> --controls=<control_id> --enhanced-outcomes --input-file=inputs.yml --reporter json:results.json
-```
 
 #### Execute All Controls in the Profile
 
 ```sh
-bundle exec cinc-auditor exec <Profile> -t pwsh://<Name of Dictionary Storing Pwsh Options>> --enhanced-outcomes --input-file=inputs.yml
+[inspec or cinc-auditor] exec . --enhanced-outcomes  --input-file=inputs.yml
 ```
 
-#### Execute all the Controls in the Profile and save results as JSON
+#### Execute All the Controls in the Profile and Save Results as Json
 
 ```sh
-bundle exec cinc-auditor exec <Profile> -t pwsh://<Name of Dictionary Storing Pwsh Options>> --enhanced-outcomes --input-file=inputs.yml --reporter json:results.json
+[inspec or cinc-auditor] exec . --enhanced-outcomes  --reporter json:results.json --input-file=inputs.yml
 ```
 
-[top](#table-of-contents)
+#### Execute a Single Control and Save Results as Json
+
+Replace [control-number] with the actual control number (e.g., use 5.1.6 to target azure-foundations-cis-5.1.6)
+
+```sh
+[inspec or cinc-auditor] exec . --enhanced-outcomes  --reporter json:results.json --input-file=inputs.yml --controls=azure-foundations-cis-[control-number]
+```
 
 ## Different Run Options
 
 [Full exec options](https://docs.chef.io/inspec/cli/#options-3)
-
-[top](#table-of-contents)
 
 ## Using Heimdall for Viewing Test Results
 
@@ -317,8 +361,8 @@ Not all controls in the CIS Benchmark are capable of automated assessment. The t
 | 2       | Identity                                                                                                                                                       | -                          | -                        |
 | 2.1     | Security Defaults (Per-User MFA)                                                                                                                               | -                          | -                        |
 | 2.1.1   | Ensure Security Defaults is enabled on Microsoft Entra ID (Manual)                                                                                             | No                         | -                        |
-| 2.1.2   | Ensure that Multi-Factor Auth Status is Enabled for all Privileged Users (Manual)                                                                              | Half                       | REST API to audit        |
-| 2.1.3   | Ensure that Multi-Factor Auth Status is Enabled for all Non-Privileged Users (Manual)                                                                          | Half                       | REST API to audit        |
+| 2.1.2   | Ensure that Multi-Factor Auth Status is Enabled for all Privileged Users (Manual)                                                                              | Yes                        | REST API to audit        |
+| 2.1.3   | Ensure that Multi-Factor Auth Status is Enabled for all Non-Privileged Users (Manual)                                                                          | Yes                        | REST API to audit        |
 | 2.1.4   | Ensure that Allow users to remember multi-factor authentication on devices they trust is Disabled (Manual)                                                     | No                         | -                        |
 | -       | -                                                                                                                                                              | -                          | -                        |
 | 2.2     | Conditional Access                                                                                                                                             | -                          | -                        |
@@ -340,8 +384,8 @@ Not all controls in the CIS Benchmark are capable of automated assessment. The t
 | 2.9     | Ensure that Number of days before users are asked to re-confirm their authentication information is not set to 0 (Manual)                                      | No                         | -                        |
 | 2.10    | Ensure that Notify users on password resets? is set to Yes (Manual)                                                                                            | No                         | -                        |
 | 2.11    | Ensure That Notify all admins when other admins reset their password? is set to Yes (Manual)                                                                   | No                         | -                        |
-| 2.12    | Ensure User consent for applications is set to Do not allow user consent (Manual)                                                                              | Half                       | Powershell to audit      |
-| 2.13    | Ensure User consent for applications Is Set To Allow for Verified Publishers (Manual)                                                                          | Half                       | Powershell to audit      |
+| 2.12    | Ensure User consent for applications is set to Do not allow user consent (Manual)                                                                              | Yes                        | Powershell to audit      |
+| 2.13    | Ensure User consent for applications Is Set To Allow for Verified Publishers (Manual)                                                                          | Yes                        | Powershell to audit      |
 | 2.14    | Ensure That Users Can Register Applications Is Set to No (Automated)                                                                                           | Yes                        | Powershell               |
 | 2.15    | Ensure That Guest users access restrictions is set to Guest user access is restricted to properties and memberships of their own directory objects (Automated) | Yes                        | Powershell               |
 | 2.16    | Ensure that Guest invite restrictions is set to Only users assigned to specific admin roles can invite guest users (Automated)                                 | Yes                        | Powershell               |
@@ -352,7 +396,7 @@ Not all controls in the CIS Benchmark are capable of automated assessment. The t
 | 2.21    | Ensure that Users can create Microsoft 365 groups in Azure portals, API or PowerShell is set to No (Manual)                                                    | No                         | -                        |
 | 2.22    | Ensure that Require Multifactor Authentication to register or join devices with Microsoft Entra is set to Yes (Manual)                                         | No                         | -                        |
 | 2.23    | Ensure That No Custom Subscription Administrator Roles Exist (Automated)                                                                                       | Yes                        | Azure CLI or Powershell  |
-| 2.24    | Ensure a Custom Role is Assigned Permissions for Administering Resource Locks (Manual)                                                                         | Half                       | Powershell to remediate  |
+| 2.24    | Ensure a Custom Role is Assigned Permissions for Administering Resource Locks (Manual)                                                                         | No                        | Powershell to remediate  |
 | 2.25    | Ensure That Subscription leaving Microsoft Entra tenant and Subscription entering Microsoft Entra tenant Is Set To Permit no one (Manual)                      | No                         | -                        |
 | 2.26    | Ensure fewer than 5 users have global administrator assignment (Manual)                                                                                        | No                         | -                        |
 | -       | -                                                                                                                                                              | -                          | -                        |
@@ -410,14 +454,14 @@ Not all controls in the CIS Benchmark are capable of automated assessment. The t
 | 4.1     | Ensure that Secure transfer required is set to Enabled (Automated)                                                                                             | Yes                        | Azure CLI                |
 | 4.2     | Ensure that Enable Infrastructure Encryption for Each Storage Account in Azure Storage is Set to Enabled (Automated)                                           | Yes                        | Azure CLI or Powershell  |
 | 4.3     | Ensure that Enable key rotation reminders is enabled for each Storage Account (Manual)                                                                         | Yes                        | Azure CLI and Powershell |
-| 4.4     | Ensure that Storage Account Access Keys are Periodically Regenerated (Manual)                                                                                  | Half                       | Azure CLI                |
+| 4.4     | Ensure that Storage Account Access Keys are Periodically Regenerated (Manual)                                                                                  | Yes                        | Azure CLI                |
 | 4.5     | Ensure that Shared Access Signature Tokens Expire Within an Hour (Manual)                                                                                      | No                         | -                        |
 | 4.6     | Ensure that Public Network Access is Disabled for storage accounts (Automated)                                                                                 | Yes                        | Azure CLI and Powershell |
 | 4.7     | Ensure Default Network Access Rule for Storage Accounts is Set to Deny (Automated)                                                                             | Yes                        | Azure CLI                |
 | 4.8     | Ensure Allow Azure services on the trusted services list to access this storage account is Enabled for Storage Account Access (Automated)                      | Yes                        | Azure CLI and Powershell |
 | 4.9     | Ensure Private Endpoints are used to access Storage Accounts (Automated)                                                                                       | Yes                        | Azure CLI or Powershell  |
 | 4.10    | Ensure Soft Delete is Enabled for Azure Containers and Blob Storage (Automated)                                                                                | Yes                        | Azure CLI                |
-| 4.11    | Ensure Storage for Critical Data are Encrypted with Customer Managed Keys (CMK) (Manual)                                                                       | Half                       | Powershell               |
+| 4.11    | Ensure Storage for Critical Data are Encrypted with Customer Managed Keys (CMK) (Manual)                                                                       | Yes                        | Powershell               |
 | 4.12    | Ensure Storage Logging is Enabled for Queue Service for Read, Write, and Delete requests (Automated)                                                           | Yes                        | Azure CLI                |
 | 4.13    | Ensure Storage logging is Enabled for Blob Service for Read, Write, and Delete requests (Automated)                                                            | Yes                        | Azure CLI                |
 | 4.14    | Ensure Storage Logging is Enabled for Table Service for Read, Write, and Delete Requests (Automated)                                                           | Yes                        | Azure CLI                |
@@ -520,15 +564,12 @@ Not all controls in the CIS Benchmark are capable of automated assessment. The t
 | 10      | Miscellaneous                                                                                                                                                  | -                          | -                        |
 | 10.1    | Ensure that Resource Locks are set for Mission-Critical Azure Resources (Manual)                                                                               | Yes                        | Azure CLI or Powershell  |
 | -       | -                                                                                                                                                              | -                          | -                        |
-| -       | -                                                                                                                                                              | Number of Automatable      | 70                       |
-| -       | -                                                                                                                                                              | Number of Half-Automatable | 7                        |
-| -       | -                                                                                                                                                              | Number of Non-automatable  | 40                       |
+| -       | -                                                                                                                                                              | Number of Automatable      | 114                      |
+| -       | -                                                                                                                                                              | Number of Non-automatable  | 41                       |
 | -       | -                                                                                                                                                              | -                          | -                        |
-| -       | -                                                                                                                                                              | Total Number of Controls   | 117                      |
+| -       | -                                                                                                                                                              | Total Number of Controls   | 15                       |
 
 For any controls marked as 'Manual', please refer to the following following at [SAF-CLI](https://saf-cli.mitre.org/) on how to apply manual attestations to the output of an automated assessment. The following [link](https://vmware.github.io/dod-compliance-and-automation/docs/automation-tools/safcli/) that references the SAF-CLI is also useful.
-
-[top](#table-of-contents)
 
 ## Authors
 
