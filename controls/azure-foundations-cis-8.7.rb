@@ -64,6 +64,9 @@ control 'azure-foundations-cis-8.7' do
     $disallowedExtensionTypes = @(#{unauthorized_extension_types_pattern})
     $disallowedProvisioningStates = @(#{unauthorized_extension_states_pattern})
     $vms = Get-AzVM
+    if ($vms -eq $null){
+        Write-Output "No VMs found"
+    }
 
     # Iterate over each VM
     foreach ($vm in $vms) {
@@ -85,7 +88,7 @@ control 'azure-foundations-cis-8.7' do
                     $disallowedExtensionTypes -contains $extensionType -or
                     $disallowedProvisioningStates -contains $provisioningState) {
 
-                    Write-Output "Resource Group: $resourceGroupName, VM Name: $vmName"
+                    Write-Output "Resource Group: $resourceGroupName, VM Name: $vmName does not have approved settings"
                 }
             }
         }
@@ -95,7 +98,7 @@ control 'azure-foundations-cis-8.7' do
   describe 'Ensure the number of resource group/VMs that have non-approved Names, Extention Type, or Provisioning State settings' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do
-      failure_message = "The following resource groups/VM do not have the the approved settings are: #{pwsh_output.stdout.strip}"
+      failure_message = "Error: #{pwsh_output.stdout.strip}"
       expect(subject).to be_empty, failure_message
     end
   end
