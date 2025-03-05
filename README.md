@@ -65,7 +65,7 @@ To successfully authenticate your application with Azure, you need to obtain the
 
 1. **Register Your App in Azure Portal**
 
-    Log in to [Azure Portal](https://portal.azure.com/), navigate to **Azure Active Directory** → **App registrations**, and click **New registration**. Complete the required fields and register your application.
+    Log in to [Azure Portal](https://portal.azure.com/), navigate to **App registrations**, and click **New registration**. Complete the required fields and register your application.
 
 2. **Retrieve Application IDs**
 
@@ -74,7 +74,7 @@ To successfully authenticate your application with Azure, you need to obtain the
 
 3. **Create a Client Secret**
 
-    In your application’s menu, select **Manage** → **Certificates & secrets** → **New client secret**. Provide a description and set an expiration period. Copy the generated secret value immediately, as it will not be visible later.
+    In your application’s menu, select **Manage** → **Certificates & secrets** → **New client secret**. Provide a description and set an expiration period. Store the generated secret value as it will not be visible later.
 
 4. **Get Subscription ID**
 
