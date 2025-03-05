@@ -26,7 +26,7 @@ jobs:
       - name: Install Packages
         run: sudo apt-get install -y jq curl
 
-      - name: Install Az and MgGraph Modules
+      - name: Install Az/MgGraph Modules and Connect to Modules
         run: |
           If($null -eq (get-module -listavailable -name "az")){install-module az -Force -AllowClobber}
           If($null -eq (get-module -name "az")){import-module az}
@@ -36,6 +36,12 @@ jobs:
           Connect-AzAccount -ServicePrincipal -TenantId "${{ secrets.AZURE_TENANT_ID }}" -Credential $credential | Out-Null
         shell: pwsh
 
+      - name: Connect to Azure CLI
+        run: |
+          az login --service-principal --username "${{ secrets.AZURE_CLIENT_ID }}" --password "${{ secrets.AZURE_CLIENT_SECRET }}" --tenant "${{ secrets.AZURE_TENANT_ID }}" > /dev/null 2>&1
+          az storage account list > storage_accounts.json
+          cat storage_accounts.json
+  
       - name: Check-out Repository
         uses: actions/checkout@v4
 
