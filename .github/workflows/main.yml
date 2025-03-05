@@ -33,7 +33,7 @@ jobs:
           If($null -eq (get-module -listavailable -name "microsoft.graph")){install-module microsoft.graph -Force -AllowClobber}
           If($null -eq (get-module -name "microsoft.graph")){import-module microsoft.graph}
           $credential = New-Object System.Management.Automation.PSCredential("${{ secrets.AZURE_CLIENT_ID }}", (ConvertTo-SecureString "${{ secrets.AZURE_CLIENT_SECRET }}" -AsPlainText -Force))
-          # Connect-AzAccount -ServicePrincipal -TenantId "${{ secrets.AZURE_TENANT_ID }}" -Credential $credential | Out-Null
+          Connect-AzAccount -ServicePrincipal -TenantId "${{ secrets.AZURE_TENANT_ID }}" -Credential $credential | Out-Null
         shell: pwsh
 
       - name: Check-out Repository
