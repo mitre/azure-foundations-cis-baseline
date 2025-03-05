@@ -67,7 +67,7 @@ jobs:
       - name: Install Bundle Dependencies
         run: bundle install
 
-      - name: Installed Inspec Version
+      - name: Check Installed Inspec Version
         run: bundle exec inspec version
 
       - name: Vendor the InSpec Profile
