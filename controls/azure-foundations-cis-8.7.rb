@@ -70,24 +70,32 @@ control 'azure-foundations-cis-8.7' do
     }
 
     # Iterate over each VM
+    $vm_index = 0
     foreach ($vm in $vms) {
+        $vm_index++
         $vmName = $vm.Name
         $resourceGroupName = $vm.ResourceGroupName
 
         # Get all extensions for the current VM
         $extensions = Get-AzVMExtension -ResourceGroupName $resourceGroupName -VMName $vmName
 
+        if ($extensions -eq $null){
+            Write-Output "No extensions found for VM $($vm.Name)"
+        }
+
         # Check if there are any extensions
+        $extension_index = 0
         if ($extensions) {
             foreach ($extension in $extensions) {
+                $extension_index++
                 $extensionName = $extension.Name
                 $extensionType = $extension.ExtensionType
                 $provisioningState = $extension.ProvisioningState
-
+                $new_index = $vm_index * $extension_index - 1
                 # Check if the extension matches any disallowed criteria
-                if ($disallowedNames -contains $extensionName -or
-                    $disallowedExtensionTypes -contains $extensionType -or
-                    $disallowedProvisioningStates -contains $provisioningState) {
+                if ($disallowedNames[$new_index] -eq $extensionName -or
+                    $disallowedExtensionTypes[$new_index] -eq $extensionType -or
+                    $disallowedProvisioningStates[$new_index] -eq $provisioningState) {
 
                     Write-Output "Resource Group: $resourceGroupName, VM Name: $vmName does not have approved settings"
                 }
