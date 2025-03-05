@@ -45,6 +45,7 @@ The original benchmark document that serves as the basis for this automated test
 
 ### Required Software
 
+- [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
 - [CINC-auditor](https://cinc.sh/start/auditor/) or [InSpec](https://docs.chef.io/inspec/install/)
 - [PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell?view=powershell-7.4)
   - [Microsoft Azure Powershell Module](https://learn.microsoft.com/en-us/powershell/azure/install-azure-powershell?view=azps-13.2.0)
@@ -164,11 +165,11 @@ Customized inputs may be used at the CLI by providing an input file or a flag at
 
 1. Using the `--input` flag
 
-   Example: `[inspec or cinc-auditor] exec <my-profile.tar.gz> --input disable_slow_controls=true`
+   Example: `bundle exec [inspec or cinc-auditor] exec <my-profile.tar.gz> --input disable_slow_controls=true`
 
 2. Using the `--input-file` flag.
 
-   Example: `[inspec or cinc-auditor] exec <my-profile.tar.gz> --input-file=<my_inputs_file.yml>`
+   Example: `bundle exec [inspec or cinc-auditor] exec <my-profile.tar.gz> --input-file=<my_inputs_file.yml>`
 
 > [TIP]
 > For additional information about `input` file examples reference the [MITRE SAF Training](https://mitre.github.io/saf-training/courses/beginner/06.html#input-file-example)
@@ -203,16 +204,16 @@ bundle install
 Linting and validating controls:
 
 ```bash
-  bundle exec rake [inspec or cinc-auditor]:check # Validate the InSpec Profile
-  bundle exec rake lint                            # Run RuboCop Linter
-  bundle exec rake lint:auto_correct       # Autocorrect RuboCop offenses (only when it's safe)
-  bundle exec rake pre_commit_checks  # Pre-commit checks
+bundle exec rake [inspec or cinc-auditor]:check # Validate the InSpec Profile
+bundle exec rake lint                            # Run RuboCop Linter
+bundle exec rake lint:auto_correct       # Autocorrect RuboCop offenses (only when it's safe)
+bundle exec rake pre_commit_checks  # Pre-commit checks
 ```
 
 Ensure the controls are ready to be committed into the repo:
 
 ```bash
-  bundle exec rake pre_commit_checks
+bundle exec rake pre_commit_checks
 ```
 
 ## Setup the Profile
@@ -296,13 +297,13 @@ non_rbac_secrets_appropriate_expiry_date:
 #### Execute All Controls in the Profile
 
 ```sh
-[inspec or cinc-auditor] exec . --enhanced-outcomes  --input-file=inputs.yml
+bundle exec [inspec or cinc-auditor] exec . --enhanced-outcomes  --input-file=inputs.yml
 ```
 
 #### Execute All the Controls in the Profile and Save Results as Json
 
 ```sh
-[inspec or cinc-auditor] exec . --enhanced-outcomes  --reporter json:results.json --input-file=inputs.yml
+bundle exec [inspec or cinc-auditor] exec . --enhanced-outcomes  --reporter json:results.json --input-file=inputs.yml
 ```
 
 #### Execute a Single Control and Save Results as Json
@@ -310,7 +311,7 @@ non_rbac_secrets_appropriate_expiry_date:
 Replace [control-number] with the actual control number (e.g., use 5.1.6 to target azure-foundations-cis-5.1.6)
 
 ```sh
-[inspec or cinc-auditor] exec . --enhanced-outcomes  --reporter json:results.json --input-file=inputs.yml --controls=azure-foundations-cis-[control-number]
+bundle exec [inspec or cinc-auditor] exec . --enhanced-outcomes  --reporter json:results.json --input-file=inputs.yml --controls=azure-foundations-cis-[control-number]
 ```
 
 ## Different Run Options

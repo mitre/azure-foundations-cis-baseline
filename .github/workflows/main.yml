@@ -76,28 +76,12 @@ jobs:
       - name: Lint Inspec profile
         run: bundle exec inspec check .
 
-      - name: Create Powershell Config File
-        run: |
-          echo '{
-                  "version": "1.1",
-                  "cli_options": {
-                    "color": "true"
-                  },
-                  "credentials": {
-                    "pwsh": {
-                      "pwsh-options": {
-                        "pwsh_path": "/usr/bin/pwsh"
-                      }
-                    }
-                  }
-                }' > ~/.inspec/config.json
-
       - name: Run InSpec Profile
         run: |
           bundle exec inspec exec . \
           --input client_id=${{ secrets.AZURE_CLIENT_ID }} tenant_id=${{ secrets.AZURE_TENANT_ID }} client_secret=${{ secrets.AZURE_CLIENT_SECRET }} subscription_id=${{ secrets.AZURE_SUBSCRIPTION_ID }} \
           --controls azure-foundations-cis-8.7 \
-          --input-file=inputs_template.yml \
+          --input-file=inputs.yml \
           --reporter cli json:${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} \
           --enhanced-outcomes \
           --filter-empty-profiles || true
