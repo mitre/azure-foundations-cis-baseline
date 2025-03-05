@@ -63,6 +63,7 @@ control 'azure-foundations-cis-8.7' do
     $disallowedNames = @(#{unauthorized_extension_names_pattern})
     $disallowedExtensionTypes = @(#{unauthorized_extension_types_pattern})
     $disallowedProvisioningStates = @(#{unauthorized_extension_states_pattern})
+    $ErrorActionPreference = "Stop"
     $vms = Get-AzVM
     if ($vms -eq $null){
         Write-Output "No VMs found"
@@ -95,6 +96,8 @@ control 'azure-foundations-cis-8.7' do
     }
   )
   pwsh_output = powershell(only_approved_extensions_approved_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
   describe 'Ensure the number of resource group/VMs that have non-approved Names, Extention Type, or Provisioning State settings' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do
