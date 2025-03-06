@@ -104,6 +104,8 @@ control 'azure-foundations-cis-3.3.3' do
                   $secret_index++
                   if ($secret.Enabled -eq $true) {
                         $new_index = $vault_index * $secret_index - 1
+                        Write-Output $($dateObjects[$new_index])
+                        Write-Output $($secret.Expires)
                         if ($dateObjects[$new_index] -ne $secret.Expires) {
                               Write-Host "Secret '$($secret.Name)' in Vault '$($vault.VaultName)' is enabled but does not have appropriate expiry date of $($dateObjects[$new_index])"
                         }
