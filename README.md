@@ -82,9 +82,41 @@ To successfully authenticate your application with Azure, you need to obtain the
 
     Reference: [Application Registration Steps](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate)
 
+5. **Connect to Modules on PowerShell**
+
+    Open up PowerShell
+
+    Run the following code snippet on PowerShell :
+
+    ```sh
+      $credential = New-Object System.Management.Automation.PSCredential("<INSERT CLIENT ID>", (ConvertTo-SecureString "<INSERT CLIENT SECRET>" -AsPlainText -Force))
+
+      Connect-AzAccount -ServicePrincipal -TenantId "<INSERT TENANT ID>" -Credential $credential
+    ```
+
+    If there is an output from this, then you are connected.
+
+6. **Connect to Azure CLI**
+
+    Run the following code snippet on your PowerShell:
+
+    ```sh
+       az login --service-principal --username "<INSERT CLIENT ID>" --password "<INSERT CLIENT SECRET>" --tenant "<INSERT TENANT ID>"
+    ```
+
+    If there is an output from this, then you are connected.
+
+
 #### Ensure Proper Azure Permissions
 
   Verify that your runner account and service principal (app registration) both have Owner and Reader permissions. If not, request these privileges from your Azure administrator.
+
+  The following permissions are needed for the following resources.
+  
+  Key Vault
+    - Key Vault Administrator
+  Storage Accounts
+    - App Compliance Automation Administrator
 
 ## Getting Started
 
