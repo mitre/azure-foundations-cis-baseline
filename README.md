@@ -18,13 +18,13 @@ and Continuous Authority to Operate (cATO) processes.
 
 The Azure CIS Benchmark includes security requirements for a Azure environment.
 
-# Table of Contents
+## Table of Contents
 
 - [CIS Benchmark Information](#benchmark-information)
 
 - [Requirements](#requirements)
   - [Required Software](#required-software)
-  - [Azure Credentials](#azure-credentials)
+  - [Azure Environment Setup](#azure-account-configuration)
 - [Getting Started](#getting-started)
   - [Intended Usage](#intended-usage)
   - [Tailoring to Your Environment](#tailoring-to-your-environment)
@@ -52,7 +52,7 @@ The original benchmark document that serves as the basis for this automated test
   - [Microsoft Graph Powershell Module](https://learn.microsoft.com/en-us/powershell/microsoftgraph/installation?view=graph-powershell-1.0)
 - [Ruby](https://www.ruby-lang.org/en/documentation/installation/)
 
-### Azure Credentials
+### Azure Account Configuration
 
 To successfully authenticate your application with Azure, you need to obtain the following credentials from your app registration:
 
@@ -61,11 +61,11 @@ To successfully authenticate your application with Azure, you need to obtain the
 - tenant_id
 - client_secret
 
-#### Follow these steps if you’re an Azure admin
+#### 1. Retrieve App Registration Credentials
 
 1. **Register Your App in Azure Portal**
 
-    Log in to [Azure Portal](https://portal.azure.com/), navigate to **App registrations**, and click **New registration**. Complete the required fields and register your application.
+    Log in to **Azure Portal** → **App registrations** → **New registration**. Complete the required fields and register your application.
 
 2. **Retrieve Application IDs**
 
@@ -82,34 +82,41 @@ To successfully authenticate your application with Azure, you need to obtain the
 
     Reference: [Application Registration Steps](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate)
 
-5. **Connect to Modules on PowerShell**
 
-    Open up PowerShell
+1. **Connect to Azure Modules**
 
-    Run the following code snippet on PowerShell :
-
-    ```sh
-      $credential = New-Object System.Management.Automation.PSCredential("<INSERT CLIENT ID>", (ConvertTo-SecureString "<INSERT CLIENT SECRET>" -AsPlainText -Force))
-
-      Connect-AzAccount -ServicePrincipal -TenantId "<INSERT TENANT ID>" -Credential $credential
-    ```
-
-    If there is an output from this, then you are connected.
-
-6. **Connect to Azure CLI**
-
-    Run the following code snippet on your PowerShell:
+    Open PowerShell and run the following commands to authenticate using your service principal:
 
     ```sh
-       az login --service-principal --username "<INSERT CLIENT ID>" --password "<INSERT CLIENT SECRET>" --tenant "<INSERT TENANT ID>"
+    $credential = New-Object System.Management.Automation.PSCredential("<INSERT_CLIENT_ID>", (ConvertTo-SecureString "<INSERT_CLIENT_SECRET>" -AsPlainText -Force))
+    Connect-AzAccount -ServicePrincipal -TenantId "<INSERT_TENANT_ID>" -Credential $credential
     ```
 
-    If there is an output from this, then you are connected.
+    If you receive output confirming the connection, you are successfully authenticated.
 
+2. **Connect to Azure CLI**
 
-#### Ensure Proper Azure Permissions
+    In PowerShell, execute this command to log in via the Azure CLI:
 
-  Verify that your runner account and service principal (app registration) both have Owner and Reader permissions. If not, request these privileges from your Azure administrator.
+    ```sh
+    az login --service-principal --username "<INSERT_CLIENT_ID>" --password "<INSERT_CLIENT_SECRET>" --tenant "<INSERT TENANT_ID>"
+    ```
+
+    A successful output indicates that you are connected.
+
+#### 3. Ensure Proper Azure Permissions
+
+Ensure that both your runner account and service principal (app registration) have Owner and Reader roles. Additionally, make sure that you have the permissions below for each resource:
+
+**Required Permissions by Resource:**
+
+- **Key Vault**
+  - **Role:** Key Vault Administrator
+  - **Verification:** Navigate to your Key Vault in Azure Portal, then go to **Access Control (IAM)** → **Role Assignments**. Confirm that you have the ***Key Vault Administrator*** role.
+
+- **Storage Accounts**
+  - **Role:** App Compliance Automation Administrator
+  - **Verification:** Navigate to your Storage Account in Azure Portal, then go to **Access Control (IAM)** → **Role Assignments**. Confirm that you have the ***App Compliance Automation Administrator*** role.
 
   The following permissions are needed for the following resources.
   
@@ -149,7 +156,7 @@ To install CINC Auditor on a Windows platform (PowerShell) use the following com
 
 To confirm successful install of CINC Auditor:
 
-```
+```bash
 cinc-auditor -v
 ```
 
@@ -162,8 +169,8 @@ Latest versions and other installation options are available at [CINC Auditor](h
    Please use the `released` versions of the profile in these types of workflows.
 
 2. The `main` branch is a development branch that will become the next release of the profile.
-   The `main` branch is intended for use in _developing and testing_ merge requests for the next
-   release of the profile, and _is not intended_ be used for formal and ongoing testing on systems.
+   The `main` branch is intended for use in *developing and testing* merge requests for the next
+   release of the profile, and *is not intended* be used for formal and ongoing testing on systems.
 
 ### Tailoring to Your Environment
 
@@ -180,12 +187,12 @@ modifying the `inspec.yml` file itself (see [Using Customized Inputs](#using-cus
 The following inputs are permitted to be configured in an inputs `.yml` file (often named inputs.yml)
 for the profile to run correctly on a specific environment, while still complying with the security
 guidance document intent. This is important to prevent confusion when test results are passed downstream
-to different stakeholders under the _security guidance name used by this profile repository_
+to different stakeholders under the *security guidance name used by this profile repository*
 
-For changes beyond the inputs cited in this section, users can create an _organizationally-named overlay repository_.
+For changes beyond the inputs cited in this section, users can create an *organizationally-named overlay repository*.
 For more information on developing overlays, reference the [MITRE SAF Training](https://mitre-saf-training.netlify.app/courses/beginner/10.html)
 
-#### Example of tailoring Inputs _While Still Complying_ with the security guidance document for the profile
+#### Example of tailoring Inputs *While Still Complying* with the security guidance document for the profile
 
 > [NOTE]
 > Inputs are variables that are referenced by control(s) in the profile that implement them.
@@ -197,11 +204,11 @@ Customized inputs may be used at the CLI by providing an input file or a flag at
 
 1. Using the `--input` flag
 
-   Example: `bundle exec [inspec or cinc-auditor] exec <my-profile.tar.gz> --input disable_slow_controls=true`
+   Example: `[inspec or cinc-auditor] exec <my-profile.tar.gz> --input disable_slow_controls=true`
 
 2. Using the `--input-file` flag.
 
-   Example: `bundle exec [inspec or cinc-auditor] exec <my-profile.tar.gz> --input-file=<my_inputs_file.yml>`
+   Example: `[inspec or cinc-auditor] exec <my-profile.tar.gz> --input-file=<my_inputs_file.yml>`
 
 > [TIP]
 > For additional information about `input` file examples reference the [MITRE SAF Training](https://mitre.github.io/saf-training/courses/beginner/06.html#input-file-example)
@@ -326,7 +333,7 @@ non_rbac_secrets_appropriate_expiry_date:
 
 ## Running the Profile
 
-#### Execute All Controls in the Profile
+### Execute All Controls in the Profile
 
 ```sh
 bundle exec [inspec or cinc-auditor] exec . --enhanced-outcomes  --input-file=inputs.yml
@@ -338,7 +345,7 @@ bundle exec [inspec or cinc-auditor] exec . --enhanced-outcomes  --input-file=in
 bundle exec [inspec or cinc-auditor] exec . --enhanced-outcomes  --reporter json:results.json --input-file=inputs.yml
 ```
 
-#### Execute a Single Control and Save Results as Json
+### Execute a Single Control and Save Results as Json
 
 Replace [control-number] with the actual control number (e.g., use 5.1.6 to target azure-foundations-cis-5.1.6)
 
@@ -359,7 +366,7 @@ Heimdall-Lite is a `browser only` viewer that allows you to easily view your res
 Heimdall-Server is configured with a `data-services backend` allowing for data persistency to a database (PostgreSQL).
 For more detail on feature capabilities see [Heimdall Features](https://github.com/mitre/heimdall2?tab=readme-ov-file#features)
 
-Heimdall can **_export your results into a DISA Checklist (CKL) file_** for easily uploading into eMass using the `Heimdall Export` function.
+Heimdall can ***export your results into a DISA Checklist (CKL) file*** for easily uploading into eMass using the `Heimdall Export` function.
 
 Depending on your environment restrictions, the [SAF CLI](https://saf-cli.mitre.org) can be used to run a local docker instance
 of Heimdall-Lite via the `saf view:heimdall` command.
