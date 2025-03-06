@@ -94,7 +94,7 @@ control 'azure-foundations-cis-5.1.2' do
       EOH
 
       output = powershell(script).stdout.strip
-      firewall_rules  = json(content: output).params
+      firewall_rules = json(content: output).params
       firewall_rules = [firewall_rules] unless firewall_rules.is_a?(Array)
 
       firewall_rules.each do |rule|

@@ -68,7 +68,7 @@ control 'azure-foundations-cis-3.1.7.1' do
         (Get-AzSecurityPricing -Name 'CosmosDbs').PricingTier
   EOH
 
-  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = powershell(script)
 
   describe 'Ensure That Microsoft Defender for Azure Cosmos DB' do
     subject { pwsh_output.stdout.strip }

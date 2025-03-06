@@ -71,7 +71,7 @@ control 'azure-foundations-cis-3.1.7.2' do
         (Get-AzSecurityPricing -Name 'OpenSourceRelationalDatabases').PricingTier
   EOH
 
-  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = powershell(script)
 
   describe 'Ensure That Microsoft Defender for Open-Source Relational Databases' do
     subject { pwsh_output.stdout.strip }

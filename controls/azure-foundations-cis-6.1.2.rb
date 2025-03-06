@@ -63,15 +63,23 @@ control 'azure-foundations-cis-6.1.2' do
 
   diag_settings = json(command: "az monitor diagnostic-settings subscription list --subscription #{subscription_id}").params['value']
 
-  diag_settings.each do |diag_setting|
-    diag_setting_name = diag_setting['name']
+  describe "Diagnostic settings for subscription #{subscription_id}" do
+    it 'should exist (diag settings should not be empty)' do
+      expect(diag_settings).not_to be_empty
+    end
+  end
 
-    required_categories.each do |category|
-      log_entry = diag_setting['logs'].find { |log| log['category'] == category }
+  unless diag_settings.empty?
+    diag_settings.each do |diag_setting|
+      diag_setting_name = diag_setting['name']
 
-      describe "Subscription diagnostic setting '#{diag_setting_name}' for log category '#{category}'" do
-        it 'is enabled' do
-          expect(log_entry['enabled']).to cmp true
+      required_categories.each do |category|
+        log_entry = diag_setting['logs'].find { |log| log['category'] == category }
+
+        describe "Subscription diagnostic setting '#{diag_setting_name}' for log category '#{category}'" do
+          it 'is enabled' do
+            expect(log_entry['enabled']).to cmp true
+          end
         end
       end
     end

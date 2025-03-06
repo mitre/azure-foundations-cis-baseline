@@ -65,15 +65,15 @@ control 'azure-foundations-cis-5.1.3' do
   # Compute the allowed expected values for ServerKeyVaultKeyName and KeyId from each full key URI.
   expected_values = expected_full_keys.map do |full_uri|
     match = full_uri.match(%r{https://(.*)\.vault\.azure\.net/keys/([^/]+)/([^/]+)})
-    if match
-      key_vault_name = match[1]
-      key_name = match[2]
-      key_version = match[3]
-      {
-        "ServerKeyVaultKeyName" => "#{key_vault_name}_#{key_name}_#{key_version}",
-        "KeyId" => full_uri
-      }
-    end
+    next unless match
+
+    key_vault_name = match[1]
+    key_name = match[2]
+    key_version = match[3]
+    {
+      'ServerKeyVaultKeyName' => "#{key_vault_name}_#{key_name}_#{key_version}",
+      'KeyId' => full_uri
+    }
   end.compact
 
   # Retrieve all SQL Servers.
@@ -101,13 +101,13 @@ control 'azure-foundations-cis-5.1.3' do
         expect(tde['Type']).to cmp 0
       end
 
-      it "should have ServerKeyVaultKeyName in one of the allowed formats" do
-        allowed_names = expected_values.map { |v| v["ServerKeyVaultKeyName"] }
+      it 'should have ServerKeyVaultKeyName in one of the allowed formats' do
+        allowed_names = expected_values.map { |v| v['ServerKeyVaultKeyName'] }
         expect(allowed_names).to include(tde['ServerKeyVaultKeyName'])
       end
 
-      it "should have KeyId in one of the allowed formats" do
-        allowed_ids = expected_values.map { |v| v["KeyId"] }
+      it 'should have KeyId in one of the allowed formats' do
+        allowed_ids = expected_values.map { |v| v['KeyId'] }
         expect(allowed_ids).to include(tde['KeyId'])
       end
     end

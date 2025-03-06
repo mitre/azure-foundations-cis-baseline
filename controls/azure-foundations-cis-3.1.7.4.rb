@@ -75,7 +75,7 @@ control 'azure-foundations-cis-3.1.7.4' do
         (Get-AzSecurityPricing -Name 'SqlServerVirtualMachines').PricingTier
   EOH
 
-  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = powershell(script)
 
   describe 'Ensure That Microsoft Defender for SQL Servers on Machines' do
     subject { pwsh_output.stdout.strip }

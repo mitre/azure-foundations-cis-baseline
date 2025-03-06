@@ -122,7 +122,7 @@ control 'azure-foundations-cis-4.6' do
 			}
   EOH
 
-  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = powershell(script)
 
   describe 'Storage Accounts with non-disabled Public Network Access' do
     subject { pwsh_output.stdout.strip.split(',').map(&:strip).reject(&:empty?) }

@@ -104,7 +104,7 @@ control 'azure-foundations-cis-3.1.3.3' do
         (Get-AzSecuritySetting | Where-Object { $_.name -eq 'WDATP' }).enabled
   EOH
 
-  pwsh_output = pwsh_azure_executor(script).run_script_in_azure
+  pwsh_output = powershell(script)
 
   describe "Ensure that 'Endpoint protection' component status" do
     subject { pwsh_output.stdout.strip }
