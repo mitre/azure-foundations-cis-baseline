@@ -104,6 +104,8 @@ control 'azure-foundations-cis-3.3.3' do
                   $secret_index++
                   if ($secret.Enabled -eq $true) {
                         $new_index = $vault_index * $secret_index - 1
+                        Write-Output "HERE"
+                        Write-Output $dateObjects
                         Write-Output $($dateObjects[$new_index])
                         Write-Output $($secret.Expires)
                         if ($dateObjects[$new_index] -ne $secret.Expires) {
