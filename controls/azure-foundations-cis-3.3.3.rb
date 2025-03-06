@@ -80,17 +80,11 @@ control 'azure-foundations-cis-3.3.3' do
   expiration_date_set_all_secrets_script = %(
       $dateStrings = @(#{rbac_secrets_dates_list})
       $dateObjects = $dateStrings | ForEach-Object {
-      if ("null" -eq $_) {
-            $null
-      } else {
-            try {
-                  # Attempt to parse the date string
+            if ("null" -eq $_) {
+                  $null
+            } else {
                   Get-Date $_
-            } catch {
-                  # Handle any parsing errors
-                  Write-Output "Invalid date format: $_"
             }
-      }
       }
       $keyVaults = Get-AzKeyVault
       if ($keyVaults -eq $null){
@@ -110,13 +104,6 @@ control 'azure-foundations-cis-3.3.3' do
                   $secret_index++
                   if ($secret.Enabled -eq $true) {
                         $new_index = $vault_index * $secret_index - 1
-                        Write-Output ($dateStrings[$new_index]).GetType().Name
-                        Write-Output ($dateObjects[$new_index]).GetType().Name
-                        Write-Output $new_index
-                        Write-Output "HERE"
-                        Write-Output $dateObjects
-                        Write-Output $($dateObjects[$new_index])
-                        Write-Output $($secret.Expires)
                         if ($dateObjects[$new_index] -ne $secret.Expires) {
                               Write-Host "Secret '$($secret.Name)' in Vault '$($vault.VaultName)' is enabled but does not have appropriate expiry date of $($dateObjects[$new_index])"
                         }
