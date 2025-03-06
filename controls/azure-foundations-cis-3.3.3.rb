@@ -105,7 +105,7 @@ control 'azure-foundations-cis-3.3.3' do
                   if ($secret.Enabled -eq $true) {
                         $new_index = $vault_index * $secret_index - 1
                         Write-Output ($dateStrings[$new_index]).GetType().Name
-                        Write-Output ($dateStrings[$new_index]).GetType().Name
+                        Write-Output ($dateObjects[$new_index]).GetType().Name
                         Write-Output $new_index
                         Write-Output "HERE"
                         Write-Output $dateObjects
