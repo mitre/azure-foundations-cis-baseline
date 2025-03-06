@@ -121,16 +121,6 @@ control 'azure-foundations-cis-4.3' do
           expect(account_info['Key2CreationTime']).not_to eq('')
         end
       end
-
-      # remove later, for debugging
-      describe 'Storage Account Details' do
-        it 'outputs account details' do
-          puts "Storage Account: #{account_info['Name']}"
-          puts "Expiration Reminder: #{account_info['KeyExpirationPeriodInDays']} days"
-          puts "Key1 Last Rotated: #{account_info['Key1CreationTime']}"
-          puts "Key2 Last Rotated: #{account_info['Key2CreationTime']}"
-        end
-      end
     end
   end
 end

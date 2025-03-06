@@ -63,23 +63,31 @@ control 'azure-foundations-cis-6.1.3' do
     resource_group, storage_account = pair.split('.')
 
     describe "Encryption settings for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-      storage_accounts = json(command: "az storage account list --resource-group #{resource_group} --query \"[?name=='#{storage_account}']\" -o json").params
+      storage_accounts = json(command: "az storage account list --resource-group #{resource_group} --query \"[?name=='#{storage_account}']\" -o json").params || []
 
-      encryption = storage_accounts.first['encryption']
-
-      describe "KeySource for '#{storage_account}'" do
-        it "should be set to 'Microsoft.Keyvault'" do
-          expect(encryption['keySource']).to cmp 'Microsoft.Keyvault'
+      describe "Storage Account '#{storage_account}' existence" do
+        it 'should exist (storage account list should not be empty)' do
+          expect(storage_accounts).not_to be_empty
         end
       end
 
-      describe "KeyVaultProperties for '#{storage_account}'" do
-        it 'should not be null' do
-          expect(encryption['keyVaultProperties']).not_to be_nil
+      unless storage_accounts.empty?
+        encryption = storage_accounts.first['encryption']
+
+        describe "KeySource for '#{storage_account}'" do
+          it "should be set to 'Microsoft.Keyvault'" do
+            expect(encryption['keySource']).to cmp 'Microsoft.Keyvault'
+          end
         end
 
-        it 'should not be empty' do
-          expect(encryption['keyVaultProperties'].to_s.strip).not_to eq ''
+        describe "KeyVaultProperties for '#{storage_account}'" do
+          it 'should not be null' do
+            expect(encryption['keyVaultProperties']).not_to be_nil
+          end
+
+          it 'should not be empty' do
+            expect(encryption['keyVaultProperties'].to_s.strip).not_to eq ''
+          end
         end
       end
     end
