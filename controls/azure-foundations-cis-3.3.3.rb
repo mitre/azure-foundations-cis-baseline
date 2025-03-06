@@ -88,8 +88,7 @@ control 'azure-foundations-cis-3.3.3' do
                   Get-Date $_
             } catch {
                   # Handle any parsing errors
-                  Write-Warning "Invalid date format: $_"
-                  $null
+                  Write-Output "Invalid date format: $_"
             }
       }
       }
