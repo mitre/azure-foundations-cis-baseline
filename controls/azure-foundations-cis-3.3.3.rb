@@ -80,11 +80,18 @@ control 'azure-foundations-cis-3.3.3' do
   expiration_date_set_all_secrets_script = %(
       $dateStrings = @(#{rbac_secrets_dates_list})
       $dateObjects = $dateStrings | ForEach-Object {
-            if ("null" -eq $_) {
-                  $null
-            } else {
+      if ("null" -eq $_) {
+            $null
+      } else {
+            try {
+                  # Attempt to parse the date string
                   Get-Date $_
+            } catch {
+                  # Handle any parsing errors
+                  Write-Warning "Invalid date format: $_"
+                  $null
             }
+      }
       }
       $keyVaults = Get-AzKeyVault
       if ($keyVaults -eq $null){
