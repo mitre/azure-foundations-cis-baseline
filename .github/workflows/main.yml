@@ -60,7 +60,7 @@ jobs:
       - name: Create Input File
         shell: bash
         run: |
-          printf "%s" "${{ env.INSPEC_INPUTS }}" > inputs.yml
+          printf "%s" '${{ env.INSPEC_INPUTS }}' > inputs.yml
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
