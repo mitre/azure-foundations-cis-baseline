@@ -93,14 +93,6 @@ control 'azure-foundations-cis-2.2.1' do
   client_secret = input('client_secret')
 
   script = <<-EOH
-        $tenantId, $clientId, $clientSecret = "#{tenant_id}", "#{client_id}", "#{client_secret}"
-
-        $secureSecret = ConvertTo-SecureString $clientSecret -AsPlainText -Force
-        $credential = New-Object System.Management.Automation.PSCredential($clientId, $secureSecret)
-
-        Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential
-        Connect-MgGraph -ClientId $clientId -TenantId $tenantId -ClientSecret $clientSecret -NoWelcome
-
         $results = Get-MgIdentityConditionalAccessNamedLocation | ForEach-Object {
             [PSCustomObject]@{
                 DisplayName = $_.DisplayName;

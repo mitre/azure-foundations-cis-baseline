@@ -66,7 +66,7 @@ control 'azure-foundations-cis-8.1' do
   describe 'Ensure the bastions for resource groups' do
     subject { bastion_list }
     it 'are not empty' do
-      expect(subject).not_to be_empty
+      expect(subject).not_to eq('[]')
     end
   end
 end
