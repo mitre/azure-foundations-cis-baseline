@@ -61,13 +61,7 @@ control 'azure-foundations-cis-8.1' do
   ref 'https://learn.microsoft.com/en-us/cli/azure/network/bastion?view=azure-cli-latest'
 
   subscription_id = input('subscription_id')
-  puts(subscription_id)
   bastion_list = command("az network bastion list --subscription #{subscription_id}")
-  puts('HERE')
-  puts(bastion_list)
-  puts(bastion_list.stderr)
-  puts(bastion_list.stdout)
-  puts('HERE 2')
 
   describe 'Ensure the bastions for resource groups' do
     subject { bastion_list.stdout.strip }

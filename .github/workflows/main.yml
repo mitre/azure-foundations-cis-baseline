@@ -26,15 +26,15 @@ jobs:
       - name: Install Packages
         run: sudo apt-get install -y jq curl
 
-      #- name: Install Az/MgGraph Modules and Connect to Modules
-      #  run: |
-      #    If($null -eq (get-module -listavailable -name "az")){install-module az -Force -AllowClobber}
-      #    If($null -eq (get-module -name "az")){import-module az}
-      #    If($null -eq (get-module -listavailable -name "microsoft.graph")){install-module microsoft.graph -Force -AllowClobber}
-      #    If($null -eq (get-module -name "microsoft.graph")){import-module microsoft.graph}
-      #    $credential = New-Object System.Management.Automation.PSCredential("${{ secrets.AZURE_CLIENT_ID }}", (ConvertTo-SecureString "${{ secrets.AZURE_CLIENT_SECRET }}" -AsPlainText -Force))
-      #    Connect-AzAccount -ServicePrincipal -TenantId "${{ secrets.AZURE_TENANT_ID }}" -Credential $credential | Out-Null
-      #  shell: pwsh
+      - name: Install Az/MgGraph Modules and Connect to Modules
+        run: |
+          If($null -eq (get-module -listavailable -name "az")){install-module az -Force -AllowClobber}
+          If($null -eq (get-module -name "az")){import-module az}
+          If($null -eq (get-module -listavailable -name "microsoft.graph")){install-module microsoft.graph -Force -AllowClobber}
+          If($null -eq (get-module -name "microsoft.graph")){import-module microsoft.graph}
+          $credential = New-Object System.Management.Automation.PSCredential("${{ secrets.AZURE_CLIENT_ID }}", (ConvertTo-SecureString "${{ secrets.AZURE_CLIENT_SECRET }}" -AsPlainText -Force))
+          Connect-AzAccount -ServicePrincipal -TenantId "${{ secrets.AZURE_TENANT_ID }}" -Credential $credential | Out-Null
+        shell: pwsh
 
       - name: Connect to Azure CLI
         run: |
@@ -86,7 +86,6 @@ jobs:
       - name: Run InSpec Profile
         run: |
           bundle exec inspec exec . \
-          --controls= azure-foundations-cis-8.1 \
           --input-file=inputs.yml \
           --reporter cli json:${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} \
           --enhanced-outcomes \
