@@ -39,6 +39,7 @@ jobs:
       - name: Connect to Azure CLI
         run: |
           az login --service-principal --username "${{ secrets.AZURE_CLIENT_ID }}" --password "${{ secrets.AZURE_CLIENT_SECRET }}" --tenant "${{ secrets.AZURE_TENANT_ID }}" > /dev/null 2>&1
+          az config set extension.dynamic_install_allow_preview=true
           az storage account list > storage_accounts.json
           cat storage_accounts.json
   
