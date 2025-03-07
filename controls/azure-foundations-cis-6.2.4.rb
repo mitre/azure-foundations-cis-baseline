@@ -77,8 +77,6 @@ control 'azure-foundations-cis-6.2.4' do
     )
 
   pwsh_output = powershell(activity_log_exists_delete_nsg_script)
-  puts(pwsh_output.stdout)
-  puts(pwsh_output.stderr)
 
   describe 'Ensure that the subscription`s output for the activity log alert rule for Deleting a Network Security Group' do
     subject { pwsh_output.stdout.strip }
