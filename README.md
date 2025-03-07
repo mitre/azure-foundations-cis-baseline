@@ -94,6 +94,8 @@ To successfully authenticate your application with Azure, you need to obtain the
     ```
 
     If you receive output confirming the connection, you are successfully authenticated.
+    > [NOTE]
+    > If working behind a proxy, see [Azure CLI: Work Behind a Proxy](https://learn.microsoft.com/en-us/cli/azure/use-azure-cli-successfully-troubleshooting#work-behind-a-proxy) for troubleshooting tips.
 
 2. **Connect to Azure CLI**
 
@@ -107,17 +109,41 @@ To successfully authenticate your application with Azure, you need to obtain the
 
 #### 3. Ensure Proper Azure Permissions
 
-Ensure that both your runner account and service principal (app registration) have Owner and Reader roles. Additionally, make sure that you have the permissions below for each resource:
+To configure your **Azure App Registration Service Principal** with the correct permissions, follow these steps. Note that you must be assigned at least the **Owner** role to perform these changes.
 
-**Required Permissions by Resource:**
+#### Verify Owner Role
+
+- **Subscriptions**
+  - **Required Role:** Owner
+  - **Verification:**
+      1. Navigate to your subscription in the Azure Portal.
+      2. Go to **Access Control (IAM)** → **Role Assignments**.
+      3. Confirm that your account is assigned the ***Owner*** role.
+
+#### General Permissions
+
+- **Subscriptions**
+  - **Required Role:** Reader
+  - **Verification:**
+      1. Navigate to your subscription in the Azure Portal.
+      2. Go to **Access Control (IAM)** → **Role Assignments**.
+      3. Confirm that the **App Registration Service Principal** is assigned the ***Reader*** role.
+
+#### Resource-Specific Permissions
 
 - **Key Vault**
-  - **Role:** Key Vault Administrator
-  - **Verification:** Navigate to your Key Vault in Azure Portal, then go to **Access Control (IAM)** → **Role Assignments**. Confirm that you have the ***Key Vault Administrator*** role.
+  - **Required Role:** Key Vault Administrator
+  - **Verification:**
+    1. Navigate to your Key Vault in the Azure Portal.
+    2. Go to **Access Control (IAM)** → **Role Assignments**.
+    3. Confirm that the **App Registration Service Principal** is assigned the ***Key Vault Administrator*** role.
 
 - **Storage Accounts**
-  - **Role:** App Compliance Automation Administrator
-  - **Verification:** Navigate to your Storage Account in Azure Portal, then go to **Access Control (IAM)** → **Role Assignments**. Confirm that you have the ***App Compliance Automation Administrator*** role.
+  - **Required Role:** App Compliance Automation Administrator
+  - **Verification:**
+    1. Navigate to your Storage Account in the Azure Portal.
+    2. Go to **Access Control (IAM)** → **Role Assignments**.
+    3. Confirm that the **App Registration Service Principal** is assigned the ***App Compliance Automation Administrator*** role.
 
 ## Getting Started
 
@@ -134,7 +160,8 @@ It is intended and recommended that CINC Auditor and this profile executed from 
 (such as a DevOps orchestration server, an administrative management system, or a developer's workstation/laptop)
 against the target. This can be any Unix/Linux/MacOS or Windows runner host, with access to the Internet.
 
-> [TIP] > **For the best security of the runner, always install on the runner the latest version of CINC Auditor and any other supporting language components.**
+> [TIP]
+> **For the best security of the runner, always install on the runner the latest version of CINC Auditor and any other supporting language components.**
 
 To install CINC Auditor on a UNIX/Linux/MacOS platform use the following command:
 
@@ -296,17 +323,21 @@ key_vault_full_key_uri:
 relevant_public_ip_addresses:
   - "1"
   - "2"
-
-# Control 8.7
+# Control 8.3, 8.5, 8.6
 resource_group_and_disk_name:
   - "group1.disk1"
+# Provide unauthorized extension names, types, and states in the order they appear in VM
+# For example, list VM 1’s Extension Name first, followed by subsequent VMs/Names in sequence.
+# Use "null" to omit a date.
 unauthorized_extension_names:
   - "test"
+  - "null"
 unauthorized_extension_types:
-  - "google"
+  - "test"
+  - "null"
 unauthorized_provision_states:
   - "test"
-
+  - "null"
 # Controls 3.3.1, 3.3.2, 3.3.3, 3.3.4
 # Provide expiration dates in the order the keys appear in the GUI
 # For example, list Vault 1’s Key 1 first, followed by subsequent keys and vaults in sequence.

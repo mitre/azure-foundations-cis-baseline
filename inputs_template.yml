@@ -17,7 +17,7 @@ relevant_public_ip_addresses:
 # Control 8.3, 8.5, 8.6
 resource_group_and_disk_name:
   - "group1.disk1"
-# Provide unauthroized extension names, types, and states in the otder they appear in VM
+# Provide unauthorized extension names, types, and states in the order they appear in VM
 # For example, list VM 1’s Extension Name first, followed by subsequent VMs/Names in sequence.
 # Use "null" to omit a date.
 unauthorized_extension_names:
