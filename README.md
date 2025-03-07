@@ -23,13 +23,13 @@ The Azure CIS Benchmark includes security requirements for a Azure environment.
 - [CIS Benchmark Information](#benchmark-information)
 
 - [Requirements](#requirements)
-  - [Required Software](#required-software)
+  - [Prerequisites](#prerequisites)
   - [Azure Account Configuration](#azure-account-configuration)
 - [Getting Started](#getting-started)
   - [Intended Usage](#intended-usage)
   - [Tailoring to Your Environment](#tailoring-to-your-environment)
   - [Testing the Profile Controls](#testing-the-profile-controls)
-- [Setup the Profile](#setup-the-profile)
+- [Setting up the Profile](#setting-up-the-profile)
 - [Running the Profile](#running-the-profile)
   - [Different Run Options](#different-run-options)
 - [Using Heimdall for Viewing Test Results](#using-heimdall-for-viewing-test-results)
@@ -43,7 +43,7 @@ The original benchmark document that serves as the basis for this automated test
 
 ## Requirements
 
-### Required Software
+### Prerequisites
 
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli)
 - [CINC-auditor](https://cinc.sh/start/auditor/) or [InSpec](https://docs.chef.io/inspec/install/)
@@ -249,7 +249,7 @@ Ensure the controls are ready to be committed into the repo:
 bundle exec rake pre_commit_checks
 ```
 
-## Setup the Profile
+## Setting up the Profile
 
 1. **Clone the Repository**
 
