@@ -87,11 +87,6 @@ control 'azure-foundations-cis-2.2.1' do
   ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/location-condition'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
 
-  subscription_id = input('subscription_id')
-  client_id = input('client_id')
-  tenant_id = input('tenant_id')
-  client_secret = input('client_secret')
-
   script = <<-EOH
         $results = Get-MgIdentityConditionalAccessNamedLocation | ForEach-Object {
             [PSCustomObject]@{
