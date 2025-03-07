@@ -61,10 +61,12 @@ control 'azure-foundations-cis-8.1' do
   ref 'https://learn.microsoft.com/en-us/cli/azure/network/bastion?view=azure-cli-latest'
 
   subscription_id = input('subscription_id')
-  bastion_list = command("az network bastion list --subscription #{subscription_id}").stdout.strip
+  bastion_list = command("az network bastion list --subscription #{subscription_id}")
+  puts(bastion_list.stderr)
+  puts(bastion_list.stdout)
 
   describe 'Ensure the bastions for resource groups' do
-    subject { bastion_list }
+    subject { bastion_list.stdout.strip }
     it 'are not empty' do
       expect(subject).not_to eq('[]')
     end
