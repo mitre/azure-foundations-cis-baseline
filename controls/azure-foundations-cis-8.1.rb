@@ -62,7 +62,7 @@ control 'azure-foundations-cis-8.1' do
 
   subscription_id = input('subscription_id')
   puts(subscription_id)
-  bastion_list = command("az network bastion list --subscription #{subscription_id}")
+  bastion_list = command('az network bastion list --subscription ba6540b5-08c3-4720-aa47-d188d5e2a705')
   puts('HERE')
   puts(bastion_list)
   puts(bastion_list.stderr)
