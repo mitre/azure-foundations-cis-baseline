@@ -24,7 +24,7 @@ The Azure CIS Benchmark includes security requirements for a Azure environment.
 
 - [Requirements](#requirements)
   - [Required Software](#required-software)
-  - [Azure Environment Setup](#azure-account-configuration)
+  - [Azure Account Configuration](#azure-account-configuration)
 - [Getting Started](#getting-started)
   - [Intended Usage](#intended-usage)
   - [Tailoring to Your Environment](#tailoring-to-your-environment)
@@ -82,6 +82,7 @@ To successfully authenticate your application with Azure, you need to obtain the
 
     Reference: [Application Registration Steps](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate)
 
+#### 2. Connect to Azure
 
 1. **Connect to Azure Modules**
 
@@ -117,13 +118,6 @@ Ensure that both your runner account and service principal (app registration) ha
 - **Storage Accounts**
   - **Role:** App Compliance Automation Administrator
   - **Verification:** Navigate to your Storage Account in Azure Portal, then go to **Access Control (IAM)** → **Role Assignments**. Confirm that you have the ***App Compliance Automation Administrator*** role.
-
-  The following permissions are needed for the following resources.
-  
-  Key Vault
-    - Key Vault Administrator
-  Storage Accounts
-    - App Compliance Automation Administrator
 
 ## Getting Started
 
