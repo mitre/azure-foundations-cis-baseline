@@ -41,7 +41,7 @@ jobs:
           az login --service-principal --username "${{ secrets.AZURE_CLIENT_ID }}" --password "${{ secrets.AZURE_CLIENT_SECRET }}" --tenant "${{ secrets.AZURE_TENANT_ID }}" > /dev/null 2>&1
           az storage account list > storage_accounts.json
           cat storage_accounts.json
-  
+
       - name: Check-out Repository
         uses: actions/checkout@v4
 
@@ -89,9 +89,10 @@ jobs:
           --input-file=inputs.yml \
           --reporter cli json:${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} \
           --enhanced-outcomes \
-          --filter-empty-profiles || true
+          --filter-empty-profiles
 
       - name: Save Test Results
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.workflow }}-${{ env.COMMIT_SHORT_SHA }}-results
@@ -99,18 +100,27 @@ jobs:
             ./${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }}
 
       - name: Delete Input file
+        if: always()
         run: rm -f input_file.yml
 
       - name: Upload to Heimdall
+        if: always()
         run: |
-          curl -# -s -F data=@${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} -F "filename=${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE}}" -F "public=true" -F "evaluationTags=${{ env.COMMIT_SHORT_SHA }},${{ github.repository }},${{ github.workflow }}" -H "Authorization: Api-Key ${{ secrets.SAF_HEIMDALL_UPLOAD_KEY }}" "${{ env.HEIMDALL_URL }}/evaluations"
+          curl -# -s -F data=@${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} \
+            -F "filename=${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE}}" \
+            -F "public=true" \
+            -F "evaluationTags=${{ env.COMMIT_SHORT_SHA }},${{ github.repository }},${{ github.workflow }}" \
+            -H "Authorization: Api-Key ${{ secrets.SAF_HEIMDALL_UPLOAD_KEY }}" \
+            "${{ env.HEIMDALL_URL }}/evaluations"
 
       - name: Display ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} Results Summary
+        if: always()
         uses: mitre/saf_action@v1
         with:
           command_string: "view summary -i ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }}"
 
       - name: Ensure ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} Meets Results Threshold
+        if: always()
         uses: mitre/saf_action@v1
         with:
           command_string: "validate threshold -i ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} -T ${{ env.THRESHOLD_FILE }}"

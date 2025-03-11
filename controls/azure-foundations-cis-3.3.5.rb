@@ -116,7 +116,9 @@ control 'azure-foundations-cis-3.3.5' do
       }
 
   )
+
   pwsh_output = powershell(check_key_vault_recoverable_script)
+  
   describe 'Ensure the number of vaults with EnablePurgeProtection set to False' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do

@@ -111,6 +111,7 @@ control 'azure-foundations-cis-3.3.7' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
 
   subscription_id = input('subscription_id')
+
   check_private_endpoints_non_null_script = %(
       $keyVaults = Get-AzKeyVault
       if ($keyVaults -eq $null){
@@ -128,7 +129,9 @@ control 'azure-foundations-cis-3.3.7' do
             }
       }
   )
+
   pwsh_output = powershell(check_private_endpoints_non_null_script)
+	
   describe 'Ensure the number of vaults with PrivateEndpointConnections set to null' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do

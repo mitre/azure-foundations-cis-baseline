@@ -79,6 +79,7 @@ control 'azure-foundations-cis-3.3.2' do
 
   non_rbac_keys_appropriate_expiry_date = input('non_rbac_keys_appropriate_expiry_date')
   non_rbac_keys_dates_list = non_rbac_keys_appropriate_expiry_date.map { |key_date| "'#{key_date}'" }.join(', ')
+
   expiration_date_set_all_keys_script = %(
       $dateStrings = @(#{non_rbac_keys_dates_list})
       $dateObjects = $dateStrings | ForEach-Object {
@@ -114,7 +115,9 @@ control 'azure-foundations-cis-3.3.2' do
       }
       }
   )
+
   pwsh_output = powershell(expiration_date_set_all_keys_script)
+  
   describe 'Ensure the the number of Non-RBAC vault/key combinations with incorrect expiration dates' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do
