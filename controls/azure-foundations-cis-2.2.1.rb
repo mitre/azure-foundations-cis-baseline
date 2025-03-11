@@ -87,70 +87,7 @@ control 'azure-foundations-cis-2.2.1' do
   ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/location-condition'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
 
-  script = <<-EOH
-        $results = Get-MgIdentityConditionalAccessNamedLocation | ForEach-Object {
-            [PSCustomObject]@{
-                DisplayName = $_.DisplayName;
-                IsTrusted   = $_.AdditionalProperties["isTrusted"]
-            }
-        }
-
-        $trusted = $results | Where-Object { $_.IsTrusted.ToString().ToLower() -eq "true" }
-
-        if ($trusted.Count -gt 0) {
-            Write-Output "At least one trusted location exists"
-        }
-        else {
-            Write-Output "No trusted locations found"
-        }
-  EOH
-
-  pwsh_output = powershell(script).stdout.strip
-
-  describe 'FIRST Azure Conditional Access Named Locations' do
-    subject { pwsh_output }
-    it 'should indicate that at least one trusted location exists' do
-      expect(subject).to eq('At least one trusted location exists')
-    end
-  end
-
-  script_2 = <<-EOH
-        $tenantId, $clientId, $clientSecret = "#{tenant_id}", "#{client_id}", "#{client_secret}"
-
-        #THIS SHOULD WORK - lmk if you get the same error that im getting, which is a good sign.
-        $secureSecret = ConvertTo-SecureString $clientSecret -AsPlainText -Force
-        $credential = New-Object System.Management.Automation.PSCredential($clientId, $secureSecret)
-        Connect-AzAccount -ServicePrincipal -TenantId $tenantId -Credential $credential > $null 2>&1
-
-        #THIS WORKS
-        # Connect-MgGraph -NoWelcome
-
-
-        Connect-MgGraph -TenantId $tenantId -ClientSecret $credential -NoWelcome
-
-        $results = Get-MgIdentityConditionalAccessNamedLocation | ForEach-Object {
-            [PSCustomObject]@{
-                DisplayName = $_.DisplayName;
-                IsTrusted   = $_.AdditionalProperties["isTrusted"]
-            }
-        }
-
-        $trusted = $results | Where-Object { $_.IsTrusted.ToString().ToLower() -eq "true" }
-
-        if ($trusted.Count -gt 0) {
-            Write-Output "At least one trusted location exists"
-        }
-        else {
-            Write-Output "No trusted locations found"
-        }
-  EOH
-
-  pwsh_output_2 = powershell(script_2).stdout.strip
-
-  describe 'Azure Conditional Access Named Locations' do
-    subject { pwsh_output_2 }
-    it 'should indicate that at least one trusted location exists' do
-      expect(subject).to eq('At least one trusted location exists')
-    end
+  describe "Ensure Trusted Locations Are Defined" do
+    skip 'The check for this control needs to be done manually'
   end
 end
