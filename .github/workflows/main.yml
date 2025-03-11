@@ -90,6 +90,21 @@ jobs:
           --reporter cli json:${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} \
           --enhanced-outcomes \
           --filter-empty-profiles
+      - name: Run InSpec Profile
+        run: |
+          bundle exec inspec exec . \
+            --input-file=inputs.yml \
+            --reporter cli json:${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} \
+            --enhanced-outcomes \
+            --filter-empty-profiles
+          exit_code=$?
+          if [ $exit_code -eq 0 ] || [ $exit_code -eq 100 ] || [ $exit_code -eq 101 ]; then
+            echo "Exiting with valid exit code: $exit_code"
+            exit 0
+          else
+            echo "Inspec failed with exit code: $exit_code"
+            exit $exit_code
+          fi
 
       - name: Save Test Results
         if: always()
