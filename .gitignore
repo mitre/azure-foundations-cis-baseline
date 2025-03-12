@@ -3,6 +3,8 @@
 *.rbc
 *results.json
 inputs.yml
+attestation.json
+results_attested.json
 
 /.config
 /coverage/

@@ -32,6 +32,7 @@ The Azure CIS Benchmark includes security requirements for a Azure environment.
 - [Setting up the Profile](#setting-up-the-profile)
 - [Running the Profile](#running-the-profile)
   - [Different Run Options](#different-run-options)
+- [Attesting the Profile](#attesting-the-profile)
 - [Using Heimdall for Viewing Test Results](#using-heimdall-for-viewing-test-results)
 - [Check Overview](#check-overview)
 
@@ -378,9 +379,29 @@ Replace [control-number] with the actual control number (e.g., use 5.1.6 to targ
 bundle exec [inspec or cinc-auditor] exec . --enhanced-outcomes  --reporter json:results.json --input-file=inputs.yml --controls=azure-foundations-cis-[control-number]
 ```
 
-## Different Run Options
+### Different Run Options
 
 [Full exec options](https://docs.chef.io/inspec/cli/#options-3)
+
+## Attesting the Profile
+
+1. **Create the Attestation File**
+
+    You can create an attestation file by copying the provided template. Run the following command to copy `attestation_template.json` and rename it to `attestation.json`:
+
+    ```sh
+    cp attestation_template.json attestation.json
+    ```
+
+    Alternatively, if you prefer an interactive approach, use the SAF CLI to guide you through the creation process. For detailed instructions, refer to the [SAF CLI documentation](https://saf-cli.mitre.org/#attest).
+
+2. **Apply the Attestation**
+
+    Once you have your `attestation.json` ready, apply the attestation with the following command:
+
+    ```sh
+    saf attest apply -i attestation.json results.json -o results_attested.json
+    ```
 
 ## Using Heimdall for Viewing Test Results
 

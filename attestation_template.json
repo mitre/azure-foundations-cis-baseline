@@ -1,0 +1,18 @@
+[
+  {
+    "control_id": "azure-foundations-cis-2.1.1",
+    "explanation": "TEST This attestation should pass.",
+    "frequency": "1y",
+    "status": "passed",
+    "updated": "2024-07-11T17:30:33.627Z",
+    "updated_by": "MITRE SAF"
+  },
+  {
+    "control_id": "azure-foundations-cis-2.1.4",
+    "explanation": "TEST This attestation should fail.",
+    "frequency": "1y",
+    "status": "failed",
+    "updated": "2024-07-11T17:30:33.627Z",
+    "updated_by": "MITRE SAF"
+  }
+]

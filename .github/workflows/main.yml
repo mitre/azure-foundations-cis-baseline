@@ -20,6 +20,7 @@ jobs:
       RESULTS_FILE: azure_inspec_results.json
       THRESHOLD_FILE: inspec.threshold.yml
       INSPEC_INPUTS: ${{ secrets.INSPEC_INPUTS }}
+      ATTESTATION_FILE: attestation_template.json
       HEIMDALL_URL: https://heimdall-demo.mitre.org
 
     steps:
@@ -101,12 +102,16 @@ jobs:
             exit $exit_code
           fi
 
+      - name: Apply Attestation
+        run: saf attest apply -i ${{env.ATTESTATION_FILE}} ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} -o ${{ env.COMMIT_SHORT_SHA }}-attested-${{ env.RESULTS_FILE }}
+
       - name: Save Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.workflow }}-${{ env.COMMIT_SHORT_SHA }}-results
           path: |
+            ./${{ env.COMMIT_SHORT_SHA }}-attested-${{ env.RESULTS_FILE }}
             ./${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }}
 
       - name: Delete Input file
@@ -116,21 +121,21 @@ jobs:
       - name: Upload to Heimdall
         if: always()
         run: |
-          curl -# -s -F data=@${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} \
+          curl -# -s -F data=@${{ env.COMMIT_SHORT_SHA }}-attested-${{ env.RESULTS_FILE }} \
             -F "filename=${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE}}" \
             -F "public=true" \
             -F "evaluationTags=${{ env.COMMIT_SHORT_SHA }},${{ github.repository }},${{ github.workflow }}" \
             -H "Authorization: Api-Key ${{ secrets.SAF_HEIMDALL_UPLOAD_KEY }}" \
             "${{ env.HEIMDALL_URL }}/evaluations"
 
-      - name: Display ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} Results Summary
+      - name: Display ${{ env.COMMIT_SHORT_SHA }}-attested-${{ env.RESULTS_FILE }} Results Summary
         if: always()
         uses: mitre/saf_action@v1
         with:
-          command_string: "view summary -i ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }}"
+          command_string: "view summary -i ${{ env.COMMIT_SHORT_SHA }}-attested-${{ env.RESULTS_FILE }}"
 
-      - name: Ensure ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} Meets Results Threshold
+      - name: Ensure ${{ env.COMMIT_SHORT_SHA }}-attested-${{ env.RESULTS_FILE }} Meets Results Threshold
         if: always()
         uses: mitre/saf_action@v1
         with:
-          command_string: "validate threshold -i ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} -T ${{ env.THRESHOLD_FILE }}"
+          command_string: "validate threshold -i ${{ env.COMMIT_SHORT_SHA }}-attested-${{ env.RESULTS_FILE }} -T ${{ env.THRESHOLD_FILE }}"
