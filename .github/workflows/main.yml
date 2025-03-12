@@ -103,7 +103,9 @@ jobs:
           fi
 
       - name: Apply Attestation
-        run: saf attest apply -i ${{env.ATTESTATION_FILE}} ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} -o ${{ env.COMMIT_SHORT_SHA }}-attested-${{ env.RESULTS_FILE }}
+        uses: mitre/saf_action@v1
+        with:
+          command_string: "attest apply -i ${{env.ATTESTATION_FILE}} ${{ env.COMMIT_SHORT_SHA }}-${{ env.RESULTS_FILE }} -o ${{ env.COMMIT_SHORT_SHA }}-attested-${{ env.RESULTS_FILE }}"
 
       - name: Save Test Results
         if: always()
