@@ -87,7 +87,26 @@ control 'azure-foundations-cis-2.2.1' do
   ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/location-condition'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
 
-  describe "Ensure Trusted Locations Are Defined" do
-    skip 'The check for this control needs to be done manually'
-  end
+	# script = %(
+	# 	$namedLocations = Get-MgIdentityConditionalAccessNamedLocation
+	# 	$results = $namedLocations | ForEach-Object { $_.AdditionalProperties['isTrusted'] }
+
+	# 	if ($results -contains $true) {
+	# 			Write-Output $true
+	# 	} else {
+	# 			Write-Output $false
+	# 	}
+	# )
+
+	# pwsh_output = powershell(script)
+	# puts pwsh_output.stderr
+
+	# describe 'Ensure at least one Named Location has isTrusted set to True' do
+	# 	subject { pwsh_output.stdout.strip }
+	# 	it { should cmp 'True' }
+	# end
+
+	describe "Ensure Trusted Locations Are Defined" do
+			skip 'The check for this control needs to be done manually'
+	end
 end
