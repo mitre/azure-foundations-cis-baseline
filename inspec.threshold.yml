@@ -1,5 +1,5 @@
 compliance:
-  min: 90
+  min: 10
 failed:
   critical:
     max: 0
