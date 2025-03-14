@@ -46,7 +46,39 @@ control 'azure-foundations-cis-5.2.5' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-1-establish-network-segmentation-boundaries'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-6-deploy-web-application-firewall'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  rg_sa_list = input('resource_groups_and_storage_accounts')
+
+  rg_sa_list.each do |pair|
+    resource_group, _ = pair.split('.')
+
+    postgres_servers_script = <<-EOH
+      Get-AzPostgreSqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+    EOH
+
+    postgres_servers_output = powershell(postgres_servers_script).stdout.strip
+    postgres_servers = json(content: postgres_servers_output).params
+    postgres_servers = [postgres_servers] unless postgres_servers.is_a?(Array)
+
+    postgres_servers.each do |server|
+      server_name = server['Name']
+
+      describe "Firewall rules for PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}'" do
+        firewall_script = <<-EOH
+          Get-AzPostgreSqlFlexibleServerFirewallRule -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+        EOH
+
+        firewall_output = powershell(firewall_script).stdout.strip
+        firewall_rules = json(content: firewall_output).params
+        firewall_rules = [firewall_rules] unless firewall_rules.is_a?(Array)
+
+        firewall_rules.each do |rule|
+          describe "Firewall rule '#{rule['Name']}'" do
+            it "should not have a name starting with 'AllowAllAzureServicesAndResourcesWithinAzureIps'" do
+              expect(rule['Name']).not_to match(/^AllowAllAzureServicesAndResourcesWithinAzureIps/)
+            end
+          end
+        end
+      end
+    end
   end
 end

@@ -62,7 +62,7 @@ control 'azure-foundations-cis-5.1.1' do
 
   sql_servers.each do |server|
     resource_group = server['ResourceGroupName']
-    server_name    = server['ServerName']
+    server_name = server['ServerName']
 
     describe "SQL Server Audit Settings for #{server_name} (Resource Group: #{resource_group})" do
       audit = json(command: "Get-AzSqlServerAudit -ResourceGroupName \"#{resource_group}\" -ServerName \"#{server_name}\" | ConvertTo-Json -Depth 10").params

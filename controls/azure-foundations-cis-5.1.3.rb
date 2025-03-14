@@ -59,10 +59,8 @@ control 'azure-foundations-cis-5.1.3' do
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.sql/get-azsqlservertransparentdataencryptionprotector?view=azps-9.2.0'
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.sql/set-azsqlservertransparentdataencryptionprotector?view=azps-9.2.0'
 
-  # Retrieve the expected key values from inputs.yml
   expected_full_keys = input('key_vault_full_key_uri')
 
-  # Compute the allowed expected values for ServerKeyVaultKeyName and KeyId from each full key URI.
   expected_values = expected_full_keys.map do |full_uri|
     match = full_uri.match(%r{https://(.*)\.vault\.azure\.net/keys/([^/]+)/([^/]+)})
     next unless match
@@ -76,7 +74,6 @@ control 'azure-foundations-cis-5.1.3' do
     }
   end.compact
 
-  # Retrieve all SQL Servers.
   sql_servers_script = <<-EOH
     Get-AzSqlServer | ConvertTo-Json -Depth 10
   EOH

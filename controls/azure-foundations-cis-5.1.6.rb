@@ -48,44 +48,50 @@ control 'azure-foundations-cis-5.1.6' do
   ref 'https://docs.microsoft.com/en-us/powershell/module/azurerm.sql/get-azurermsqlserverauditing?view=azurermps-5.2.0'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-6-configure-log-storage-retention'
 
-  sql_servers_script = <<-EOH
-    Get-AzSqlServer | ConvertTo-Json -Depth 10
-  EOH
+  rg_sa_list = input('resource_groups_and_storage_accounts')
 
-  sql_servers_output = powershell(sql_servers_script).stdout.strip
-  sql_servers = json(content: sql_servers_output).params
-  sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+  rg_sa_list.each do |pair|
+    resource_group, _ = pair.split('.')
 
-  sql_servers.each do |server|
-    resource_group = server['ResourceGroupName']
-    server_name = server['ServerName']
+    sql_servers_script = <<-EOH
+      Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+    EOH
 
-    describe "SQL Server Audit retention for #{server_name} (Resource Group: #{resource_group})" do
-      audit_script = <<-EOH
-        Get-AzSqlServerAudit -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
-      EOH
+    sql_servers_output = powershell(sql_servers_script).stdout.strip
+    sql_servers = json(content: sql_servers_output).params
+    sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
-      audit_output = powershell(audit_script).stdout.strip
-      audit = json(content: audit_output).params
+    sql_servers.each do |server|
+      resource_group_server = server['ResourceGroupName']
+      server_name = server['ServerName']
 
-      if audit['LogAnalyticsTargetState'].to_i == 0 && audit['WorkspaceResourceId'] && !audit['WorkspaceResourceId'].empty?
-        describe "Operational Insights Workspace retention for SQL Server #{server_name}" do
-          workspace_script = <<-EOH
-            Get-AzOperationalInsightsWorkspace | Where-Object { $_.ResourceId -eq "#{audit['WorkspaceResourceId']}" } | ConvertTo-Json -Depth 10
-          EOH
+      describe "SQL Server Audit retention for '#{server_name}' (Resource Group: #{resource_group_server})" do
+        audit_script = <<-EOH
+          Get-AzSqlServerAudit -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+        EOH
 
-          workspace_output = powershell(workspace_script).stdout.strip
-          workspace = json(content: workspace_output).params
+        audit_output = powershell(audit_script).stdout.strip
+        audit = json(content: audit_output).params
 
-          it 'should have Workspace RetentionInDays set to more than 90 days' do
-            workspace_retention = workspace['retentionInDays'].to_i
-            expect(workspace_retention).to be > 90
+        if audit['LogAnalyticsTargetState'].to_i == 0 && audit['WorkspaceResourceId'] && !audit['WorkspaceResourceId'].empty?
+          describe "Operational Insights Workspace retention for SQL Server '#{server_name}'" do
+            workspace_script = <<-EOH
+              Get-AzOperationalInsightsWorkspace | Where-Object { $_.ResourceId -eq "#{audit['WorkspaceResourceId']}" } | ConvertTo-Json -Depth 10
+            EOH
+
+            workspace_output = powershell(workspace_script).stdout.strip
+            workspace = json(content: workspace_output).params
+
+            it 'should have Workspace RetentionInDays set to more than 90 days' do
+              workspace_retention = workspace['retentionInDays'].to_i
+              expect(workspace_retention).to be > 90
+            end
           end
-        end
-      else
-        it 'should have Audit RetentionInDays set to more than 90 days' do
-          retention = audit['RetentionInDays'].to_i
-          expect(retention).to be > 90
+        else
+          it 'should have Audit RetentionInDays set to more than 90 days' do
+            retention = audit['RetentionInDays'].to_i
+            expect(retention).to be > 90
+          end
         end
       end
     end

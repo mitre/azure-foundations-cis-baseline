@@ -76,37 +76,44 @@ control 'azure-foundations-cis-5.1.2' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
   ref 'https://learn.microsoft.com/en-us/azure/azure-sql/database/network-access-controls-overview?view=azuresql#allow-azure-services'
 
-  sql_servers_script = <<-EOH
-    Get-AzSqlServer | ConvertTo-Json -Depth 10
-  EOH
+  rg_sa_list = input('resource_groups_and_storage_accounts')
 
-  sql_servers_output = powershell(sql_servers_script).stdout.strip
-  sql_servers = json(content: sql_servers_output).params
-  sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+  rg_sa_list.each do |pair|
+    resource_group, _ = pair.split('.')
 
-  sql_servers.each do |server|
-    resource_group = server['ResourceGroupName']
-    server_name    = server['ServerName']
+    # Retrieve all SQL Servers in the resource group using PowerShell.
+    sql_servers_script = <<-EOH
+      Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+    EOH
 
-    describe "Firewall rules for SQL Server #{server_name} in Resource Group #{resource_group}" do
-      script = <<-EOH
-        Get-AzSqlServerFirewallRule -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
-      EOH
+    sql_servers_output = powershell(sql_servers_script).stdout.strip
+    sql_servers = json(content: sql_servers_output).params
+    sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
-      output = powershell(script).stdout.strip
-      firewall_rules = json(content: output).params
-      firewall_rules = [firewall_rules] unless firewall_rules.is_a?(Array)
+    sql_servers.each do |server|
+      resource_group_server = server['ResourceGroupName']
+      server_name = server['ServerName']
 
-      firewall_rules.each do |rule|
-        describe "Firewall Rule #{rule['FirewallRuleName']} on #{server_name}" do
-          it 'should not allow overly permissive access via StartIpAddress' do
-            start_ip = rule['StartIpAddress']
-            expect(start_ip).not_to match(%r{^0\.0\.0\.0(/0)?$})
-          end
+      describe "Firewall rules for SQL Server '#{server_name}' in Resource Group '#{resource_group_server}'" do
+        firewall_rules_script = <<-EOH
+          Get-AzSqlServerFirewallRule -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+        EOH
 
-          it "should not be named 'AllowAllWindowsAzureIps'" do
-            rule_name = rule['FirewallRuleName']
-            expect(rule_name).not_to match(/AllowAllWindowsAzureIps/i)
+        firewall_rules_output = powershell(firewall_rules_script).stdout.strip
+        firewall_rules = json(content: firewall_rules_output).params
+        firewall_rules = [firewall_rules] unless firewall_rules.is_a?(Array)
+
+        firewall_rules.each do |rule|
+          describe "Firewall Rule '#{rule['FirewallRuleName']}' on SQL Server '#{server_name}'" do
+            it 'should not allow overly permissive access via StartIpAddress' do
+              start_ip = rule['StartIpAddress']
+              expect(start_ip).not_to match(%r{^0\.0\.0\.0(/0)?$})
+            end
+
+            it "should not be named 'AllowAllWindowsAzureIps'" do
+              rule_name = rule['FirewallRuleName']
+              expect(rule_name).not_to match(/AllowAllWindowsAzureIps/i)
+            end
           end
         end
       end

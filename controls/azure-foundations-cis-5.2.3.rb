@@ -48,7 +48,34 @@ control 'azure-foundations-cis-5.2.3' do
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.postgresql/get-azpostgresqlflexibleserverconfiguration?view=azps-12.2.0#example-1-get-specified-postgresql-configuration-by-name'
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.postgresql/update-azpostgresqlflexibleserverconfiguration?view=azps-12.2.0#example-1-updatae-specified-postgresql-configuration-by-name'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
-  end
+  rg_sa_list = input('resource_groups_and_storage_accounts')
+
+	rg_sa_list.each do |pair|
+		resource_group, _ = pair.split('.')
+
+		postgres_servers_script = <<-EOH
+				Get-AzPostgreSqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+		EOH
+
+		postgres_servers_output = powershell(postgres_servers_script).stdout.strip
+		postgres_servers = json(content: postgres_servers_output).params
+		postgres_servers = [postgres_servers] unless postgres_servers.is_a?(Array)
+
+		postgres_servers.each do |server|
+			server_name = server['Name']
+
+			describe "PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}' connection_throttle.enable configuration" do
+				config_script = <<-EOH
+						Get-AzPostgreSqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name connection_throttle.enable | ConvertTo-Json -Depth 10
+				EOH
+
+				config_output = powershell(config_script).stdout.strip
+				configuration = json(content: config_output).params
+
+				it "should have connection_throttle.enable set to on" do
+					expect(configuration['Value']).to cmp 'on'
+				end
+			end
+		end
+	end
 end
