@@ -157,7 +157,40 @@ control 'azure-foundations-cis-2.2.2' do
   ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-conditional-access-report-only'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  client_secret = input('client_secret')
+  client_id = input('client_id')
+  tenant_id = input('tenant_id')
+  included_location_ids = input('included_location_ids')
+  excluded_location_ids = input('excluded_location_ids')
+  included_location_list = included_location_ids.map { |included_loc| "'#{included_loc}'" }.join(', ')
+  excluded_location_list = excluded_location_ids.map { |excluded_loc| "'#{excluded_loc}'" }.join(', ')
+  ensure_exclusionary_geographic_policy_script = %(
+     $ErrorActionPreference = "Stop"
+     $password = ConvertTo-SecureString -String '#{client_secret}' -AsPlainText -Force
+     $ClientSecretCredential = New-Object -TypeName System.Management.Automation.PSCredential('#{client_id}',$password)
+     Connect-MgGraph -TenantId '#{tenant_id}' -ClientSecretCredential $ClientSecretCredential -NoWelcome
+     $included_location_list = @(#{included_location_list}) | ForEach-Object { if ([string]::IsNullOrWhiteSpace($_)) { $null } else { $_ } }
+     $excluded_location_list = @(#{excluded_location_list}) | ForEach-Object { if ([string]::IsNullOrWhiteSpace($_)) { $null } else { $_ } }
+     $conditionalAccessPolicies = Get-MgIdentityConditionalAccessPolicy
+      $filteredPolicies = Get-MgIdentityConditionalAccessPolicy | Where-Object {
+      $_.GrantControls.BuiltInControls -contains "block" -and
+      ($included_location_list -contains $_.Conditions.Locations.IncludeLocations) -and
+      ($excluded_location_list -contains $_.Conditions.Locations.ExcludeLocations)
+      }
+
+      # Check if $filteredPolicies is not empty and write a message
+      if ($filteredPolicies) {
+      Write-Output "Pass"
+      }
+   )
+
+  pwsh_output = powershell(ensure_exclusionary_geographic_policy_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe 'Ensure at least one Conditional Access Policy' do
+    subject { pwsh_output.stdout.strip }
+    it 'has Built In Grant Controls setting set to "block" and Included Locations/Excluded Location IDs settings set to appropriate values' do
+      expect(subject).to eq('Pass')
+    end
   end
 end

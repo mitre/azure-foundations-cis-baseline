@@ -45,3 +45,9 @@ rbac_secrets_appropriate_expiry_date:
 non_rbac_secrets_appropriate_expiry_date:
   - "2/28/2027 8:57:19 PM"
   - "null"
+# Control 2.2.2
+# Enter "" if nothing should be included or excluded.
+included_location_ids:
+  - "test"
+excluded_location_ids:
+  - "test"
