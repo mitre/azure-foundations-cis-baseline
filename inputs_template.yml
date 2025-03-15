@@ -51,3 +51,6 @@ included_location_ids:
   - "test"
 excluded_location_ids:
   - "test"
+# Control 2.4
+allowed_guest_user_display_names:
+  - "test"

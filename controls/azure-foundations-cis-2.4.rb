@@ -82,7 +82,36 @@ control 'azure-foundations-cis-2.4' do
   ref 'https://docs.microsoft.com/en-us/azure/active-directory/reports-monitoring/howto-manage-inactive-user-accounts'
   ref 'https://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-users-restore'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  client_secret = input('client_secret')
+  client_id = input('client_id')
+  tenant_id = input('tenant_id')
+  allowed_guest_user_display_names = input('allowed_guest_user_display_names')
+  allowed_guest_user_display_names_list = allowed_guest_user_display_names.map { |guest_user| "'#{guest_user}'" }.join(', ')
+  ensure_restricted_non_admins_not_create_tenants_script = %(
+     $ErrorActionPreference = "Stop"
+     $password = ConvertTo-SecureString -String '#{client_secret}' -AsPlainText -Force
+     $ClientSecretCredential = New-Object -TypeName System.Management.Automation.PSCredential('#{client_id}',$password)
+     Connect-MgGraph -TenantId '#{tenant_id}' -ClientSecretCredential $ClientSecretCredential -NoWelcome
+     $allowed_guest_user_display_names_list = @(#{allowed_guest_user_display_names_list})
+     $filtered_data = Get-MgUser -Filter "userType eq 'Guest'" | ForEach-Object { $_.DisplayName }
+     # $allowed_guest_user_display_names_list = $allowed_guest_user_display_names_list | Sort-Object
+     # $filtered_data = $filtered_data | Sort-Object
+     $differences = Compare-Object -ReferenceObject $allowed_guest_user_display_names_list -DifferenceObject $filtered_data
+     $missingNames = $differences | Where-Object { $_.SideIndicator -eq "=>" } | Select-Object -ExpandProperty InputObject
+
+     if ($differences.Count -ne 0) {
+            Write-Output $missingNames
+      }
+   )
+
+  pwsh_output = powershell(ensure_restricted_non_admins_not_create_tenants_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe 'Ensure the number of unallowed guest users' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The display names are different between allowed list and guest user list:\n#{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end
