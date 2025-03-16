@@ -50,7 +50,34 @@ control 'azure-foundations-cis-2.13' do
   ref 'https://docs.microsoft.com/en-us/powershell/module/msonline/set-msolcompanysettings?view=azureadps-1.0'
   ref 'https://docs.microsoft.com/en-us/powershell/module/msonline/get-msolcompanyinformation?view=azureadps-1.0'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  client_secret = input('client_secret')
+  client_id = input('client_id')
+  tenant_id = input('tenant_id')
+  custom_policy_id = input('custom_policy_id')
+  custom_policy_id_list = custom_policy_id.map { |policy_id| "'#{policy_id}'" }.join(', ')
+  ensure_consent_apps_allow_verified_publishers_script = %(
+     $ErrorActionPreference = "Stop"
+     $password = ConvertTo-SecureString -String '#{client_secret}' -AsPlainText -Force
+     $ClientSecretCredential = New-Object -TypeName System.Management.Automation.PSCredential('#{client_id}',$password)
+     Connect-MgGraph -TenantId '#{tenant_id}' -ClientSecretCredential $ClientSecretCredential -NoWelcome
+     $custom_policy_id = @(#{custom_policy_id_list})
+     $acceptable_value = 'ManagePermissionGrantsForSelf.microsoft-user-default-low'
+     $permissions = (Get-MgPolicyAuthorizationPolicy).DefaultUserRolePermissions | Select-Object -ExpandProperty PermissionGrantPoliciesAssigned
+     $containsCustomPolicyId = $custom_policy_id | ForEach-Object { $permissions -contains $_ } | Where-Object { $_ } | Measure-Object | Select-Object -ExpandProperty Count
+     if ($containsKnownValue -or $containsCustomPolicyId) {
+      } else {
+            Write-Host "Incorrect Policies Detected"
+      }
+   )
+
+  pwsh_output = powershell(ensure_consent_apps_allow_verified_publishers_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe 'Ensure the output from DefaultUserRolePermissions.PermissionGrantPoliciesAssigned setting' do
+    subject { pwsh_output.stdout.strip }
+    it 'is set to either ManagePermissionGrantsForSelf.microsoft-user-default-low or custom policy id' do
+      failure_message = "Error:#{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end

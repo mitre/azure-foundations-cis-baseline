@@ -46,7 +46,24 @@ control 'azure-foundations-cis-2.12' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  client_secret = input('client_secret')
+  client_id = input('client_id')
+  tenant_id = input('tenant_id')
+  ensure_consent_apps_do_not_allow_script = %(
+     $ErrorActionPreference = "Stop"
+     $password = ConvertTo-SecureString -String '#{client_secret}' -AsPlainText -Force
+     $ClientSecretCredential = New-Object -TypeName System.Management.Automation.PSCredential('#{client_id}',$password)
+     Connect-MgGraph -TenantId '#{tenant_id}' -ClientSecretCredential $ClientSecretCredential -NoWelcome
+     (Get-MgPolicyAuthorizationPolicy).DefaultUserRolePermissions | Select-Object -ExpandProperty PermissionGrantPoliciesAssigned
+   )
+
+  pwsh_output = powershell(ensure_consent_apps_do_not_allow_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe 'Ensure the output from DefaultUserRolePermissions.PermissionGrantPoliciesAssigned setting' do
+    subject { pwsh_output.stdout.strip }
+    it 'is empty' do
+      expect(subject).to be_empty
+    end
   end
 end

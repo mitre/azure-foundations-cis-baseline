@@ -54,3 +54,6 @@ excluded_location_ids:
 # Control 2.4
 allowed_guest_user_display_names:
   - "test"
+#Control 2.13
+custom_policy_id:
+  - "test"

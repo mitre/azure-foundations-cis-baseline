@@ -94,8 +94,6 @@ control 'azure-foundations-cis-2.4' do
      Connect-MgGraph -TenantId '#{tenant_id}' -ClientSecretCredential $ClientSecretCredential -NoWelcome
      $allowed_guest_user_display_names_list = @(#{allowed_guest_user_display_names_list})
      $filtered_data = Get-MgUser -Filter "userType eq 'Guest'" | ForEach-Object { $_.DisplayName }
-     # $allowed_guest_user_display_names_list = $allowed_guest_user_display_names_list | Sort-Object
-     # $filtered_data = $filtered_data | Sort-Object
      $differences = Compare-Object -ReferenceObject $allowed_guest_user_display_names_list -DifferenceObject $filtered_data
      $missingNames = $differences | Where-Object { $_.SideIndicator -eq "=>" } | Select-Object -ExpandProperty InputObject
 
