@@ -51,7 +51,7 @@ control 'azure-foundations-cis-5.1.6' do
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
   rg_sa_list.each do |pair|
-    resource_group, _ = pair.split('.')
+    resource_group, = pair.split('.')
 
     sql_servers_script = <<-EOH
       Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10

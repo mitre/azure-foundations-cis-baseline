@@ -54,7 +54,35 @@ control 'azure-foundations-cis-5.3.3' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
   ref 'https://learn.microsoft.com/en-us/azure/mysql/flexible-server/tutorial-configure-audit#configure-auditing-by-using-the-azure-cli'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  rg_sa_list = input('resource_groups_and_storage_accounts')
+
+  rg_sa_list.each do |pair|
+    resource_group, = pair.split('.')
+
+    script = <<-EOH
+			Get-AzMysqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+    EOH
+
+    server_output = powershell(script).stdout.strip
+    servers = json(content: server_output).params
+    servers = [servers] unless servers.is_a?(Array)
+
+    servers.each do |server|
+      server_name = server['Name']
+
+      describe "MySQL Flexible Server '#{server_name}' audit_log_enabled configuration" do
+        config_script = <<-EOH
+					Get-AzMysqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name audit_log_enabled | ConvertTo-Json -Depth 10
+        EOH
+
+        config_output = powershell(config_script).stdout.strip
+        puts config_output
+        configuration = json(content: config_output).params
+
+        it "should have audit_log_enabled set to 'ON'" do
+          expect(configuration['Value']).to cmp 'on'
+        end
+      end
+    end
   end
 end

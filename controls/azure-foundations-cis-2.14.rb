@@ -69,7 +69,7 @@ control 'azure-foundations-cis-2.14' do
 
   describe 'Ensure the output from DefaultUserRolePermissions.AllowedToCreateApps setting' do
     subject { pwsh_output.stdout.strip }
-    it 'is set to False' do
+    it "is set to 'False'" do
       expect(subject).to eq('False')
     end
   end

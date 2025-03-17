@@ -70,7 +70,7 @@ control 'azure-foundations-cis-5.1.1' do
         blob_enabled = audit['BlobStorageTargetState'] == 'Enabled'
         eventhub_enabled = audit['EventHubTargetState'] == 'Enabled'
         loganalytics_enabled = audit['LogAnalyticsTargetState'] == 'Enabled'
-        expect(blob_enabled || eventhub_enabled || loganalytics_enabled).to eq(true)
+        expect(blob_enabled || eventhub_enabled || loganalytics_enabled).to cmp true
       end
     end
   end

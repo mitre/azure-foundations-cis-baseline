@@ -61,7 +61,7 @@ control 'azure-foundations-cis-4.16' do
     allow_replication = account[1]
 
     describe "Storage Account: #{account_name}" do
-      it 'should have allowCrossTenantReplication set to false' do
+      it "should have allowCrossTenantReplication set to 'False'" do
         expect(allow_replication).to cmp false
       end
     end

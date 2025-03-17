@@ -131,7 +131,7 @@ control 'azure-foundations-cis-3.3.7' do
   )
 
   pwsh_output = powershell(check_private_endpoints_non_null_script)
-	
+
   describe 'Ensure the number of vaults with PrivateEndpointConnections set to null' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do

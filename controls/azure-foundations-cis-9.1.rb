@@ -65,10 +65,10 @@ control 'azure-foundations-cis-9.1' do
     }
   )
   pwsh_output = powershell(https_only_set_on_script)
-  describe 'Ensure the number of web apps that have HttpsOnly setting set to False' do
+  describe "Ensure the number of web apps that have HttpsOnly setting set to 'False'" do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do
-      failure_message = "The following web apps have HttpsOnly setting set to False: #{pwsh_output.stdout.strip}"
+      failure_message = "The following web apps have HttpsOnly setting set to 'False': #{pwsh_output.stdout.strip}"
       expect(subject).to be_empty, failure_message
     end
   end

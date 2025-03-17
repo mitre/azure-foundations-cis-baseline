@@ -93,7 +93,7 @@ control 'azure-foundations-cis-8.9' do
     }
   )
   pwsh_output = powershell(only_approved_extensions_approved_script)
-  describe 'Ensure the number of resource group/VMs that has storageAccount.Encryption.Services.Blob set to False' do
+  describe "Ensure the number of resource group/VMs that has storageAccount.Encryption.Services.Blob set to 'False'" do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do
       failure_message = "The following resource groups/VM do not have the the approved settings are: #{pwsh_output.stdout.strip}"
