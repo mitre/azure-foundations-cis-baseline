@@ -59,7 +59,24 @@ control 'azure-foundations-cis-2.16' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  client_secret = input('client_secret')
+  client_id = input('client_id')
+  tenant_id = input('tenant_id')
+  ensure_users_specific_admins_can_invite_guests_script = %(
+     $ErrorActionPreference = "Stop"
+     $password = ConvertTo-SecureString -String '#{client_secret}' -AsPlainText -Force
+     $ClientSecretCredential = New-Object -TypeName System.Management.Automation.PSCredential('#{client_id}',$password)
+     Connect-MgGraph -TenantId '#{tenant_id}' -ClientSecretCredential $ClientSecretCredential -NoWelcome
+     (Get-MgPolicyAuthorizationPolicy).AllowInvitesFrom
+   )
+
+  pwsh_output = powershell(ensure_users_specific_admins_can_invite_guests_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe 'Ensure the output from AllowInvitesFrom setting' do
+    subject { pwsh_output.stdout.strip }
+    it 'is set to adminsAndGuestInviters' do
+      expect(subject).to eq('adminsAndGuestInviters')
+    end
   end
 end
