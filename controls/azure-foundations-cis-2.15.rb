@@ -81,7 +81,24 @@ control 'azure-foundations-cis-2.15' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
   ref 'https://docs.microsoft.com/en-us/azure/active-directory/enterprise-users/users-restrict-guest-permissions'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  client_secret = input('client_secret')
+  client_id = input('client_id')
+  tenant_id = input('tenant_id')
+  ensure_guest_users_set_most_restrictive_script = %(
+     $ErrorActionPreference = "Stop"
+     $password = ConvertTo-SecureString -String '#{client_secret}' -AsPlainText -Force
+     $ClientSecretCredential = New-Object -TypeName System.Management.Automation.PSCredential('#{client_id}',$password)
+     Connect-MgGraph -TenantId '#{tenant_id}' -ClientSecretCredential $ClientSecretCredential -NoWelcome
+     (Get-MgPolicyAuthorizationPolicy).GuestUserRoleId
+   )
+
+  pwsh_output = powershell(ensure_guest_users_set_most_restrictive_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe 'Ensure the output from GuestUserRoleId setting' do
+    subject { pwsh_output.stdout.strip }
+    it 'is set to 2af84b1e-32c8-42b7-82bc-daa82404023b' do
+      expect(subject).to eq('2af84b1e-32c8-42b7-82bc-daa82404023b')
+    end
   end
 end

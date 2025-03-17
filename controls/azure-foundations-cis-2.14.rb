@@ -53,7 +53,24 @@ control 'azure-foundations-cis-2.14' do
   ref 'https://docs.microsoft.com/en-us/powershell/module/msonline/get-msolcompanyinformation?view=azureadps-1.0'
   ref 'https://docs.microsoft.com/en-us/powershell/module/msonline/set-msolcompanysettings?view=azureadps-1.0'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  client_secret = input('client_secret')
+  client_id = input('client_id')
+  tenant_id = input('tenant_id')
+  ensure_users_cannot_register_apps_script = %(
+     $ErrorActionPreference = "Stop"
+     $password = ConvertTo-SecureString -String '#{client_secret}' -AsPlainText -Force
+     $ClientSecretCredential = New-Object -TypeName System.Management.Automation.PSCredential('#{client_id}',$password)
+     Connect-MgGraph -TenantId '#{tenant_id}' -ClientSecretCredential $ClientSecretCredential -NoWelcome
+     (Get-MgPolicyAuthorizationPolicy).DefaultUserRolePermissions.AllowedToCreateApps
+   )
+
+  pwsh_output = powershell(ensure_users_cannot_register_apps_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe 'Ensure the output from DefaultUserRolePermissions.AllowedToCreateApps setting' do
+    subject { pwsh_output.stdout.strip }
+    it 'is set to False' do
+      expect(subject).to eq('False')
+    end
   end
 end

@@ -87,26 +87,30 @@ control 'azure-foundations-cis-2.2.1' do
   ref 'https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/location-condition'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-7-restrict-resource-access-based-on--conditions'
 
-	# script = %(
-	# 	$namedLocations = Get-MgIdentityConditionalAccessNamedLocation
-	# 	$results = $namedLocations | ForEach-Object { $_.AdditionalProperties['isTrusted'] }
+  client_secret = input('client_secret')
+  client_id = input('client_id')
+  tenant_id = input('tenant_id')
+  ensure_trusted_locations_defined_script = %(
+     $ErrorActionPreference = "Stop"
+     $password = ConvertTo-SecureString -String '#{client_secret}' -AsPlainText -Force
+     $ClientSecretCredential = New-Object -TypeName System.Management.Automation.PSCredential('#{client_id}',$password)
+     Connect-MgGraph -TenantId '#{tenant_id}' -ClientSecretCredential $ClientSecretCredential -NoWelcome
+   	$namedLocations = Get-MgIdentityConditionalAccessNamedLocation
+   	$results = $namedLocations | ForEach-Object { $_.AdditionalProperties.isTrusted }
+   	if ($results -contains $true) {
+          Write-Output "Pass"
+   	} else {
+   	}
+   )
 
-	# 	if ($results -contains $true) {
-	# 			Write-Output $true
-	# 	} else {
-	# 			Write-Output $false
-	# 	}
-	# )
+  pwsh_output = powershell(ensure_trusted_locations_defined_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-	# pwsh_output = powershell(script)
-	# puts pwsh_output.stderr
-
-	# describe 'Ensure at least one Named Location has isTrusted set to True' do
-	# 	subject { pwsh_output.stdout.strip }
-	# 	it { should cmp 'True' }
-	# end
-
-	describe "Ensure Trusted Locations Are Defined" do
-			skip 'The check for this control needs to be done manually'
-	end
+  describe 'Ensure at least one Named Location' do
+    subject { pwsh_output.stdout.strip }
+    it 'has isTrusted set to True' do
+      failure_message = 'All locations are set to null'
+      expect(subject).to eq('Pass'), failure_message
+    end
+  end
 end
