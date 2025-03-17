@@ -82,7 +82,7 @@ control 'azure-foundations-cis-6.1.1' do
   ref 'https://learn.microsoft.com/en-us/cli/azure/monitor/diagnostic-settings?view=azure-cli-latest'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
 
-  describe 'benchmark' do
-    skip 'configure'
+  describe "Ensure that a 'Diagnostic Setting' exists for Subscription Activity Logs" do
+    skip 'The check for this control needs to be done manually'
   end
 end

@@ -79,7 +79,7 @@ control 'azure-foundations-cis-5.1.2' do
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
   rg_sa_list.each do |pair|
-    resource_group, _ = pair.split('.')
+    resource_group, = pair.split('.')
 
     # Retrieve all SQL Servers in the resource group using PowerShell.
     sql_servers_script = <<-EOH

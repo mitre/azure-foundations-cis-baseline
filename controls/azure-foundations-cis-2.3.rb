@@ -70,7 +70,7 @@ control 'azure-foundations-cis-2.3' do
 
   describe 'Ensure that DefaultUserRolePermissions.AllowedToCreateTenants setting' do
     subject { pwsh_output.stdout.strip }
-    it 'is not set to True' do
+    it "is not set to 'True'" do
       expect(subject).not_to eq('True')
     end
   end

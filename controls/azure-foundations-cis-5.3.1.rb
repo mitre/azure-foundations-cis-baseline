@@ -42,7 +42,34 @@ control 'azure-foundations-cis-5.3.1' do
   ref 'https://learn.microsoft.com/en-us/azure/mysql/flexible-server/concepts-networking#tls-and-ssl'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-3-encrypt-sensitive-data-in-transit'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  rg_sa_list = input('resource_groups_and_storage_accounts')
+
+  rg_sa_list.each do |pair|
+    resource_group, = pair.split('.')
+
+    script = <<-EOH
+			Get-AzMysqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+    EOH
+
+    server_output = powershell(script).stdout.strip
+    servers = json(content: server_output).params
+    servers = [servers] unless servers.is_a?(Array)
+
+    servers.each do |server|
+      server_name = server['Name']
+
+      describe "MySQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}' require_secure_transport configuration" do
+        config_script = <<-EOH
+						Get-AzMysqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name require_secure_transport | ConvertTo-Json -Depth 10
+        EOH
+
+        config_output = powershell(config_script).stdout.strip
+        configuration = json(content: config_output).params
+
+        it "should have require_secure_transport set to 'ON'" do
+          expect(configuration['Value']).to cmp 'on'
+        end
+      end
+    end
   end
 end

@@ -32,7 +32,34 @@ control 'azure-foundations-cis-5.4.3' do
 
   ref 'https://learn.microsoft.com/en-us/azure/cosmos-db/role-based-access-control'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  rg_sa_list = input('resource_groups_and_storage_accounts')
+
+  rg_sa_list.each do |pair|
+    resource_group, = pair.split('.')
+
+    cosmos_accounts_script = <<-EOH
+      Get-AzCosmosDBAccount -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+    EOH
+
+    cosmos_accounts_output = powershell(cosmos_accounts_script).stdout.strip
+    cosmos_accounts = json(content: cosmos_accounts_output).params
+    cosmos_accounts = [cosmos_accounts] unless cosmos_accounts.is_a?(Array)
+
+    cosmos_accounts.each do |account|
+      cosmosdb_account = account['Name']
+
+      cosmosdb_show_script = <<-EOH
+        az cosmosdb show --name "#{cosmosdb_account}" --resource-group "#{resource_group}"
+      EOH
+
+      cosmosdb_output = powershell(cosmosdb_show_script).stdout.strip
+      cosmosdb_json = json(content: cosmosdb_output).params
+
+      describe "Cosmos DB account '#{cosmosdb_account}' in Resource Group '#{resource_group}'" do
+        it "should have disableLocalAuth set to 'True'" do
+          expect(cosmosdb_json['disableLocalAuth']).to cmp true
+        end
+      end
+    end
   end
 end

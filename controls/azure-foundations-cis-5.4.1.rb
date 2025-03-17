@@ -50,7 +50,27 @@ control 'azure-foundations-cis-5.4.1' do
   ref 'https://docs.microsoft.com/en-us/powershell/module/az.cosmosdb/?view=azps-8.1.0'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  rg_sa_list = input('resource_groups_and_storage_accounts')
+
+  rg_sa_list.each do |pair|
+    resource_group, = pair.split('.')
+
+    script = <<-EOH
+      Get-AzCosmosDBAccount -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+    EOH
+
+    output = powershell(script).stdout.strip
+    accounts = json(content: output).params
+    accounts = [accounts] unless accounts.is_a?(Array)
+
+    accounts.each do |account|
+      account_name = account['Name']
+
+      describe "Cosmos DB Account '#{account_name}' in Resource Group '#{resource_group}' Virtual Network Filter configuration" do
+        it "should have IsVirtualNetworkFilterEnabled set to 'True'" do
+          expect(account['IsVirtualNetworkFilterEnabled']).to cmp true
+        end
+      end
+    end
   end
 end

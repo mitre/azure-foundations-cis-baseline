@@ -99,11 +99,11 @@ control 'azure-foundations-cis-3.3.6' do
   )
 
   pwsh_output = powershell(check_rbac_vault_script)
-	
-  describe 'Ensure the number of vaults with EnableRbacAuthorization set to False' do
+
+  describe "Ensure the number of vaults with EnableRbacAuthorization set to 'False" do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do
-      failure_message = "The following vaults do not have EnableRbacAuthorization set to True: #{pwsh_output.stdout.strip}"
+      failure_message = "The following vaults do not have EnableRbacAuthorization set to 'True': #{pwsh_output.stdout.strip}"
       expect(subject).to be_empty, failure_message
     end
   end

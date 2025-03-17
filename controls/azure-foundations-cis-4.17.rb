@@ -70,7 +70,7 @@ control 'azure-foundations-cis-4.17' do
     allow_blob_public_access = json(command: "az storage account show --name #{storage_account} --query allowBlobPublicAccess").params
 
     describe "Storage Account: #{storage_account} (Resource Group: #{resource_group})" do
-      it 'should have allowBlobPublicAccess set to false' do
+      it "should have allowBlobPublicAccess set to 'False'" do
         expect(allow_blob_public_access).to cmp false
       end
     end

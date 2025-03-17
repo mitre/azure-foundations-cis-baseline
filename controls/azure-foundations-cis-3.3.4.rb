@@ -113,7 +113,7 @@ control 'azure-foundations-cis-3.3.4' do
       }
       }
   )
-  
+
   pwsh_output = powershell(expiration_date_set_all_secrets_script)
 
   describe 'Ensure the the number of Non-RBAC vault/secret combinations with incorrect expiration dates' do

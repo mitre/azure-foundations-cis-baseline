@@ -157,7 +157,7 @@ control 'azure-foundations-cis-3.3.8' do
   )
 
   pwsh_output = powershell(vault_automatic_key_rotation_script)
-  
+
   describe 'Ensure the number of vaults/key pairs with LifetimeActions setting not set to "Rotate"' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do
