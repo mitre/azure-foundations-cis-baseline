@@ -74,22 +74,22 @@ control 'azure-foundations-cis-9.2' do
     describe "Application Name '#{app_name}' in Resource Group '#{resource_group}'" do
       describe 'App Service Authentication setting' do
         subject { enabled_info.stdout.strip }
-        it 'should be set to true' do
-          expect(subject).to eq('true')
+        it "should be set to 'true'" do
+          expect(subject).to cmp(true)
         end
       end
 
       describe 'Properties.allow setting for SCM Basic Auth Publishing Credentials' do
         subject { scm_info.stdout.strip }
-        it 'should be set false' do
-          expect(subject).to eq('false')
+        it "should be set 'false'" do
+          expect(subject).to cmp(false)
         end
       end
 
       describe 'Properties.allow setting for SCM Basic Auth Publishing Credentials' do
         subject { ftp_info.stdout.strip }
-        it 'should be set false' do
-          expect(subject).to eq('false')
+        it "should be set 'false'" do
+          expect(subject).to cmp(false)
         end
       end
     end
