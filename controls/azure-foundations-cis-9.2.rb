@@ -64,7 +64,34 @@ control 'azure-foundations-cis-9.2' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  rg_an_list = input('resource_group_and_app_name')
+
+  rg_an_list.each do |pair|
+    resource_group, app_name = pair.split('.')
+    enabled_info = command("az webapp auth show --resource-group #{resource_group} --name #{app_name} --query enabled")
+    scm_info = command("az resource show --resource-group #{resource_group} --name scm --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/#{app_name} --query properties.allow")
+    ftp_info = command("az resource show --resource-group #{resource_group} --name ftp --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/#{app_name} --query properties.allow")
+    describe "Application Name '#{app_name}' in Resource Group '#{resource_group}'" do
+      describe 'App Service Authentication setting' do
+        subject { enabled_info.stdout.strip }
+        it 'should be set to true' do
+          expect(subject).to eq('true')
+        end
+      end
+
+      describe 'Properties.allow setting for SCM Basic Auth Publishing Credentials' do
+        subject { scm_info.stdout.strip }
+        it 'should be set false' do
+          expect(subject).to eq('false')
+        end
+      end
+
+      describe 'Properties.allow setting for SCM Basic Auth Publishing Credentials' do
+        subject { ftp_info.stdout.strip }
+        it 'should be set false' do
+          expect(subject).to eq('false')
+        end
+      end
+    end
   end
 end

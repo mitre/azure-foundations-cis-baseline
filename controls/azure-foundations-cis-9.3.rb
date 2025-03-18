@@ -62,7 +62,28 @@ control 'azure-foundations-cis-9.3' do
   ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/security-controls-v3-posture-vulnerability-management#pv-7-rapidly-and-automatically-remediate-software-vulnerabilities'
   ref 'https://learn.microsoft.com/en-us/rest/api/appservice/web-apps/create-or-update-configuration#ftpsstate'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  ftps_state_set_to_ftps_only_script = %(
+        $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
+        foreach ($webApp in $filteredWebApps) {
+            $resourceGroup = $webApp.ResourceGroup
+            $appName = $webApp.Name
+
+            # Get the SiteConfig for the current web app
+            $siteConfig = Get-AzWebApp -ResourceGroupName $resourceGroup -Name $appName | Select-Object -ExpandProperty SiteConfig
+
+            if ($siteConfig.FtpsState -eq "AllAllowed") {
+                # Print the name of the web app
+                Write-Output $appName
+            }
+        }
+    )
+
+  pwsh_output = powershell(ftps_state_set_to_ftps_only_script)
+
+  describe "Ensure that the number of Web Applications/Resource Group combinations with SiteConfig.FtpsState set to 'AllAllowed'" do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      expect(subject).to be_empty
+    end
   end
 end
