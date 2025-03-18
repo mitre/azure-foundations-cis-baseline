@@ -82,7 +82,32 @@ control 'azure-foundations-cis-6.1.1' do
   ref 'https://learn.microsoft.com/en-us/cli/azure/monitor/diagnostic-settings?view=azure-cli-latest'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
 
-  describe "Ensure that a 'Diagnostic Setting' exists for Subscription Activity Logs" do
-    skip 'The check for this control needs to be done manually'
+  subscription_id = input('subscription_id')
+
+  activity_diagnostic_setting_exists_for_sub_script = %(
+	    Get-AzDiagnosticSetting -SubscriptionId "#{subscription_id}"
+        $allResources = Get-AzResource
+        $resourceIds = $allResources | Select-Object -ExpandProperty ResourceId
+        foreach ($resourceId in $resourceIds) {
+            try {
+                $diagnosticSetting = Get-AzDiagnosticSetting -ResourceId $resourceId -ErrorAction Stop
+
+                if (-not $diagnosticSetting) {
+                    Write-Output "$resourceId"
+                }
+            } catch {
+            }
+        }
+
+	)
+
+  pwsh_output = powershell(activity_diagnostic_setting_exists_for_sub_script)
+
+  describe 'Ensure that the number the subscription`s resources without diagnostic setting set' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The following resources do not have a diagnostic setting:#{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end
