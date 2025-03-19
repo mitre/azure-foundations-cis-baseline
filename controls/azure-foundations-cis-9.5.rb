@@ -48,7 +48,36 @@ control 'azure-foundations-cis-9.5' do
   ref 'https://docs.microsoft.com/en-gb/azure/app-service/app-service-web-tutorial-connect-msi'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-1-use-centralized-identity-and-authentication-system'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  ensure_register_entra_id_enabled_app_service_script = %(
+        $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
+        $unique_id_tracker = @{}
+        foreach ($webApp in $filteredWebApps) {
+            $resourceGroup = $webApp.ResourceGroup
+            $appName = $webApp.Name
+
+            # Get the SiteConfig for the current web app
+            $appData = Get-AzWebApp -ResourceGroupName $resourceGroup -Name $appName
+            $principal_id = $appData.Identity
+            if ($principal_id -eq $null){
+                Write-Output "$appName has Null Principal ID"
+            }
+            else{
+                if ($unique_id_tracker.ContainsKey($principal_id)) {
+                    Write-Output "$appName has the same Principal ID as $($unique_id_tracker[$principal_id])"
+                } else {
+                    $unique_id_tracker[$principal_id] = $appName
+                }
+            }
+        }
+    )
+
+  pwsh_output = powershell(ensure_register_entra_id_enabled_app_service_script)
+
+  describe 'Ensure that the number of Web Applications/Resource Group combinations without Unique Identity Principal ID' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "Error: #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end

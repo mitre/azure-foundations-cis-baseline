@@ -83,7 +83,8 @@ control 'azure-foundations-cis-9.3' do
   describe "Ensure that the number of Web Applications/Resource Group combinations with SiteConfig.FtpsState set to 'AllAllowed'" do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do
-      expect(subject).to be_empty
+      failure_message = "The following web apps have FtpsState set to 'AllAllowed': #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
     end
   end
 end

@@ -49,7 +49,28 @@ control 'azure-foundations-cis-9.4' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-8-detect-and-disable-insecure-services-and-protocols'
   ref 'https://docs.microsoft.com/en-us/powershell/module/az.websites/set-azwebapp?view=azps-8.1.0'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  ensure_web_app_using_latest_tls_script = %(
+        $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
+        foreach ($webApp in $filteredWebApps) {
+            $resourceGroup = $webApp.ResourceGroup
+            $appName = $webApp.Name
+
+            # Get the SiteConfig for the current web app
+            $siteConfig = Get-AzWebApp -ResourceGroupName $resourceGroup -Name $appName | Select-Object -ExpandProperty SiteConfig
+            if ($siteConfig.MinTlsVersion -lt 1.2) {
+                # Print the name of the web app
+                Write-Output $appName
+            }
+        }
+    )
+
+  pwsh_output = powershell(ensure_web_app_using_latest_tls_script)
+
+  describe 'Ensure that the number of Web Applications/Resource Group combinations with SiteConfig.MinTlsVersion less than 1.2' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The following web apps have TLS version less than 1.2: #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end
