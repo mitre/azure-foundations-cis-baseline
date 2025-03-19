@@ -75,7 +75,21 @@ control 'azure-foundations-cis-2.23' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-7-follow-just-enough-administration-least-privilege-principle'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  script = <<-EOH
+    Get-AzRoleDefinition | Where-Object { ($_.IsCustom -eq $true) -and ($_.Actions.contains('*')) } | ConvertTo-Json -Depth 10
+  EOH
+
+  role_defs_output = powershell(script).stdout.strip
+
+  role_defs = []
+  unless role_defs_output.empty?
+    parsed = json(content: role_defs_output).params
+    role_defs = parsed.is_a?(Array) ? parsed : [parsed]
+  end
+
+  describe "Custom Role Definitions with wildcard actions" do
+    it "should be empty (i.e. no custom role definitions should include '*')" do
+      expect(role_defs).to be_empty
+    end
   end
 end

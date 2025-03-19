@@ -68,7 +68,31 @@ control 'azure-foundations-cis-3.1.12' do
   ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/security-contacts'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  subscription_id = input('subscription_id')
+
+  script = <<-EOH
+    $tokenInfo = az account get-access-token --query "{accessToken:accessToken}" --out tsv
+    $accessToken = $tokenInfo.Trim()
+    $subscription = "#{subscription_id}"
+    $url = "https://management.azure.com/subscriptions/$subscription/providers/Microsoft.Security/securityContacts?api-version=2020-01-01-preview"
+    $response = Invoke-RestMethod -Method Get -Uri $url -Headers @{
+        "Authorization" = "Bearer $accessToken"
+        "Content-Type"  = "application/json"
+    }
+    $result = $response | Where-Object { $_.name -eq "default" } | ForEach-Object { $_.properties.notificationsByRole } | ConvertTo-Json -Depth 10
+    Write-Output $result
+  EOH
+
+  result = powershell(script).stdout.strip
+  notifications = json(content: result).params
+
+  describe "Security Contacts Notifications configuration" do
+    it "should have state set to 'On', enabling security alert emails" do
+      expect(notifications['state']).to cmp "On"
+    end
+
+    it "should be configured to notify only subscription owners (role 'Owner')" do
+      expect(notifications['roles']).to include "Owner"
+    end
   end
 end

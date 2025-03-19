@@ -78,7 +78,31 @@ control 'azure-foundations-cis-3.1.14' do
   ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/security-contacts'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  subscription_id = input('subscription_id')
+  
+  script = <<-EOH
+    $tokenInfo = az account get-access-token --query "{accessToken:accessToken}" --out tsv
+    $accessToken = $tokenInfo.Trim()
+    $subscription = "#{subscription_id}"
+    $url = "https://management.azure.com/subscriptions/$subscription/providers/Microsoft.Security/securityContacts?api-version=2020-01-01-preview"
+    $response = Invoke-RestMethod -Method Get -Uri $url -Headers @{
+        "Authorization" = "Bearer $accessToken"
+        "Content-Type"  = "application/json"
+    }
+    $result = $response | Where-Object { $_.name -eq "default" } | ForEach-Object { $_.properties.alertNotifications } | ConvertTo-Json -Depth 10
+    Write-Output $result
+  EOH
+
+  result = powershell(script).stdout.strip
+  alert_notifications = json(content: result).params
+
+  describe "Security Alert Notifications configuration" do
+    it "should have state set to 'On'" do
+      expect(alert_notifications['state']).to cmp "On"
+    end
+
+    it "should have minimalSeverity set to 'High'" do
+      expect(alert_notifications['minimalSeverity']).to cmp "High"
+    end
   end
 end

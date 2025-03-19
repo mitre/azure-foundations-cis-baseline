@@ -81,7 +81,29 @@ control 'azure-foundations-cis-3.1.13' do
   ref 'https://docs.microsoft.com/en-us/rest/api/securitycenter/security-contacts'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  subscription_id = input('subscription_id')
+
+  script = <<-EOH
+    $tokenInfo = az account get-access-token --query "{accessToken:accessToken}" --out tsv
+    $accessToken = $tokenInfo.Trim()
+    $subscription = "#{subscription_id}"
+    $url = "https://management.azure.com/subscriptions/$subscription/providers/Microsoft.Security/securityContacts?api-version=2020-01-01-preview"
+    $response = Invoke-RestMethod -Method Get -Uri $url -Headers @{
+        "Authorization" = "Bearer $accessToken"
+        "Content-Type"  = "application/json"
+    }
+    # Select the default security contact and extract its 'emails' property
+    $result = $response | Where-Object { $_.name -eq "default" } | ForEach-Object { $_.properties.emails } | ConvertTo-Json -Depth 10
+    Write-Output $result
+  EOH
+
+  result = powershell(script).stdout.strip
+  emails = json(content: result).params
+
+  describe "Security Contacts Emails configuration" do
+    it "should not be empty" do
+      expect(emails).not_to be_nil
+      expect(emails.to_s.strip).not_to eq("")
+    end
   end
 end
