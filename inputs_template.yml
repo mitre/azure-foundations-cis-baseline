@@ -57,3 +57,6 @@ allowed_guest_user_display_names:
 #Control 2.13
 custom_policy_id:
   - "test"
+#Control 9.2
+resource_group_and_app_name:
+  - "saf-benchmark.saf-web-app"
