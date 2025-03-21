@@ -52,7 +52,21 @@ control 'azure-foundations-cis-4.1' do
   ref 'https://docs.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest#az_storage_account_update'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-3-encrypt-sensitive-data-in-transit'
 
-  describe "Ensure that 'Secure transfer required' is set to 'Enabled'" do
-    skip 'The check for this control needs to be done manually'
+  script = <<-EOH
+    az storage account list --query "[*].[name,enableHttpsTrafficOnly]"
+  EOH
+
+  output = powershell(script).stdout.strip
+  accounts = json(content: output).params
+
+  accounts.each do |account|
+    storage_name = account[0]
+    https_required = account[1]
+
+    describe "Storage Account '#{storage_name}' secure transfer requirement" do
+      it 'should have secure transfer enabled (enableHttpsTrafficOnly is true)' do
+        expect(https_required).to cmp true
+      end
+    end
   end
 end
