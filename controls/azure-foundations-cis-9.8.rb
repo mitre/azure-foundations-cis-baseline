@@ -56,7 +56,53 @@ control 'azure-foundations-cis-9.8' do
   ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/security-controls-v3-posture-vulnerability-management#pv-3-establish-secure-configurations-for-compute-resources'
   ref 'https://devguide.python.org/versions/'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  python_version_unsupported_web_app = input('python_version_unsupported_web_app')
+  python_version_unsupported_web_app_list = python_version_unsupported_web_app.map { |python_version| "'#{python_version}'" }.join(', ')
+  ensure_web_app_python_version_supported_script = %(
+        $ErrorActionPreference = "Stop"
+        $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
+        $unsupported_python_versions = @(#{python_version_unsupported_web_app_list})
+        foreach ($webApp in $filteredWebApps) {
+            $resourceGroup = $webApp.ResourceGroup
+            $appName = $webApp.Name
+
+            # Get the SiteConfig for the current web app
+            $application = Get-AzWebApp -ResourceGroupName $resourceGroup -Name $appName
+            $LinuxFxVersion = $application.SiteConfig.LinuxFXVersion
+            $WindowsFxVersion = $application.SiteConfig.WindowsFxVersion
+            $pythonVersionFromLinuxFxVersion = $null
+            $pythonVersionFromWindowsFxVersion = $null
+
+            # Check if LinuxFxVersion exists and extract Python version
+            if ($LinuxFxVersion -ne $null -and $LinuxFxVersion.Trim() -ne "") {
+                if ($LinuxFxVersion -like "Python|*") {
+                    $pythonVersionFromLinuxFxVersion = ($LinuxFxVersion.Trim() -split '\\|')[1]
+                }
+            }
+
+            # Check if WindowsFxVersion exists and extract Python version
+            if ($WindowsFxVersion -ne $null -and $WindowsFxVersion.Trim() -ne "") {
+                if ($WindowsFxVersion -like "Python|*") {
+                    $pythonVersionFromWindowsFxVersion = ($WindowsFxVersion.Trim() -split '\\|')[1]
+                }
+            }
+
+            # Check if either Python version is unsupported
+            if ($unsupported_python_versions -contains $pythonVersionFromLinuxFxVersion -or $unsupported_python_versions -contains $pythonVersionFromWindowsFxVersion) {
+                # Print the name of the web app
+                Write-Output "$appName"
+            }
+        }
+    )
+
+  pwsh_output = powershell(ensure_web_app_python_version_supported_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe 'Ensure that the number of Web Applications/Resource Group combinations with unsupported SiteConfig.LinuxFXVersion for Python' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The following web apps have an unsupported version of Python: #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end
