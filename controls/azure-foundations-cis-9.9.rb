@@ -63,7 +63,52 @@ control 'azure-foundations-cis-9.9' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-posture-vulnerability-management#pv-6-rapidly-and-automatically-remediate-vulnerabilities'
   ref 'https://www.oracle.com/java/technologies/java-se-support-roadmap.html'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  java_version_unsupported_web_app = input('java_version_unsupported_web_app')
+  java_version_unsupported_web_app_list = java_version_unsupported_web_app.map { |java_version| "'#{java_version}'" }.join(', ')
+  ensure_web_app_java_version_supported_script = %(
+        $ErrorActionPreference = "Stop"
+        $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
+        $unsupported_java_versions = @(#{java_version_unsupported_web_app_list})
+        foreach ($webApp in $filteredWebApps) {
+            $resourceGroup = $webApp.ResourceGroup
+            $appName = $webApp.Name
+
+            # Get the SiteConfig for the current web app
+            $application = Get-AzWebApp -ResourceGroupName $resourceGroup -Name $appName
+            $LinuxFxVersion = $application.SiteConfig.LinuxFXVersion
+            $WindowsFxVersion = $application.SiteConfig.WindowsFxVersion
+            $javaVersionFromLinuxFxVersion = $null
+            $javaVersionFromWindowsFxVersion = $null
+
+            # Check if LinuxFxVersion exists and extract Java version
+            if ($LinuxFxVersion -ne $null -and $LinuxFxVersion.Trim() -ne "") {
+                if ($LinuxFxVersion -like "*java*") {
+                    $javaVersionFromLinuxFxVersion = ($LinuxFxVersion.Trim() -split '\\|')[1]
+                }
+            }
+
+            # Check if WindowsFxVersion exists and extract Java version
+            if ($WindowsFxVersion -ne $null -and $WindowsFxVersion.Trim() -ne "") {
+                if ($WindowsFxVersion -like "*java*") {
+                    $javaVersionFromWindowsFxVersion = ($WindowsFxVersion.Trim() -split '\\|')[1]
+                }
+            }
+            # Check if either Java version is unsupported
+            if ($unsupported_java_versions -contains $javaVersionFromLinuxFxVersion -or $unsupported_java_versions -contains $javaVersionFromWindowsFxVersion) {
+                # Print the name of the web app
+                Write-Output "$appName"
+            }
+        }
+    )
+
+  pwsh_output = powershell(ensure_web_app_java_version_supported_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe 'Ensure that the number of Web Applications/Resource Group combinations with unsupported SiteConfig.LinuxFXVersion for Java' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The following web apps have an unsupported version of Java: #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end

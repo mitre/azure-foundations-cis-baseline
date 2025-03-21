@@ -60,3 +60,13 @@ custom_policy_id:
 #Control 9.2
 resource_group_and_app_name:
   - "saf-benchmark.saf-web-app"
+#Control 9.7
+php_version_unsupported_web_app:
+  - "1.1"
+#Control 9.8
+python_version_unsupported_web_app:
+  - "8.1"
+#Control 9.9
+#Example format: 1.3.17-java17
+java_version_unsupported_web_app:
+  - "1.3.17-java17"

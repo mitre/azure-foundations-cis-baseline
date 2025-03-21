@@ -56,7 +56,38 @@ control 'azure-foundations-cis-9.7' do
   ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/security-controls-v3-posture-vulnerability-management#pv-3-establish-secure-configurations-for-compute-resources'
   ref 'https://www.php.net/supported-versions.php'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  php_version_unsupported_web_app = input('php_version_unsupported_web_app')
+  php_version_unsupported_web_app_list = php_version_unsupported_web_app.map { |php_version| "'#{php_version}'" }.join(', ')
+  ensure_web_app_php_version_supported_script = %(
+        $ErrorActionPreference = "Stop"
+        $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
+        $unsupported_php_versions = @(#{php_version_unsupported_web_app_list})
+        foreach ($webApp in $filteredWebApps) {
+            $resourceGroup = $webApp.ResourceGroup
+            $appName = $webApp.Name
+
+            # Get the SiteConfig for the current web app
+            $application = Get-AzWebApp -ResourceGroupName $resourceGroup -Name $appName
+            $LinuxFxVersion = $application.SiteConfig.LinuxFXVersion
+            $phpVersionFromLinuxFxVersion = $null
+            if ($LinuxFxVersion -like "PHP|*") {
+                $phpVersionFromLinuxFxVersion = ($LinuxFxVersion.Trim() -split '\\|')[1]
+            }
+            if ($unsupported_php_versions -contains $phpVersionFromLinuxFxVersion) {
+                # Print the name of the web app
+                Write-Output $appName
+            }
+        }
+    )
+
+  pwsh_output = powershell(ensure_web_app_php_version_supported_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe 'Ensure that the number of Web Applications/Resource Group combinations with unsupported SiteConfig.LinuxFXVersion for PHP' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The following web apps have an unsupported version of PHP: #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end
