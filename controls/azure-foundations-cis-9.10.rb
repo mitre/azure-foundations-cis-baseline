@@ -55,7 +55,31 @@ control 'azure-foundations-cis-9.10' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-posture-vulnerability-management#pv-3-define-and-establish-secure-configurations-for-compute-resources'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-posture-vulnerability-management#pv-6-rapidly-and-automatically-remediate-vulnerabilities'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  ensure_http20_set_to_true_script = %(
+    $ErrorActionPreference = "Stop"
+    $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
+    foreach ($webApp in $filteredWebApps) {
+        $resourceGroup = $webApp.ResourceGroup
+        $appName = $webApp.Name
+
+        # Get the SiteConfig for the current web app
+        $siteConfig = Get-AzWebApp -ResourceGroupName $resourceGroup -Name $appName | Select-Object -ExpandProperty SiteConfig
+
+        if ($siteConfig.Http20Enabled -eq $False) {
+            # Print the name of the web app
+            Write-Output $appName
+        }
+    }
+    )
+
+  pwsh_output = powershell(ensure_http20_set_to_true_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe "Ensure that the number of Web Applications/Resource Group combinations with SiteConfig.Http20Enabled set to 'False'" do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The following web apps have Http20Enabled set to 'False': #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end
