@@ -39,7 +39,33 @@ control 'azure-foundations-cis-7.3' do
   ref 'https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-site-to-site-resource-manager-portal'
   ref 'https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-point-to-site-resource-manager-portal'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  query = command('az network nsg list --query "[*].[name,securityRules]" -o json').stdout
+  query_results_json = JSON.parse(query) unless query.empty?
+  query_results_json.each do |nsg|
+    nsg_name = nsg[0]
+    security_rules = nsg[1]
+    describe "NSG: #{nsg_name}" do
+      it 'should not return any unrestricted UDP rule' do
+        insecure_rules = security_rules.select do |rule|
+          rule['access'] == 'Allow' &&
+            rule['direction'] == 'Inbound' &&
+            rule['protocol'] == 'UDP' &&
+            (
+              rule['destinationPortRange'] == '*' ||
+              (rule['destinationPortRange'] =~ /53|123|161|389|1900/)
+            ) &&
+            (
+              rule['sourceAddressPrefix'] == '*' ||
+              rule['sourceAddressPrefix'] == '0.0.0.0' ||
+              rule['sourceAddressPrefix'] == '/0' ||
+              rule['sourceAddressPrefix'] =~ %r{/0} ||
+              rule['sourceAddressPrefix'].downcase == 'internet' ||
+              rule['sourceAddressPrefix'].downcase == 'any'
+            )
+        end
+        failure_message = "Check #{nsg_name} NSG's UDP access, direction, protocol, destinationPortRange, and sourceAddressPrefix fields for proper configurations"
+        expect(insecure_rules).to be_empty, failure_message
+      end
+    end
   end
 end

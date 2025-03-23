@@ -53,7 +53,31 @@ control 'azure-foundations-cis-9.12' do
   ref 'https://learn.microsoft.com/en-us/visualstudio/debugger/remote-debugging-azure-app-service?view=vs-2022'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-posture-vulnerability-management#pv-2-audit-and-enforce-secure-configurations'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  ensure_remote_debugging_false_script = %(
+    $ErrorActionPreference = "Stop"
+    $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
+    foreach ($webApp in $filteredWebApps) {
+        $resourceGroup = $webApp.ResourceGroup
+        $appName = $webApp.Name
+
+        # Get the SiteConfig for the current web app
+        $siteConfig = Get-AzWebApp -ResourceGroupName $resourceGroup -Name $appName | Select-Object -ExpandProperty SiteConfig
+
+        if ($siteConfig.remoteDebuggingEnabled -eq $False) {
+            # Print the name of the web app
+            Write-Output $appName
+        }
+    }
+    )
+
+  pwsh_output = powershell(ensure_remote_debugging_false_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe "Ensure that the number of Web Applications/Resource Group combinations with SiteConfig.remoteDebuggingEnabled set to 'False'" do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The following web apps have remoteDebuggingEnabled set to 'False': #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end

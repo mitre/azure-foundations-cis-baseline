@@ -44,7 +44,21 @@ control 'azure-foundations-cis-7.5' do
   ref 'https://docs.microsoft.com/en-us/cli/azure/network/watcher/flow-log?view=azure-cli-latest'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-6-configure-log-storage-retention'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  rg_nsg_list = input('resource_group_and_network_watcher')
+  rg_nsg_list.each do |pair|
+    rg, nsg = pair.split('.')
+
+    query = command("az network watcher flow-log show --resource-group #{rg} --nsg #{nsg} --query 'retentionPolicy'").stdout
+    query_results_json = JSON.parse(query) unless query.empty?
+    describe "Ensure the NSG #{nsg}" do
+      subject { query_results_json }
+      it "has 'enabled' setting set to 'true'" do
+        expect(subject['enabled']).to cmp true
+      end
+
+      it "has 'days' set to >= 90" do
+        expect(subject['days']).to be >= 90
+      end
+    end
   end
 end

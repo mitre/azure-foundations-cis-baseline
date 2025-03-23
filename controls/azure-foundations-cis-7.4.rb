@@ -55,7 +55,35 @@ control 'azure-foundations-cis-7.4' do
   ref 'https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-point-to-site-resource-manager-portal'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-1-establish-network-segmentation-boundaries'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  query = command('az network nsg list --query "[*].[name,securityRules]" -o json').stdout
+  query_results_json = JSON.parse(query) unless query.empty?
+  query_results_json.each do |nsg|
+    nsg_name = nsg[0] # NSG name
+    security_rules = nsg[1]
+    describe "NSG: #{nsg_name}" do
+      it 'should not return any unrestricted HTTP/HTTPS rule' do
+        insecure_rules = security_rules.select do |rule|
+          rule['access'] == 'Allow' &&
+            rule['direction'] == 'Inbound' &&
+            rule['protocol'] == 'TCP' &&
+            (
+              rule['destinationPortRange'] == '80' ||
+              rule['destinationPortRange'] == '443' ||
+              rule['destinationPortRange'] == '*' ||
+              (rule['destinationPortRange'] =~ /80|443/) # Port range containing 80 or 443
+            ) &&
+            (
+              rule['sourceAddressPrefix'] == '*' ||
+              rule['sourceAddressPrefix'] == '0.0.0.0' ||
+              rule['sourceAddressPrefix'] == '/0' ||
+              rule['sourceAddressPrefix'] =~ %r{/0} || # CIDR ranges ending in /0
+              rule['sourceAddressPrefix'].downcase == 'internet' ||
+              rule['sourceAddressPrefix'].downcase == 'any'
+            )
+        end
+        failure_message = "Check #{nsg_name} NSG's HTTP/HTTPS access, direction, protocol, destinationPortRange, and sourceAddressPrefix fields for proper configurations"
+        expect(insecure_rules).to be_empty, failure_message # Ensure no insecure rules exist
+      end
+    end
   end
 end
