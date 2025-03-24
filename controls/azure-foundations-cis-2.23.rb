@@ -87,7 +87,7 @@ control 'azure-foundations-cis-2.23' do
     role_defs = parsed.is_a?(Array) ? parsed : [parsed]
   end
 
-  describe "Custom Role Definitions with wildcard actions" do
+  describe 'Custom Role Definitions with wildcard actions' do
     it "should be empty (i.e. no custom role definitions should include '*')" do
       expect(role_defs).to be_empty
     end

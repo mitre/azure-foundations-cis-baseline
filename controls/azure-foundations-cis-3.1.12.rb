@@ -86,13 +86,13 @@ control 'azure-foundations-cis-3.1.12' do
   result = powershell(script).stdout.strip
   notifications = json(content: result).params
 
-  describe "Security Contacts Notifications configuration" do
+  describe 'Security Contacts Notifications configuration' do
     it "should have state set to 'On', enabling security alert emails" do
-      expect(notifications['state']).to cmp "On"
+      expect(notifications['state']).to cmp 'On'
     end
 
     it "should be configured to notify only subscription owners (role 'Owner')" do
-      expect(notifications['roles']).to include "Owner"
+      expect(notifications['roles']).to include 'Owner'
     end
   end
 end
