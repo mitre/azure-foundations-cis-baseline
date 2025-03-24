@@ -100,10 +100,10 @@ control 'azure-foundations-cis-3.1.13' do
   result = powershell(script).stdout.strip
   emails = json(content: result).params
 
-  describe "Security Contacts Emails configuration" do
-    it "should not be empty" do
+  describe 'Security Contacts Emails configuration' do
+    it 'should not be empty' do
       expect(emails).not_to be_nil
-      expect(emails.to_s.strip).not_to eq("")
+      expect(emails.to_s.strip).not_to eq('')
     end
   end
 end

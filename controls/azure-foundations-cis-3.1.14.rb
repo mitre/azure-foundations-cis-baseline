@@ -79,7 +79,7 @@ control 'azure-foundations-cis-3.1.14' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
 
   subscription_id = input('subscription_id')
-  
+
   script = <<-EOH
     $tokenInfo = az account get-access-token --query "{accessToken:accessToken}" --out tsv
     $accessToken = $tokenInfo.Trim()
@@ -96,13 +96,13 @@ control 'azure-foundations-cis-3.1.14' do
   result = powershell(script).stdout.strip
   alert_notifications = json(content: result).params
 
-  describe "Security Alert Notifications configuration" do
+  describe 'Security Alert Notifications configuration' do
     it "should have state set to 'On'" do
-      expect(alert_notifications['state']).to cmp "On"
+      expect(alert_notifications['state']).to cmp 'On'
     end
 
     it "should have minimalSeverity set to 'High'" do
-      expect(alert_notifications['minimalSeverity']).to cmp "High"
+      expect(alert_notifications['minimalSeverity']).to cmp 'High'
     end
   end
 end

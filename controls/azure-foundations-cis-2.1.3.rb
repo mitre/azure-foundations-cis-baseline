@@ -88,10 +88,9 @@ control 'azure-foundations-cis-2.1.3' do
   management_token_cmd = 'az account get-access-token --resource https://management.azure.com/ --query accessToken -o tsv'
   management_token = command(management_token_cmd).stdout.strip
 
-  graph_users = http("https://graph.microsoft.com/v1.0/users", 
-    method: 'GET',
-    headers: { 'Authorization' => "Bearer #{graph_token}" }
-  )
+  graph_users = http('https://graph.microsoft.com/v1.0/users',
+                     method: 'GET',
+                     headers: { 'Authorization' => "Bearer #{graph_token}" })
   describe graph_users do
     its('status') { should cmp 200 }
   end
@@ -100,9 +99,8 @@ control 'azure-foundations-cis-2.1.3' do
   subscription_id = input('subscription_id')
 
   role_defs = http("https://management.azure.com/subscriptions/#{subscription_id}/providers/Microsoft.Authorization/roleDefinitions?api-version=2017-05-01",
-    method: 'GET',
-    headers: { 'Authorization' => "Bearer #{management_token}" }
-  )
+                   method: 'GET',
+                   headers: { 'Authorization' => "Bearer #{management_token}" })
   describe role_defs do
     its('status') { should cmp 200 }
   end
@@ -113,9 +111,8 @@ control 'azure-foundations-cis-2.1.3' do
   end.map { |role| role['id'] }
 
   role_assignments = http("https://management.azure.com/subscriptions/#{subscription_id}/providers/Microsoft.Authorization/roleassignments?api-version=2017-10-01-preview",
-    method: 'GET',
-    headers: { 'Authorization' => "Bearer #{management_token}" }
-  )
+                          method: 'GET',
+                          headers: { 'Authorization' => "Bearer #{management_token}" })
   describe role_assignments do
     its('status') { should cmp 200 }
   end
@@ -131,8 +128,8 @@ control 'azure-foundations-cis-2.1.3' do
       (user['StrongAuthenticationMethods'].nil? || user['StrongAuthenticationMethods'].empty?)
   end.map { |user| user['userPrincipalName'] }
 
-  describe "Non-administrative users without MFA" do
-    it "should be empty (i.e. every non-admin user has MFA enabled)" do
+  describe 'Non-administrative users without MFA' do
+    it 'should be empty (i.e. every non-admin user has MFA enabled)' do
       expect(non_compliant_non_admins).to be_empty
     end
   end

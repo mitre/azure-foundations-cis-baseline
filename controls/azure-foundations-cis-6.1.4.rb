@@ -66,7 +66,40 @@ control 'azure-foundations-cis-6.1.4' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  keyvault_list_script = <<-EOH
+    az keyvault list
+  EOH
+
+  keyvault_output = powershell(keyvault_list_script).stdout.strip
+  keyvaults = json(content: keyvault_output).params
+  keyvaults = [keyvaults] unless keyvaults.is_a?(Array)
+
+  keyvaults.each do |kv|
+    kv_id = kv['id']
+    kv_name = kv['name']
+
+    diag_script = <<-EOH
+      az monitor diagnostic-settings list --resource "#{kv_id}"
+    EOH
+
+    diag_output = powershell(diag_script).stdout.strip
+    diag_settings = json(content: diag_output).params
+    diag_settings = [] if diag_settings.nil?
+    diag_settings = [diag_settings] unless diag_settings.is_a?(Array)
+
+    compliant_diag = diag_settings.any? do |ds|
+      logs = ds['logs'] || []
+      has_audit = logs.any? { |log| log['categoryGroup'] == 'audit' && log['enabled'] == true }
+      has_alllogs = logs.any? { |log| log['categoryGroup'] == 'allLogs' && log['enabled'] == true }
+      target = ds['storageAccountId'] || ds['serviceBusRuleId'] || ds['marketplacePartnerId'] || ds['workspaceId']
+      has_target = !target.to_s.strip.empty?
+      has_audit && has_alllogs && has_target
+    end
+
+    describe "Key Vault '#{kv_name}'" do
+      it 'should have at least one compliant diagnostic setting' do
+        expect(compliant_diag).to cmp true
+      end
+    end
   end
 end
