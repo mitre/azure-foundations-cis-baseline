@@ -88,6 +88,7 @@ control 'azure-foundations-cis-4.2' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-4-enable-data-at-rest-encryption-by-default'
 
   query = command('az storage account list --query "[?encryption.requireInfrastructureEncryption==\`false\`].{Name:name}" --output tsv').stdout
+
   describe "Ensure that the number of storage accounts with InfrastructureEncryption setting set to 'False" do
     subject { query }
     it 'is 0' do

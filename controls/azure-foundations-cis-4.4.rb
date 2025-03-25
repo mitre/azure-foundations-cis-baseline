@@ -62,7 +62,41 @@ control 'azure-foundations-cis-4.4' do
   ref 'https://www.pcidssguide.com/pci-dss-key-rotation-requirements/'
   ref 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  subscription_id = input('subscription_id')
+
+  storage_script = <<-EOH
+    az storage account list --subscription "#{subscription_id}"
+  EOH
+
+  storage_output = powershell(storage_script).stdout.strip
+  storage_accounts = json(content: storage_output).params
+  storage_accounts = [storage_accounts] unless storage_accounts.is_a?(Array)
+
+  storage_accounts.each do |sa|
+    sa_id = sa['id']
+    sa_name = sa['name']
+    sa_rg = sa['resourceGroup']
+
+    activity_script = <<-EOH
+      az monitor activity-log list --namespace Microsoft.Storage --offset 90d --query "[?contains(authorization.action, 'regenerateKey')]" --resource-id "#{sa_id}"
+    EOH
+
+    activity_output = powershell(activity_script).stdout.strip
+    activity_events = json(content: activity_output).params
+    activity_events = [] if activity_events.nil?
+    activity_events = [activity_events] unless activity_events.is_a?(Array)
+
+    compliant_event = activity_events.any? do |event|
+      event['authorization']['scope'].to_s.strip == sa_id.to_s.strip &&
+        event['authorization']['action'] == 'Microsoft.Storage/storageAccounts/regenerateKey/action' &&
+        event['status']['localizedValue'] == 'Succeeded' &&
+        event['status']['value'] == 'Succeeded'
+    end
+
+    describe "Storage Account '#{sa_name}' (Resource Group: #{sa_rg}) key regeneration" do
+      it 'should have at least one successful key regeneration event in the past 90 days' do
+        expect(compliant_event).to cmp true
+      end
+    end
   end
 end
