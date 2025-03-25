@@ -35,7 +35,21 @@ control 'azure-foundations-cis-8.8' do
   ref 'https://docs.microsoft.com/en-us/cli/azure/vm/extension?view=azure-cli-latest#az_vm_extension_list'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-endpoint-security#es-1-use-endpoint-detection-and-response-edr'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  rg_vm = input('resource_group_and_virtual_machine')
+  desired_extensions = input('desired_extensions')
+
+  rg_vm.each_with_index do |element, index|
+    resource_group, virtual_machine = element.split('.')
+    desired_extension_list = desired_extensions[index].drop(1)
+    query = command(%(az vm show -g #{resource_group} -n #{virtual_machine} -d --query "resources[?type=='Microsoft.Compute/virtualMachines/extensions'].{ExtensionName:name}" -o tsv)).stdout
+    extension_names_list = query.empty? ? [] : query.split("\n")
+    differences = (desired_extension_list - extension_names_list) | (extension_names_list - desired_extension_list)
+    describe "Ensure the desired extensions are installed for VM #{virtual_machine}" do
+      subject { differences }
+      it 'is 0' do
+        failure_message = "The following items are different between the desired list and current list of extensions:\n#{differences}"
+        expect(subject).to be_empty, failure_message
+      end
+    end
   end
 end
