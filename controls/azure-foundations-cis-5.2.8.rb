@@ -1,5 +1,5 @@
 control 'azure-foundations-cis-5.2.8' do
-  title "LEGACY] Ensure 'Infrastructure double encryption' for PostgreSQL single server is 'Enabled'"
+  title "[LEGACY] Ensure 'Infrastructure double encryption' for PostgreSQL single server is 'Enabled'"
   desc "Azure Database for PostgreSQL servers should be created with 'infrastructure double encryption' enabled.
         NOTE: This recommendation currently only applies to Single Server, not Flexible Server. See additional information below for details about the planned retirement of Azure PostgreSQL Single Server."
 
@@ -47,7 +47,16 @@ control 'azure-foundations-cis-5.2.8' do
   ref 'https://docs.microsoft.com/en-us/azure/postgresql/howto-double-encryption'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-4-enable-data-at-rest-encryption-by-default'
 
-  describe 'benchmark' do
-    skip 'The check for this control needs to be done manually'
+  single_server = input('postgresql_single_server')
+
+  if single_server
+    describe "[LEGACY] Ensure 'Infrastructure double encryption' for PostgreSQL single server is 'Enabled'" do
+      skip 'The check for this control needs to be done manually'
+    end
+  else
+    impact 0.0
+    describe "[LEGACY] Ensure 'Infrastructure double encryption' for PostgreSQL single server is 'Enabled'" do
+      skip 'N/A for Azure Database for PostgreSQL flexible servers'
+    end
   end
 end

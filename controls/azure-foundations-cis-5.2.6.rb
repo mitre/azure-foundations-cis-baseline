@@ -49,34 +49,42 @@ control 'azure-foundations-cis-5.2.6' do
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.postgresql/get-azpostgresqlconfiguration?view=azps-9.2.0#example-2-get-specified-postgresql-configuration-by-name'
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.postgresql/update-azpostgresqlconfiguration?view=azps-9.2.0#example-1-update-postgresql-configuration-by-name'
 
+  single_server = input('postgresql_single_server')
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
+  if single_server
+    rg_sa_list.each do |pair|
+      resource_group, = pair.split('.')
 
-    postgres_servers_script = <<-EOH
+      postgres_servers_script = <<-EOH
 				Get-AzPostgreSqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
-    EOH
+      EOH
 
-    postgres_servers_output = powershell(postgres_servers_script).stdout.strip
-    postgres_servers = json(content: postgres_servers_output).params
-    postgres_servers = [postgres_servers] unless postgres_servers.is_a?(Array)
+      postgres_servers_output = powershell(postgres_servers_script).stdout.strip
+      postgres_servers = json(content: postgres_servers_output).params
+      postgres_servers = [postgres_servers] unless postgres_servers.is_a?(Array)
 
-    postgres_servers.each do |server|
-      server_name = server['Name']
+      postgres_servers.each do |server|
+        server_name = server['Name']
 
-      describe "PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}' require_secure_transport configuration" do
-        config_script = <<-EOH
+        describe "PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}' require_secure_transport configuration" do
+          config_script = <<-EOH
 						Get-AzPostgreSqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name require_secure_transport | ConvertTo-Json -Depth 10
-        EOH
+          EOH
 
-        config_output = powershell(config_script).stdout.strip
-        configuration = json(content: config_output).params
+          config_output = powershell(config_script).stdout.strip
+          configuration = json(content: config_output).params
 
-        it "should have require_secure_transport set to 'ON'" do
-          expect(configuration['Value']).to cmp 'on'
+          it "should have require_secure_transport set to 'ON'" do
+            expect(configuration['Value']).to cmp 'on'
+          end
         end
       end
+    end
+  else
+    impact 0.0
+    describe "[LEGACY] Ensure server parameter 'log_connections' is set to 'ON' for PostgreSQL single server" do
+      skip 'N/A for Azure Database for PostgreSQL flexible servers'
     end
   end
 end
