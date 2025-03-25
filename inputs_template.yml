@@ -3,7 +3,6 @@ subscription_id: "00000000-0000-0000-0000-000000000000"
 client_id: "00000000-0000-0000-0000-000000000000"
 tenant_id: "00000000-0000-0000-0000-000000000000"
 client_secret: "0000000000000000000000000000000000000000"
-
 # Resource Configuration
 postgresql_single_server: false
 resource_groups_and_storage_accounts:
@@ -60,10 +59,21 @@ custom_policy_id:
   - "test"
 #Control 7.5
 resource_group_and_network_watcher:
-  - "saf-benchmark.saf-vm1-nsg"
+  - "test"
+#Control 8.8
+resource_group_and_virtual_machine:
+  - "test"
+#Control 8.8
+#Format by name of VM as outer list
+#Inner list are name of desired extensions for that VM
+desired_extensions:
+  - - "vm1"
+    - "extension1"
+    - "extension2"
+  - - "vm2"
 #Control 9.2
 resource_group_and_app_name:
-  - "saf-benchmark.saf-web-app"
+  - "test"
 #Control 9.7
 php_version_unsupported_web_app:
   - "1.1"
