@@ -144,7 +144,7 @@ control 'azure-foundations-cis-9.11' do
   ref 'https://docs.microsoft.com/en-us/cli/azure/keyvault?view=azure-cli-latest'
   ref 'https://docs.microsoft.com/en-us/cli/azure/keyvault?view=azure-cli-latest'
 
-  describe 'benchmark' do
+  describe 'Ensure Azure Key Vaults are Used to Store Secrets' do
     skip 'The check for this control needs to be done manually'
   end
 end

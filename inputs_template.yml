@@ -5,6 +5,7 @@ tenant_id: "00000000-0000-0000-0000-000000000000"
 client_secret: "0000000000000000000000000000000000000000"
 
 # Resource Configuration
+postgresql_single_server: false
 resource_groups_and_storage_accounts:
   - "group1.account1"
 key_vault_full_key_uri:
