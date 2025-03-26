@@ -56,7 +56,7 @@ control 'azure-foundations-cis-8.2' do
   ref 'https://docs.microsoft.com/en-us/azure/virtual-machines/faq-for-disks'
   ref 'https://azure.microsoft.com/en-us/pricing/details/managed-disks/'
 
-  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_script = 'Get-AzVM | ConvertTo-Json'
   vm_output = powershell(vm_script).stdout.strip
   all_vms = json(content: all_vms).params
 

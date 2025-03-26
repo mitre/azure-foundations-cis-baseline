@@ -46,7 +46,7 @@ control 'azure-foundations-cis-8.10' do
   tag severity: 'medium'
   tag cis_controls: [{ '8' => ['6.5'] }]
 
-  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_script = 'Get-AzVM | ConvertTo-Json'
   vm_output = powershell(vm_script).stdout.strip
   all_vms = json(content: all_vms).params
 

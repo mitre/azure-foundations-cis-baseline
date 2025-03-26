@@ -69,7 +69,7 @@ control 'azure-foundations-cis-4.7' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
 
-  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
   storage_output = powershell(storage_script).stdout.strip
   all_storage = json(content: storage_output).params
 

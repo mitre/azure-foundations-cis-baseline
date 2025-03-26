@@ -56,7 +56,7 @@ control 'azure-foundations-cis-9.7' do
   ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/security-controls-v3-posture-vulnerability-management#pv-3-establish-secure-configurations-for-compute-resources'
   ref 'https://www.php.net/supported-versions.php'
 
-  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_script = 'Get-AzKeyVault | ConvertTo-Json'
   app_output = powershell(app_script).stdout.strip
   all_apps = json(content: app_output).params
 

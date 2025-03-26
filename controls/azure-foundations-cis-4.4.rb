@@ -62,7 +62,7 @@ control 'azure-foundations-cis-4.4' do
   ref 'https://www.pcidssguide.com/pci-dss-key-rotation-requirements/'
   ref 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'
 
-  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
   storage_output = powershell(storage_script).stdout.strip
   all_storage = json(content: storage_output).params
 

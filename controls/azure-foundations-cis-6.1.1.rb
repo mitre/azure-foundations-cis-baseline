@@ -82,6 +82,21 @@ control 'azure-foundations-cis-6.1.1' do
   ref 'https://learn.microsoft.com/en-us/cli/azure/monitor/diagnostic-settings?view=azure-cli-latest'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
 
+  resource_script = 'Get-AzResource | ConvertTo-Json'
+  resource_output = powershell(resource_script).stdout.strip
+  all_resources = json(content: resource_output).params
+
+  only_if('N/A - No Resources found', impact: 0) do
+    case all_resources
+    when Array
+      !all_resources.empty?
+    when Hash
+      !all_resources.empty?
+    else
+      false
+    end
+  end
+
   subscription_id = input('subscription_id')
 
   activity_diagnostic_setting_exists_for_sub_script = %(

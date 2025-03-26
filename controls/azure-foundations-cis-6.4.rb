@@ -83,7 +83,7 @@ control 'azure-foundations-cis-6.4' do
   ref 'https://docs.microsoft.com/en-us/azure/azure-monitor/platform/diagnostic-logs-schema'
   ref 'https://docs.microsoft.com/en-us/azure/cdn/cdn-azure-diagnostic-logs'
 
-  resource_script = 'Get-AzResource | ConvertTo-Json -Depth 10'
+  resource_script = 'Get-AzResource | ConvertTo-Json'
   resource_output = powershell(resource_script).stdout.strip
   all_resources = json(content: resource_output).params
 

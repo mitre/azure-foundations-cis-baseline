@@ -57,6 +57,21 @@ control 'azure-foundations-cis-6.1.3' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-5-use-customer-managed-key-option-in-data-at-rest-encryption-when-required'
   ref 'https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/activity-log?tabs=cli#managing-legacy-log-profiles'
 
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+
+  only_if('N/A - No Storage Accounts found', impact: 0) do
+    case all_storage
+    when Array
+      !all_storage.empty?
+    when Hash
+      !all_storage.empty?
+    else
+      false
+    end
+  end
+
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
   rg_sa_list.each do |pair|

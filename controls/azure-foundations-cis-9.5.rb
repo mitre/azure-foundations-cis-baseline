@@ -48,7 +48,7 @@ control 'azure-foundations-cis-9.5' do
   ref 'https://docs.microsoft.com/en-gb/azure/app-service/app-service-web-tutorial-connect-msi'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-1-use-centralized-identity-and-authentication-system'
 
-  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_script = 'Get-AzKeyVault | ConvertTo-Json'
   app_output = powershell(app_script).stdout.strip
   all_apps = json(content: app_output).params
 

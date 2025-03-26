@@ -78,7 +78,7 @@ control 'azure-foundations-cis-3.3.1' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-6-use-a-secure-key-management-process'
   ref 'https://docs.microsoft.com/en-us/powershell/module/az.keyvault/set-azkeyvaultkeyattribute?view=azps-0.10.0'
 
-  vault_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  vault_script = 'Get-AzKeyVault | ConvertTo-Json'
   vault_output = powershell(vault_script).stdout.strip
   all_vaults = json(content: vault_output).params
 

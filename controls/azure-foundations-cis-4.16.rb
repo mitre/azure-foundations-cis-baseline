@@ -54,7 +54,7 @@ control 'azure-foundations-cis-4.16' do
 
   ref 'https://learn.microsoft.com/en-us/azure/storage/blobs/object-replication-prevent-cross-tenant-policies?tabs=portal'
 
-  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
   storage_output = powershell(storage_script).stdout.strip
   all_storage = json(content: storage_output).params
 

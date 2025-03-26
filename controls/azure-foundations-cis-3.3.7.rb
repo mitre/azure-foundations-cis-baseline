@@ -110,7 +110,7 @@ control 'azure-foundations-cis-3.3.7' do
   ref 'https://docs.microsoft.com/azure/dns/private-dns-getstarted-cli#create-an-additional-dns-record'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
 
-  vault_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  vault_script = 'Get-AzKeyVault | ConvertTo-Json'
   vault_output = powershell(vault_script).stdout.strip
   all_vaults = json(content: vault_output).params
 

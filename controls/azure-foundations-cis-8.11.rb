@@ -36,7 +36,7 @@ control 'azure-foundations-cis-8.11' do
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch-existing-vm?tabs=portal#enable-trusted-launch-on-existing-vm'
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch#secure-boot'
 
-  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_script = 'Get-AzVM | ConvertTo-Json'
   vm_output = powershell(vm_script).stdout.strip
   all_vms = json(content: all_vms).params
 

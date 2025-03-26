@@ -48,7 +48,7 @@ control 'azure-foundations-cis-10.1' do
   ref 'https://docs.microsoft.com/en-us/azure/governance/blueprints/concepts/resource-locking'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-asset-management#am-4-limit-access-to-asset-management'
 
-  resource_script = 'Get-AzResource | ConvertTo-Json -Depth 10'
+  resource_script = 'Get-AzResource | ConvertTo-Json'
   resource_output = powershell(resource_script).stdout.strip
   all_resources = json(content: resource_output).params
 

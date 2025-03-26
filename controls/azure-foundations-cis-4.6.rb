@@ -71,7 +71,7 @@ control 'azure-foundations-cis-4.6' do
   ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/assign-azure-role-data-access'
   ref 'https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal'
 
-  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
   storage_output = powershell(storage_script).stdout.strip
   all_storage = json(content: storage_output).params
 

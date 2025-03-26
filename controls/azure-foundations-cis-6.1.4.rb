@@ -66,6 +66,21 @@ control 'azure-foundations-cis-6.1.4' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
 
+  vault_script = 'Get-AzKeyVault | ConvertTo-Json'
+  vault_output = powershell(vault_script).stdout.strip
+  all_vaults = json(content: vault_output).params
+
+  only_if('N/A - No Key Vaults found', impact: 0) do
+    case all_vaults
+    when Array
+      !all_vaults.empty?
+    when Hash
+      !all_vaults.empty?
+    else
+      false
+    end
+  end
+
   keyvault_list_script = <<-EOH
     az keyvault list
   EOH

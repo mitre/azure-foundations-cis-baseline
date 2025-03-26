@@ -55,7 +55,7 @@ control 'azure-foundations-cis-8.4' do
   ref 'https://docs.microsoft.com/en-us/cli/azure/disk?view=azure-cli-latest#az-disk-update'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-5-use-customer-managed-key-option-in-data-at-rest-encryption-when-required'
 
-  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_script = 'Get-AzVM | ConvertTo-Json'
   vm_output = powershell(vm_script).stdout.strip
   all_vms = json(content: all_vms).params
 

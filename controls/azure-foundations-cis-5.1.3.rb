@@ -59,7 +59,7 @@ control 'azure-foundations-cis-5.1.3' do
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.sql/get-azsqlservertransparentdataencryptionprotector?view=azps-9.2.0'
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.sql/set-azsqlservertransparentdataencryptionprotector?view=azps-9.2.0'
 
-  servers_script = 'Get-AzSqlServer | ConvertTo-Json -Depth 10'
+  servers_script = 'Get-AzSqlServer | ConvertTo-Json'
   servers_output = powershell(servers_script).stdout.strip
   all_servers = json(content: servers_output).params
 

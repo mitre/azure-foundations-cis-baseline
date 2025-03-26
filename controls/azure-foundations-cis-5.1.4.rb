@@ -62,7 +62,7 @@ control 'azure-foundations-cis-5.1.4' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-1-use-centralized-identity-and-authentication-system'
   ref 'https://docs.microsoft.com/en-us/cli/azure/sql/server/ad-admin?view=azure-cli-latest#az_sql_server_ad_admin_list'
 
-  servers_script = 'Get-AzSqlServer | ConvertTo-Json -Depth 10'
+  servers_script = 'Get-AzSqlServer | ConvertTo-Json'
   servers_output = powershell(servers_script).stdout.strip
   all_servers = json(content: servers_output).params
 

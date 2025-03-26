@@ -42,7 +42,7 @@ control 'azure-foundations-cis-5.3.1' do
   ref 'https://learn.microsoft.com/en-us/azure/mysql/flexible-server/concepts-networking#tls-and-ssl'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-3-encrypt-sensitive-data-in-transit'
 
-  servers_script = 'Get-AzMysqlFlexibleServer | ConvertTo-Json -Depth 10'
+  servers_script = 'Get-AzMysqlFlexibleServer | ConvertTo-Json'
   servers_output = powershell(servers_script).stdout.strip
   all_servers = json(content: servers_output).params
 

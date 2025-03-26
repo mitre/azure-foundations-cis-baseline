@@ -69,7 +69,7 @@ control 'azure-foundations-cis-4.14' do
   ref 'https://docs.microsoft.com/en-us/cli/azure/storage/logging?view=azure-cli-latest'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
 
-  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
   storage_output = powershell(storage_script).stdout.strip
   all_storage = json(content: storage_output).params
 
