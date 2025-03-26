@@ -76,12 +76,26 @@ control 'azure-foundations-cis-5.1.2' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
   ref 'https://learn.microsoft.com/en-us/azure/azure-sql/database/network-access-controls-overview?view=azuresql#allow-azure-services'
 
+  servers_script = 'Get-AzSqlServer | ConvertTo-Json -Depth 10'
+  servers_output = powershell(servers_script).stdout.strip
+  all_servers = json(content: servers_output).params
+
+  only_if('N/A - No Azure SQL Databases found', impact: 0) do
+    case all_servers
+    when Array
+      !all_servers.empty?
+    when Hash
+      !all_servers.empty?
+    else
+      false
+    end
+  end
+
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
   rg_sa_list.each do |pair|
     resource_group, = pair.split('.')
 
-    # Retrieve all SQL Servers in the resource group using PowerShell.
     sql_servers_script = <<-EOH
       Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
@@ -91,10 +105,10 @@ control 'azure-foundations-cis-5.1.2' do
     sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
     sql_servers.each do |server|
-      resource_group_server = server['ResourceGroupName']
       server_name = server['ServerName']
+      resource_group_server = server['ResourceGroupName']
 
-      describe "Firewall rules for SQL Server '#{server_name}' in Resource Group '#{resource_group_server}'" do
+      describe "Firewall rules for SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
         firewall_rules_script = <<-EOH
           Get-AzSqlServerFirewallRule -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
         EOH

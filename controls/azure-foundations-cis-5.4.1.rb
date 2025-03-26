@@ -50,6 +50,8 @@ control 'azure-foundations-cis-5.4.1' do
   ref 'https://docs.microsoft.com/en-us/powershell/module/az.cosmosdb/?view=azps-8.1.0'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
 
+  all_cosmosdb_accounts = []
+
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
   rg_sa_list.each do |pair|
@@ -61,16 +63,30 @@ control 'azure-foundations-cis-5.4.1' do
 
     output = powershell(script).stdout.strip
     accounts = json(content: output).params
-    accounts = [accounts] unless accounts.is_a?(Array)
 
-    accounts.each do |account|
-      account_name = account['Name']
+    if accounts.is_a?(Hash)
+      accounts = accounts.empty? ? [] : [accounts]
+    elsif !accounts.is_a?(Array)
+      accounts = [accounts]
+    end
 
-      describe "Cosmos DB Account '#{account_name}' in Resource Group '#{resource_group}' Virtual Network Filter configuration" do
-        it "should have IsVirtualNetworkFilterEnabled set to 'True'" do
-          expect(account['IsVirtualNetworkFilterEnabled']).to cmp true
+    all_cosmosdb_accounts.concat(accounts)
+
+    if accounts.empty?
+      describe "Cosmos DB Accounts in Resource Group #{resource_group}" do
+        skip "N/A - No Cosmos DB accounts found in Resource Group #{resource_group}"
+      end
+    else
+      accounts.each do |account|
+        account_name = account['Name']
+        describe "Cosmos DB Account '#{account_name}' in Resource Group '#{resource_group}' Virtual Network Filter configuration" do
+          it "should have IsVirtualNetworkFilterEnabled set to 'True'" do
+            expect(account['IsVirtualNetworkFilterEnabled']).to cmp true
+          end
         end
       end
     end
   end
+
+  impact 0.0 if all_cosmosdb_accounts.empty?
 end

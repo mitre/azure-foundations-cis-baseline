@@ -48,6 +48,21 @@ control 'azure-foundations-cis-5.1.6' do
   ref 'https://docs.microsoft.com/en-us/powershell/module/azurerm.sql/get-azurermsqlserverauditing?view=azurermps-5.2.0'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-6-configure-log-storage-retention'
 
+  servers_script = 'Get-AzSqlServer | ConvertTo-Json -Depth 10'
+  servers_output = powershell(servers_script).stdout.strip
+  all_servers = json(content: servers_output).params
+
+  only_if('N/A - No Azure SQL Databases found', impact: 0) do
+    case all_servers
+    when Array
+      !all_servers.empty?
+    when Hash
+      !all_servers.empty?
+    else
+      false
+    end
+  end
+
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
   rg_sa_list.each do |pair|

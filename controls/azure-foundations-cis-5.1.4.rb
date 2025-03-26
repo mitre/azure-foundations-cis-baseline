@@ -62,28 +62,49 @@ control 'azure-foundations-cis-5.1.4' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-1-use-centralized-identity-and-authentication-system'
   ref 'https://docs.microsoft.com/en-us/cli/azure/sql/server/ad-admin?view=azure-cli-latest#az_sql_server_ad_admin_list'
 
-  sql_servers_script = <<-EOH
-    Get-AzSqlServer | ConvertTo-Json -Depth 10
-  EOH
+  servers_script = 'Get-AzSqlServer | ConvertTo-Json -Depth 10'
+  servers_output = powershell(servers_script).stdout.strip
+  all_servers = json(content: servers_output).params
 
-  sql_servers_output = powershell(sql_servers_script).stdout.strip
-  sql_servers = json(content: sql_servers_output).params
-  sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+  only_if('N/A - No Azure SQL Databases found', impact: 0) do
+    case all_servers
+    when Array
+      !all_servers.empty?
+    when Hash
+      !all_servers.empty?
+    else
+      false
+    end
+  end
 
-  sql_servers.each do |server|
-    resource_group = server['ResourceGroupName']
-    server_name = server['ServerName']
+  rg_sa_list = input('resource_groups_and_storage_accounts')
 
-    script = <<-EOH
-      Get-AzSqlServerActiveDirectoryAdministrator -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+  rg_sa_list.each do |pair|
+    resource_group, = pair.split('.')
+
+    sql_servers_script = <<-EOH
+      Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
 
-    output = powershell(script).stdout.strip
-    ad_admin = json(content: output).params
+    sql_servers_output = powershell(sql_servers_script).stdout.strip
+    sql_servers = json(content: sql_servers_output).params
+    sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
-    describe "Microsoft Entra authentication for SQL Server '#{server_name}' in Resource Group '#{resource_group}'" do
-      it 'has a non-empty Admin Name' do
-        expect(ad_admin['DisplayName'].to_s.strip).not_to be_empty
+    sql_servers.each do |server|
+      server_name = server['ServerName']
+      resource_group_server = server['ResourceGroupName']
+
+      script = <<-EOH
+        Get-AzSqlServerActiveDirectoryAdministrator -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+      EOH
+
+      output = powershell(script).stdout.strip
+      ad_admin = json(content: output).params
+
+      describe "Microsoft Entra authentication for SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
+        it 'has a non-empty Admin Name' do
+          expect(ad_admin['DisplayName'].to_s.strip).not_to be_empty
+        end
       end
     end
   end
