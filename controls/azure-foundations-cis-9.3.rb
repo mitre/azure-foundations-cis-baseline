@@ -62,6 +62,21 @@ control 'azure-foundations-cis-9.3' do
   ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/security-controls-v3-posture-vulnerability-management#pv-7-rapidly-and-automatically-remediate-software-vulnerabilities'
   ref 'https://learn.microsoft.com/en-us/rest/api/appservice/web-apps/create-or-update-configuration#ftpsstate'
 
+  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_output = powershell(app_script).stdout.strip
+  all_apps = json(content: app_output).params
+
+  only_if('N/A - No Web Applications found', impact: 0) do
+    case all_apps
+    when Array
+      !all_apps.empty?
+    when Hash
+      !all_apps.empty?
+    else
+      false
+    end
+  end
+
   ftps_state_set_to_ftps_only_script = %(
         $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
         foreach ($webApp in $filteredWebApps) {

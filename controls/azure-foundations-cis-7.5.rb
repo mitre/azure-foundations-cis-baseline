@@ -44,6 +44,21 @@ control 'azure-foundations-cis-7.5' do
   ref 'https://docs.microsoft.com/en-us/cli/azure/network/watcher/flow-log?view=azure-cli-latest'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-6-configure-log-storage-retention'
 
+  nsg_script = 'az network nsg list'
+  nsg_output = powershell(nsg_script).stdout.strip
+  all_nsgs = json(content: nsg_output).params
+
+  only_if('N/A - No Network Security Groups found', impact: 0) do
+    case all_nsgs
+    when Array
+      !all_nsgs.empty?
+    when Hash
+      !all_nsgs.empty?
+    else
+      false
+    end
+  end
+
   rg_nsg_list = input('resource_group_and_network_watcher')
   rg_nsg_list.each do |pair|
     rg, nsg = pair.split('.')

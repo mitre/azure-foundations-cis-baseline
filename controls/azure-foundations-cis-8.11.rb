@@ -36,6 +36,21 @@ control 'azure-foundations-cis-8.11' do
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch-existing-vm?tabs=portal#enable-trusted-launch-on-existing-vm'
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch#secure-boot'
 
+  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_output = powershell(vm_script).stdout.strip
+  all_vms = json(content: all_vms).params
+
+  only_if('N/A - No Virtual Machines found', impact: 0) do
+    case all_vms
+    when Array
+      !all_vms.empty?
+    when Hash
+      !all_vms.empty?
+    else
+      false
+    end
+  end
+
   describe 'Ensure Trusted Launch is enabled on Virtual Machines' do
     skip 'The check for this control needs to be done manually'
   end

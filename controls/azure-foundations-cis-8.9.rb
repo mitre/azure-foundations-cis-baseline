@@ -58,6 +58,21 @@ control 'azure-foundations-cis-8.9' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-4-enable-data-at-rest-encryption-by-default'
   ref 'https://docs.microsoft.com/en-us/previous-versions/azure/virtual-machines/scripts/virtual-machines-powershell-sample-create-managed-disk-from-vhd'
 
+  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_output = powershell(vm_script).stdout.strip
+  all_vms = json(content: all_vms).params
+
+  only_if('N/A - No Virtual Machines found', impact: 0) do
+    case all_vms
+    when Array
+      !all_vms.empty?
+    when Hash
+      !all_vms.empty?
+    else
+      false
+    end
+  end
+
   only_approved_extensions_approved_script = %(
     $vms = Get-AzVM
 
@@ -92,7 +107,9 @@ control 'azure-foundations-cis-8.9' do
         }
     }
   )
+
   pwsh_output = powershell(only_approved_extensions_approved_script)
+
   describe "Ensure the number of resource group/VMs that has storageAccount.Encryption.Services.Blob set to 'False'" do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do

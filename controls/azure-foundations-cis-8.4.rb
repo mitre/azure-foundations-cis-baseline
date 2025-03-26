@@ -55,6 +55,21 @@ control 'azure-foundations-cis-8.4' do
   ref 'https://docs.microsoft.com/en-us/cli/azure/disk?view=azure-cli-latest#az-disk-update'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-5-use-customer-managed-key-option-in-data-at-rest-encryption-when-required'
 
+  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_output = powershell(vm_script).stdout.strip
+  all_vms = json(content: all_vms).params
+
+  only_if('N/A - No Virtual Machines found', impact: 0) do
+    case all_vms
+    when Array
+      !all_vms.empty?
+    when Hash
+      !all_vms.empty?
+    else
+      false
+    end
+  end
+
   unattached_list = command("az disk list --query '[? diskstate == `Unattached`].{encryptionSettings: encryptionSettings, name: name}' -o json").stdout.strip
 
   describe 'Ensure that the number of unattached disks without encryption' do

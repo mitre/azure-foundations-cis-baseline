@@ -50,6 +50,21 @@ control 'azure-foundations-cis-9.1' do
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.websites/set-azwebapp'
   ref 'https://techcommunity.microsoft.com/t5/azure-paas-blog/enable-https-setting-on-azure-app-service-using-azure-policy/ba-p/3286603'
 
+  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_output = powershell(app_script).stdout.strip
+  all_apps = json(content: app_output).params
+
+  only_if('N/A - No Web Applications found', impact: 0) do
+    case all_apps
+    when Array
+      !all_apps.empty?
+    when Hash
+      !all_apps.empty?
+    else
+      false
+    end
+  end
+
   https_only_set_on_script = %(
     $webApps = Get-AzWebApp
     # Filter web apps where HttpsOnly is not set to True

@@ -55,6 +55,21 @@ control 'azure-foundations-cis-9.10' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-posture-vulnerability-management#pv-3-define-and-establish-secure-configurations-for-compute-resources'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-posture-vulnerability-management#pv-6-rapidly-and-automatically-remediate-vulnerabilities'
 
+  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_output = powershell(app_script).stdout.strip
+  all_apps = json(content: app_output).params
+
+  only_if('N/A - No Web Applications found', impact: 0) do
+    case all_apps
+    when Array
+      !all_apps.empty?
+    when Hash
+      !all_apps.empty?
+    else
+      false
+    end
+  end
+
   ensure_http20_set_to_true_script = %(
     $ErrorActionPreference = "Stop"
     $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name

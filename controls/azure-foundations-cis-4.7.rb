@@ -69,6 +69,21 @@ control 'azure-foundations-cis-4.7' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-2-define-and-implement-enterprise-segmentationseparation-of-duties-strategy'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-2-secure-cloud-native-services-with-network-controls'
 
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+
+  only_if('N/A - No Storage Accounts found', impact: 0) do
+    case all_storage
+    when Array
+      !all_storage.empty?
+    when Hash
+      !all_storage.empty?
+    else
+      false
+    end
+  end
+
   subscription_id = input('subscription_id')
   rg_sa_list = input('resource_groups_and_storage_accounts')
 

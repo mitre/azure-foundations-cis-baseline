@@ -63,6 +63,21 @@ control 'azure-foundations-cis-4.15' do
   ref 'https://docs.microsoft.com/en-us/azure/storage/common/transport-layer-security-configure-minimum-version?tabs=portal'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-3-encrypt-sensitive-data-in-transit'
 
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+
+  only_if('N/A - No Storage Accounts found', impact: 0) do
+    case all_storage
+    when Array
+      !all_storage.empty?
+    when Hash
+      !all_storage.empty?
+    else
+      false
+    end
+  end
+
   subscription_id = input('subscription_id')
   rg_sa_list = input('resource_groups_and_storage_accounts')
 

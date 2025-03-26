@@ -50,6 +50,21 @@ control 'azure-foundations-cis-8.7' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-asset-management#am-2-use-only-approved-services'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-asset-management#am-5-use-only-approved-applications-in-virtual-machine'
 
+  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_output = powershell(vm_script).stdout.strip
+  all_vms = json(content: all_vms).params
+
+  only_if('N/A - No Virtual Machines found', impact: 0) do
+    case all_vms
+    when Array
+      !all_vms.empty?
+    when Hash
+      !all_vms.empty?
+    else
+      false
+    end
+  end
+
   unauthorized_extension_names = input('unauthorized_extension_names')
   unauthorized_extension_names_pattern = unauthorized_extension_names.map { |extension_name| "'#{extension_name}'" }.join(', ')
 
@@ -103,7 +118,9 @@ control 'azure-foundations-cis-8.7' do
         }
     }
   )
+
   pwsh_output = powershell(only_approved_extensions_approved_script)
+
   raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure the number of resource group/VMs that have non-approved Names, Extention Type, or Provisioning State settings' do

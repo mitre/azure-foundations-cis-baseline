@@ -49,6 +49,21 @@ control 'azure-foundations-cis-9.4' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-8-detect-and-disable-insecure-services-and-protocols'
   ref 'https://docs.microsoft.com/en-us/powershell/module/az.websites/set-azwebapp?view=azps-8.1.0'
 
+  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_output = powershell(app_script).stdout.strip
+  all_apps = json(content: app_output).params
+
+  only_if('N/A - No Web Applications found', impact: 0) do
+    case all_apps
+    when Array
+      !all_apps.empty?
+    when Hash
+      !all_apps.empty?
+    else
+      false
+    end
+  end
+
   ensure_web_app_using_latest_tls_script = %(
         $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
         foreach ($webApp in $filteredWebApps) {

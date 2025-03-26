@@ -71,21 +71,20 @@ control 'azure-foundations-cis-4.6' do
   ref 'https://docs.microsoft.com/en-us/azure/storage/blobs/assign-azure-role-data-access'
   ref 'https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security?tabs=azure-portal'
 
-  # rg_sa_list = input('resource_groups_and_storage_accounts')
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
 
-  # rg_sa_list.each do |pair|
-  #     resource_group, storage_account = pair.split('.')
-
-  #     describe "Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-  #         script = <<-EOH
-  #             (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").PublicNetworkAccess
-  #         EOH
-
-  #         describe powershell(script) do
-  #             its('stdout.strip') { should cmp 'Disabled' }
-  #         end
-  #     end
-  # end
+  only_if('N/A - No Storage Accounts found', impact: 0) do
+    case all_storage
+    when Array
+      !all_storage.empty?
+    when Hash
+      !all_storage.empty?
+    else
+      false
+    end
+  end
 
   rg_sa_list = input('resource_groups_and_storage_accounts')
 

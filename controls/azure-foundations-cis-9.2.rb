@@ -64,6 +64,21 @@ control 'azure-foundations-cis-9.2' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
 
+  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_output = powershell(app_script).stdout.strip
+  all_apps = json(content: app_output).params
+
+  only_if('N/A - No Web Applications found', impact: 0) do
+    case all_apps
+    when Array
+      !all_apps.empty?
+    when Hash
+      !all_apps.empty?
+    else
+      false
+    end
+  end
+
   rg_an_list = input('resource_group_and_app_name')
 
   rg_an_list.each do |pair|

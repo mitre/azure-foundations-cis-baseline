@@ -85,6 +85,21 @@ control 'azure-foundations-cis-4.3' do
   ref 'https://www.pcidssguide.com/pci-dss-key-rotation-requirements/'
   ref 'https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf'
 
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+
+  only_if('N/A - No Storage Accounts found', impact: 0) do
+    case all_storage
+    when Array
+      !all_storage.empty?
+    when Hash
+      !all_storage.empty?
+    else
+      false
+    end
+  end
+
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
   rg_sa_list.each do |pair|
