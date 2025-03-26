@@ -54,6 +54,21 @@ control 'azure-foundations-cis-5.3.3' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
   ref 'https://learn.microsoft.com/en-us/azure/mysql/flexible-server/tutorial-configure-audit#configure-auditing-by-using-the-azure-cli'
 
+  servers_script = 'Get-AzMysqlFlexibleServer | ConvertTo-Json -Depth 10'
+  servers_output = powershell(servers_script).stdout.strip
+  all_servers = json(content: servers_output).params
+
+  only_if('N/A - No MySQL Flexible Servers found', impact: 0) do
+    case all_servers
+    when Array
+      !all_servers.empty?
+    when Hash
+      !all_servers.empty?
+    else
+      false
+    end
+  end
+
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
   rg_sa_list.each do |pair|

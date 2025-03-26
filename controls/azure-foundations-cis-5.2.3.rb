@@ -48,6 +48,21 @@ control 'azure-foundations-cis-5.2.3' do
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.postgresql/get-azpostgresqlflexibleserverconfiguration?view=azps-12.2.0#example-1-get-specified-postgresql-configuration-by-name'
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.postgresql/update-azpostgresqlflexibleserverconfiguration?view=azps-12.2.0#example-1-updatae-specified-postgresql-configuration-by-name'
 
+  servers_script = 'Get-AzPostgreSqlFlexibleServer | ConvertTo-Json -Depth 10'
+  servers_output = powershell(servers_script).stdout.strip
+  all_servers = json(content: servers_output).params
+
+  only_if('N/A - No PostgreSQL Flexible Servers found', impact: 0) do
+    case all_servers
+    when Array
+      !all_servers.empty?
+    when Hash
+      !all_servers.empty?
+    else
+      false
+    end
+  end
+
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
   rg_sa_list.each do |pair|

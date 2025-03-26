@@ -52,25 +52,51 @@ control 'azure-foundations-cis-5.1.1' do
   ref 'https://docs.microsoft.com/en-us/azure/sql-database/sql-database-auditing'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
 
-  sql_servers_script = <<-EOH
-    Get-AzSqlServer | ConvertTo-Json -Depth 10
-  EOH
+  servers_script = 'Get-AzSqlServer | ConvertTo-Json -Depth 10'
+  servers_output = powershell(servers_script).stdout.strip
+  all_servers = json(content: servers_output).params
 
-  sql_servers_output = powershell(sql_servers_script).stdout.strip
-  sql_servers = json(content: sql_servers_output).params
-  sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+  only_if('N/A - No Azure SQL Databases found', impact: 0) do
+    case all_servers
+    when Array
+      !all_servers.empty?
+    when Hash
+      !all_servers.empty?
+    else
+      false
+    end
+  end
 
-  sql_servers.each do |server|
-    resource_group = server['ResourceGroupName']
-    server_name = server['ServerName']
+  rg_sa_list = input('resource_groups_and_storage_accounts')
 
-    describe "SQL Server Audit Settings for #{server_name} (Resource Group: #{resource_group})" do
-      audit = json(command: "Get-AzSqlServerAudit -ResourceGroupName \"#{resource_group}\" -ServerName \"#{server_name}\" | ConvertTo-Json -Depth 10").params
-      it 'has at least one audit target enabled' do
-        blob_enabled = audit['BlobStorageTargetState'] == 'Enabled'
-        eventhub_enabled = audit['EventHubTargetState'] == 'Enabled'
-        loganalytics_enabled = audit['LogAnalyticsTargetState'] == 'Enabled'
-        expect(blob_enabled || eventhub_enabled || loganalytics_enabled).to cmp true
+  rg_sa_list.each do |pair|
+    resource_group, = pair.split('.')
+
+    sql_servers_script = <<-EOH
+      Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+    EOH
+
+    sql_servers_output = powershell(sql_servers_script).stdout.strip
+    sql_servers = json(content: sql_servers_output).params
+    sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+
+    sql_servers.each do |server|
+      server_name = server['ServerName']
+
+      describe "SQL Server Audit Settings for #{server_name} (Resource Group: #{resource_group})" do
+        audit_script = <<-EOH
+          Get-AzSqlServerAudit -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+        EOH
+
+        audit_output = powershell(audit_script).stdout.strip
+        audit = json(content: audit_output).params
+
+        it 'has at least one audit target enabled' do
+          blob_enabled = audit['BlobStorageTargetState'] == 'Enabled'
+          eventhub_enabled = audit['EventHubTargetState'] == 'Enabled'
+          loganalytics_enabled = audit['LogAnalyticsTargetState'] == 'Enabled'
+          expect(blob_enabled || eventhub_enabled || loganalytics_enabled).to cmp true
+        end
       end
     end
   end

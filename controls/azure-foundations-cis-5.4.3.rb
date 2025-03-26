@@ -32,6 +32,8 @@ control 'azure-foundations-cis-5.4.3' do
 
   ref 'https://learn.microsoft.com/en-us/azure/cosmos-db/role-based-access-control'
 
+  all_cosmos_accounts = []
+
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
   rg_sa_list.each do |pair|
@@ -43,23 +45,38 @@ control 'azure-foundations-cis-5.4.3' do
 
     cosmos_accounts_output = powershell(cosmos_accounts_script).stdout.strip
     cosmos_accounts = json(content: cosmos_accounts_output).params
-    cosmos_accounts = [cosmos_accounts] unless cosmos_accounts.is_a?(Array)
 
-    cosmos_accounts.each do |account|
-      cosmosdb_account = account['Name']
+    if cosmos_accounts.is_a?(Hash)
+      cosmos_accounts = cosmos_accounts.empty? ? [] : [cosmos_accounts]
+    elsif !cosmos_accounts.is_a?(Array)
+      cosmos_accounts = [cosmos_accounts]
+    end
 
-      cosmosdb_show_script = <<-EOH
-        az cosmosdb show --name "#{cosmosdb_account}" --resource-group "#{resource_group}"
-      EOH
+    all_cosmos_accounts.concat(cosmos_accounts)
 
-      cosmosdb_output = powershell(cosmosdb_show_script).stdout.strip
-      cosmosdb_json = json(content: cosmosdb_output).params
+    if cosmos_accounts.empty?
+      describe "Cosmos DB Accounts in Resource Group #{resource_group}" do
+        skip "N/A - No Cosmos DB accounts found in Resource Group #{resource_group}"
+      end
+    else
+      cosmos_accounts.each do |account|
+        cosmosdb_account = account['Name']
 
-      describe "Cosmos DB account '#{cosmosdb_account}' in Resource Group '#{resource_group}'" do
-        it "should have disableLocalAuth set to 'True'" do
-          expect(cosmosdb_json['disableLocalAuth']).to cmp true
+        cosmosdb_show_script = <<-EOH
+          az cosmosdb show --name "#{cosmosdb_account}" --resource-group "#{resource_group}"
+        EOH
+
+        cosmosdb_output = powershell(cosmosdb_show_script).stdout.strip
+        cosmosdb_json = json(content: cosmosdb_output).params
+
+        describe "Cosmos DB account '#{cosmosdb_account}' in Resource Group '#{resource_group}'" do
+          it "should have disableLocalAuth set to 'True'" do
+            expect(cosmosdb_json['disableLocalAuth']).to cmp true
+          end
         end
       end
     end
   end
+
+  impact 0.0 if all_cosmos_accounts.empty?
 end

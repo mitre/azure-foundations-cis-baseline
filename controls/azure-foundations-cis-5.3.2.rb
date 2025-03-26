@@ -61,6 +61,21 @@ control 'azure-foundations-cis-5.3.2' do
   ref 'https://learn.microsoft.com/en-us/azure/mysql/flexible-server/how-to-connect-tls-ssl'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-3-encrypt-sensitive-data-in-transit'
 
+  servers_script = 'Get-AzMysqlFlexibleServer | ConvertTo-Json -Depth 10'
+  servers_output = powershell(servers_script).stdout.strip
+  all_servers = json(content: servers_output).params
+
+  only_if('N/A - No MySQL Flexible Servers found', impact: 0) do
+    case all_servers
+    when Array
+      !all_servers.empty?
+    when Hash
+      !all_servers.empty?
+    else
+      false
+    end
+  end
+
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
   rg_sa_list.each do |pair|

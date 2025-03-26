@@ -59,6 +59,21 @@ control 'azure-foundations-cis-5.1.3' do
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.sql/get-azsqlservertransparentdataencryptionprotector?view=azps-9.2.0'
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.sql/set-azsqlservertransparentdataencryptionprotector?view=azps-9.2.0'
 
+  servers_script = 'Get-AzSqlServer | ConvertTo-Json -Depth 10'
+  servers_output = powershell(servers_script).stdout.strip
+  all_servers = json(content: servers_output).params
+
+  only_if('N/A - No Azure SQL Databases found', impact: 0) do
+    case all_servers
+    when Array
+      !all_servers.empty?
+    when Hash
+      !all_servers.empty?
+    else
+      false
+    end
+  end
+
   expected_full_keys = input('key_vault_full_key_uri')
 
   expected_values = expected_full_keys.map do |full_uri|
@@ -74,38 +89,44 @@ control 'azure-foundations-cis-5.1.3' do
     }
   end.compact
 
-  sql_servers_script = <<-EOH
-    Get-AzSqlServer | ConvertTo-Json -Depth 10
-  EOH
+  rg_sa_list = input('resource_groups_and_storage_accounts')
 
-  sql_servers_output = powershell(sql_servers_script).stdout.strip
-  sql_servers = json(content: sql_servers_output).params
-  sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+  rg_sa_list.each do |pair|
+    resource_group, = pair.split('.')
 
-  sql_servers.each do |server|
-    resource_group = server['ResourceGroupName']
-    server_name = server['ServerName']
+    sql_servers_script = <<-EOH
+      Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+    EOH
 
-    describe "Transparent Data Encryption Protector for SQL Server #{server_name} (Resource Group: #{resource_group})" do
-      tde_script = <<-EOH
-        Get-AzSqlServerTransparentDataEncryptionProtector -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
-      EOH
+    sql_servers_output = powershell(sql_servers_script).stdout.strip
+    sql_servers = json(content: sql_servers_output).params
+    sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
-      tde_output = powershell(tde_script).stdout.strip
-      tde = json(content: tde_output).params
+    sql_servers.each do |server|
+      server_name = server['ServerName']
+      resource_group_server = server['ResourceGroupName']
 
-      it "should have Type set to 'AzureKeyVault'" do
-        expect(tde['Type']).to cmp 0
-      end
+      describe "Transparent Data Encryption Protector for SQL Server #{server_name} (Resource Group: #{resource_group_server})" do
+        tde_script = <<-EOH
+          Get-AzSqlServerTransparentDataEncryptionProtector -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+        EOH
 
-      it 'should have ServerKeyVaultKeyName in one of the allowed formats' do
-        allowed_names = expected_values.map { |v| v['ServerKeyVaultKeyName'] }
-        expect(allowed_names).to include(tde['ServerKeyVaultKeyName'])
-      end
+        tde_output = powershell(tde_script).stdout.strip
+        tde = json(content: tde_output).params
 
-      it 'should have KeyId in one of the allowed formats' do
-        allowed_ids = expected_values.map { |v| v['KeyId'] }
-        expect(allowed_ids).to include(tde['KeyId'])
+        it "should have Type set to 'AzureKeyVault'" do
+          expect(tde['Type']).to cmp 0
+        end
+
+        it 'should have ServerKeyVaultKeyName in one of the allowed formats' do
+          allowed_names = expected_values.map { |v| v['ServerKeyVaultKeyName'] }
+          expect(allowed_names).to include(tde['ServerKeyVaultKeyName'])
+        end
+
+        it 'should have KeyId in one of the allowed formats' do
+          allowed_ids = expected_values.map { |v| v['KeyId'] }
+          expect(allowed_ids).to include(tde['KeyId'])
+        end
       end
     end
   end
