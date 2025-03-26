@@ -28,6 +28,21 @@ control 'azure-foundations-cis-7.7' do
   ref 'https://docs.microsoft.com/en-us/cli/azure/network/public-ip?view=azure-cli-latest'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security'
 
+  nsg_script = 'az network nsg list'
+  nsg_output = powershell(nsg_script).stdout.strip
+  all_nsgs = json(content: nsg_output).params
+
+  only_if('N/A - No Network Security Groups found', impact: 0) do
+    case all_nsgs
+    when Array
+      !all_nsgs.empty?
+    when Hash
+      !all_nsgs.empty?
+    else
+      false
+    end
+  end
+
   relevant_public_ips = input('relevant_public_ip_addresses')
   azure_cli_ip_list = command('az network public-ip list --query "[].name" -o tsv').stdout.split("\n").reject(&:empty?)
 

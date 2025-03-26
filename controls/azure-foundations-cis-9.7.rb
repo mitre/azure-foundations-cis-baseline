@@ -56,6 +56,21 @@ control 'azure-foundations-cis-9.7' do
   ref 'https://docs.microsoft.com/en-us/security/benchmark/azure/security-controls-v3-posture-vulnerability-management#pv-3-establish-secure-configurations-for-compute-resources'
   ref 'https://www.php.net/supported-versions.php'
 
+  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_output = powershell(app_script).stdout.strip
+  all_apps = json(content: app_output).params
+
+  only_if('N/A - No Web Applications found', impact: 0) do
+    case all_apps
+    when Array
+      !all_apps.empty?
+    when Hash
+      !all_apps.empty?
+    else
+      false
+    end
+  end
+
   php_version_unsupported_web_app = input('php_version_unsupported_web_app')
   php_version_unsupported_web_app_list = php_version_unsupported_web_app.map { |php_version| "'#{php_version}'" }.join(', ')
   ensure_web_app_php_version_supported_script = %(

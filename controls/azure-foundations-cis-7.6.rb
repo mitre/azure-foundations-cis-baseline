@@ -47,6 +47,21 @@ control 'azure-foundations-cis-7.6' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-4-enable-network-logging-for-security-investigation'
   ref 'https://azure.microsoft.com/en-ca/pricing/details/network-watcher/'
 
+  nsg_script = 'az network nsg list'
+  nsg_output = powershell(nsg_script).stdout.strip
+  all_nsgs = json(content: nsg_output).params
+
+  only_if('N/A - No Network Security Groups found', impact: 0) do
+    case all_nsgs
+    when Array
+      !all_nsgs.empty?
+    when Hash
+      !all_nsgs.empty?
+    else
+      false
+    end
+  end
+
   ensure_provision_state_succeeds_script = %(
     $networkWatchersNotSucceeded = Get-AzNetworkWatcher | Where-Object { $_.ProvisioningState -ne 'Succeeded' }
 

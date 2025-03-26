@@ -110,6 +110,21 @@ control 'azure-foundations-cis-3.3.7' do
   ref 'https://docs.microsoft.com/azure/dns/private-dns-getstarted-cli#create-an-additional-dns-record'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-8-ensure-security-of-key-and-certificate-repository'
 
+  vault_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  vault_output = powershell(vault_script).stdout.strip
+  all_vaults = json(content: vault_output).params
+
+  only_if('N/A - No Key Vaults found', impact: 0) do
+    case all_vaults
+    when Array
+      !all_vaults.empty?
+    when Hash
+      !all_vaults.empty?
+    else
+      false
+    end
+  end
+
   subscription_id = input('subscription_id')
 
   check_private_endpoints_non_null_script = %(

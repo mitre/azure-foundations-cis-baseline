@@ -63,6 +63,21 @@ control 'azure-foundations-cis-9.9' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-posture-vulnerability-management#pv-6-rapidly-and-automatically-remediate-vulnerabilities'
   ref 'https://www.oracle.com/java/technologies/java-se-support-roadmap.html'
 
+  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_output = powershell(app_script).stdout.strip
+  all_apps = json(content: app_output).params
+
+  only_if('N/A - No Web Applications found', impact: 0) do
+    case all_apps
+    when Array
+      !all_apps.empty?
+    when Hash
+      !all_apps.empty?
+    else
+      false
+    end
+  end
+
   java_version_unsupported_web_app = input('java_version_unsupported_web_app')
   java_version_unsupported_web_app_list = java_version_unsupported_web_app.map { |java_version| "'#{java_version}'" }.join(', ')
   ensure_web_app_java_version_supported_script = %(

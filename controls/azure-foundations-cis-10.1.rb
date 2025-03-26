@@ -48,6 +48,21 @@ control 'azure-foundations-cis-10.1' do
   ref 'https://docs.microsoft.com/en-us/azure/governance/blueprints/concepts/resource-locking'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-asset-management#am-4-limit-access-to-asset-management'
 
+  resource_script = 'Get-AzResource | ConvertTo-Json -Depth 10'
+  resource_output = powershell(resource_script).stdout.strip
+  all_resources = json(content: resource_output).params
+
+  only_if('N/A - No Resources found', impact: 0) do
+    case all_resources
+    when Array
+      !all_resources.empty?
+    when Hash
+      !all_resources.empty?
+    else
+      false
+    end
+  end
+
   ensure_resource_locks_set_script = %(
         # Get all resources in the subscription
         $resources = Get-AzResource
@@ -81,7 +96,9 @@ control 'azure-foundations-cis-10.1' do
             }
         }
   )
+
   pwsh_output = powershell(ensure_resource_locks_set_script)
+
   describe 'Ensure the number of resources with Properties setting not set to CanNotDelete or ReadOnly' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do

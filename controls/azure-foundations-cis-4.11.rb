@@ -65,6 +65,21 @@ control 'azure-foundations-cis-4.11' do
   ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-service-encryption#azure-storage-encryption-versus-disk-encryption'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-5-use-customer-managed-key-option-in-data-at-rest-encryption-when-required'
 
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+
+  only_if('N/A - No Storage Accounts found', impact: 0) do
+    case all_storage
+    when Array
+      !all_storage.empty?
+    when Hash
+      !all_storage.empty?
+    else
+      false
+    end
+  end
+
   subscription_id = input('subscription_id')
   rg_sa_list = input('resource_groups_and_storage_accounts')
 

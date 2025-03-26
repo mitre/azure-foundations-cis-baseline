@@ -83,6 +83,21 @@ control 'azure-foundations-cis-6.4' do
   ref 'https://docs.microsoft.com/en-us/azure/azure-monitor/platform/diagnostic-logs-schema'
   ref 'https://docs.microsoft.com/en-us/azure/cdn/cdn-azure-diagnostic-logs'
 
+  resource_script = 'Get-AzResource | ConvertTo-Json -Depth 10'
+  resource_output = powershell(resource_script).stdout.strip
+  all_resources = json(content: resource_output).params
+
+  only_if('N/A - No Resources found', impact: 0) do
+    case all_resources
+    when Array
+      !all_resources.empty?
+    when Hash
+      !all_resources.empty?
+    else
+      false
+    end
+  end
+
   subscription_id = input('subscription_id')
 
   describe "Diagnostic Settings across all resources in Subscription #{subscription_id}" do

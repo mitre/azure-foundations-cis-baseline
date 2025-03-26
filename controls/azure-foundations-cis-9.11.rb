@@ -144,6 +144,21 @@ control 'azure-foundations-cis-9.11' do
   ref 'https://docs.microsoft.com/en-us/cli/azure/keyvault?view=azure-cli-latest'
   ref 'https://docs.microsoft.com/en-us/cli/azure/keyvault?view=azure-cli-latest'
 
+  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_output = powershell(app_script).stdout.strip
+  all_apps = json(content: app_output).params
+
+  only_if('N/A - No Web Applications found', impact: 0) do
+    case all_apps
+    when Array
+      !all_apps.empty?
+    when Hash
+      !all_apps.empty?
+    else
+      false
+    end
+  end
+
   describe 'Ensure Azure Key Vaults are Used to Store Secrets' do
     skip 'The check for this control needs to be done manually'
   end

@@ -49,6 +49,21 @@ control 'azure-foundations-cis-6.3.1' do
 
   ref 'https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview'
 
+  insight_script = 'Get-AzApplicationInsights | ConvertTo-Json -Depth 10'
+  insight_output = powershell(insight_script).stdout.strip
+  all_insights = json(content: insight_output).params
+
+  only_if('N/A - No Application Insights found', impact: 0) do
+    case all_insights
+    when Array
+      !all_insights.empty?
+    when Hash
+      !all_insights.empty?
+    else
+      false
+    end
+  end
+
   subscription_id = input('subscription_id')
 
   describe "Application Insights configuration for Subscription '#{subscription_id}'" do

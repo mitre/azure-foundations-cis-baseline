@@ -87,6 +87,21 @@ control 'azure-foundations-cis-4.2' do
   ref 'https://docs.microsoft.com/en-us/azure/storage/common/infrastructure-encryption-enable'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-4-enable-data-at-rest-encryption-by-default'
 
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+
+  only_if('N/A - No Storage Accounts found', impact: 0) do
+    case all_storage
+    when Array
+      !all_storage.empty?
+    when Hash
+      !all_storage.empty?
+    else
+      false
+    end
+  end
+
   query = command('az storage account list --query "[?encryption.requireInfrastructureEncryption==\`false\`].{Name:name}" --output tsv').stdout
 
   describe "Ensure that the number of storage accounts with InfrastructureEncryption setting set to 'False" do

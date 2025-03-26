@@ -75,6 +75,21 @@ control 'azure-foundations-cis-3.3.4' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-6-use-a-secure-key-management-process'
   ref 'https://docs.microsoft.com/en-us/powershell/module/az.keyvault/set-azkeyvaultsecret?view=azps-7.4.0'
 
+  vault_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  vault_output = powershell(vault_script).stdout.strip
+  all_vaults = json(content: vault_output).params
+
+  only_if('N/A - No Key Vaults found', impact: 0) do
+    case all_vaults
+    when Array
+      !all_vaults.empty?
+    when Hash
+      !all_vaults.empty?
+    else
+      false
+    end
+  end
+
   non_rbac_secrets_appropriate_expiry_date = input('non_rbac_secrets_appropriate_expiry_date')
   non_rbac_secrets_dates_list = non_rbac_secrets_appropriate_expiry_date.map { |secret_date| "'#{secret_date}'" }.join(', ')
 

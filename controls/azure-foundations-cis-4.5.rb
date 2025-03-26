@@ -34,6 +34,21 @@ control 'azure-foundations-cis-4.5' do
   ref 'https://docs.microsoft.com/en-us/rest/api/storageservices/delegating-access-with-a-shared-access-signature'
   ref 'https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview'
 
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+
+  only_if('N/A - No Storage Accounts found', impact: 0) do
+    case all_storage
+    when Array
+      !all_storage.empty?
+    when Hash
+      !all_storage.empty?
+    else
+      false
+    end
+  end
+
   describe 'Ensure that Shared Access Signature Tokens Expire Within an Hour' do
     skip 'The check for this control needs to be done manually'
   end

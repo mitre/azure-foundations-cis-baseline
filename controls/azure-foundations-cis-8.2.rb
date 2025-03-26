@@ -56,6 +56,21 @@ control 'azure-foundations-cis-8.2' do
   ref 'https://docs.microsoft.com/en-us/azure/virtual-machines/faq-for-disks'
   ref 'https://azure.microsoft.com/en-us/pricing/details/managed-disks/'
 
+  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_output = powershell(vm_script).stdout.strip
+  all_vms = json(content: all_vms).params
+
+  only_if('N/A - No Virtual Machines found', impact: 0) do
+    case all_vms
+    when Array
+      !all_vms.empty?
+    when Hash
+      !all_vms.empty?
+    else
+      false
+    end
+  end
+
   ensure_vms_using_managed_disks_script = %(
     $vmNames = Get-AzVM | ForEach-Object {
     if (-not $_.StorageProfile.OsDisk.ManagedDisk.Id) {
@@ -64,7 +79,9 @@ control 'azure-foundations-cis-8.2' do
     }
     $vmNames -join ', '
   )
+
   pwsh_output = powershell(ensure_vms_using_managed_disks_script)
+
   describe 'Ensure the number of VMs with ManagedDisk state empty' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do

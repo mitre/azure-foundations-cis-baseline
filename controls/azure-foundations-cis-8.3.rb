@@ -62,6 +62,21 @@ control 'azure-foundations-cis-8.3' do
   ref 'https://docs.microsoft.com/en-us/azure/virtual-machines/windows/disks-enable-customer-managed-keys-powershell'
   ref 'https://docs.microsoft.com/en-us/azure/virtual-machines/disk-encryption'
 
+  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_output = powershell(vm_script).stdout.strip
+  all_vms = json(content: all_vms).params
+
+  only_if('N/A - No Virtual Machines found', impact: 0) do
+    case all_vms
+    when Array
+      !all_vms.empty?
+    when Hash
+      !all_vms.empty?
+    else
+      false
+    end
+  end
+
   resource_group_and_disk_name = input('resource_group_and_disk_name')
   rg_pattern = resource_group_and_disk_name.map { |rg_disk| "'#{rg_disk}'" }.join(', ')
 
@@ -84,6 +99,7 @@ control 'azure-foundations-cis-8.3' do
   )
 
   pwsh_output = powershell(ensure_disks_encrypted_cmk_script)
+
   describe 'Ensure the number of resource group and disk combinations that do not have encryption state set to either "EncryptionAtRestWithCustomerKey" or "EncryptionAtRestWithPlatformKey"' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do

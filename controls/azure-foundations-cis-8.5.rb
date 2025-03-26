@@ -74,6 +74,21 @@ control 'azure-foundations-cis-8.5' do
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/linux/disks-export-import-private-links-cli'
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/disks-restrict-import-export-overview'
 
+  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_output = powershell(vm_script).stdout.strip
+  all_vms = json(content: all_vms).params
+
+  only_if('N/A - No Virtual Machines found', impact: 0) do
+    case all_vms
+    when Array
+      !all_vms.empty?
+    when Hash
+      !all_vms.empty?
+    else
+      false
+    end
+  end
+
   resource_group_and_disk_name = input('resource_group_and_disk_name')
   rg_pattern = resource_group_and_disk_name.map { |rg_disk| "'#{rg_disk}'" }.join(', ')
   ensure_disks_not_public_access_script = %(
@@ -92,7 +107,9 @@ control 'azure-foundations-cis-8.5' do
         }
     }
   )
+
   pwsh_output = powershell(ensure_disks_not_public_access_script)
+
   describe 'Ensure the number of resource group and disk combinations that has PublicNetworkAccess not set to "Disabled" and NetworkAccessPolicy not set to either "AllowPrivate" or "DenyAll"' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do

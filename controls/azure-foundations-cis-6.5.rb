@@ -40,8 +40,23 @@ control 'azure-foundations-cis-6.5' do
   ref 'https://azure.microsoft.com/en-us/support/plans'
   ref 'https://azure.microsoft.com/en-us/support/plans/response/'
 
+  resource_script = 'Get-AzResource | ConvertTo-Json -Depth 10'
+  resource_output = powershell(resource_script).stdout.strip
+  all_resources = json(content: resource_output).params
+
+  only_if('N/A - No Resources found', impact: 0) do
+    case all_resources
+    when Array
+      !all_resources.empty?
+    when Hash
+      !all_resources.empty?
+    else
+      false
+    end
+  end
+
   script = <<-EOH
-        Get-AzResource | Where-Object { $_.Sku -eq 'Basic' }
+     Get-AzResource | Where-Object { $_.Sku -eq 'Basic' }
   EOH
 
   describe powershell(script) do

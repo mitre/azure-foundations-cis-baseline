@@ -55,6 +55,21 @@ control 'azure-foundations-cis-7.4' do
   ref 'https://docs.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-point-to-site-resource-manager-portal'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-1-establish-network-segmentation-boundaries'
 
+  nsg_script = 'az network nsg list'
+  nsg_output = powershell(nsg_script).stdout.strip
+  all_nsgs = json(content: nsg_output).params
+
+  only_if('N/A - No Network Security Groups found', impact: 0) do
+    case all_nsgs
+    when Array
+      !all_nsgs.empty?
+    when Hash
+      !all_nsgs.empty?
+    else
+      false
+    end
+  end
+
   query = command('az network nsg list --query "[*].[name,securityRules]" -o json').stdout
   query_results_json = JSON.parse(query) unless query.empty?
   query_results_json.each do |nsg|
