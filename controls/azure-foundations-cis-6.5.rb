@@ -40,7 +40,7 @@ control 'azure-foundations-cis-6.5' do
   ref 'https://azure.microsoft.com/en-us/support/plans'
   ref 'https://azure.microsoft.com/en-us/support/plans/response/'
 
-  resource_script = 'Get-AzResource | ConvertTo-Json -Depth 10'
+  resource_script = 'Get-AzResource | ConvertTo-Json'
   resource_output = powershell(resource_script).stdout.strip
   all_resources = json(content: resource_output).params
 

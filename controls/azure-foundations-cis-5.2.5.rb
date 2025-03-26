@@ -46,7 +46,7 @@ control 'azure-foundations-cis-5.2.5' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-1-establish-network-segmentation-boundaries'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-6-deploy-web-application-firewall'
 
-  servers_script = 'Get-AzPostgreSqlFlexibleServer | ConvertTo-Json -Depth 10'
+  servers_script = 'Get-AzPostgreSqlFlexibleServer | ConvertTo-Json'
   servers_output = powershell(servers_script).stdout.strip
   all_servers = json(content: servers_output).params
 

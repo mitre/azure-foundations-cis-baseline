@@ -74,7 +74,7 @@ control 'azure-foundations-cis-8.5' do
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/linux/disks-export-import-private-links-cli'
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/disks-restrict-import-export-overview'
 
-  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_script = 'Get-AzVM | ConvertTo-Json'
   vm_output = powershell(vm_script).stdout.strip
   all_vms = json(content: all_vms).params
 

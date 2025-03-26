@@ -63,7 +63,7 @@ control 'azure-foundations-cis-4.15' do
   ref 'https://docs.microsoft.com/en-us/azure/storage/common/transport-layer-security-configure-minimum-version?tabs=portal'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-3-encrypt-sensitive-data-in-transit'
 
-  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
   storage_output = powershell(storage_script).stdout.strip
   all_storage = json(content: storage_output).params
 

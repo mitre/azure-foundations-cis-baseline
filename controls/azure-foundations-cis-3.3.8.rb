@@ -136,7 +136,7 @@ control 'azure-foundations-cis-3.3.8' do
   ref 'https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/scalar-data-types/timespan'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-6-use-a-secure-key-management-process'
 
-  vault_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  vault_script = 'Get-AzKeyVault | ConvertTo-Json'
   vault_output = powershell(vault_script).stdout.strip
   all_vaults = json(content: vault_output).params
 

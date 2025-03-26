@@ -50,7 +50,7 @@ control 'azure-foundations-cis-8.7' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-asset-management#am-2-use-only-approved-services'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-asset-management#am-5-use-only-approved-applications-in-virtual-machine'
 
-  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_script = 'Get-AzVM | ConvertTo-Json'
   vm_output = powershell(vm_script).stdout.strip
   all_vms = json(content: all_vms).params
 

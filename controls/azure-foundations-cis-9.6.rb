@@ -44,7 +44,7 @@ control 'azure-foundations-cis-9.6' do
 
   ref 'https://learn.microsoft.com/en-us/azure/app-service/configure-basic-auth-disable?tabs=portal'
 
-  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_script = 'Get-AzKeyVault | ConvertTo-Json'
   app_output = powershell(app_script).stdout.strip
   all_apps = json(content: app_output).params
 

@@ -49,7 +49,7 @@ control 'azure-foundations-cis-9.4' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-network-security#ns-8-detect-and-disable-insecure-services-and-protocols'
   ref 'https://docs.microsoft.com/en-us/powershell/module/az.websites/set-azwebapp?view=azps-8.1.0'
 
-  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_script = 'Get-AzKeyVault | ConvertTo-Json'
   app_output = powershell(app_script).stdout.strip
   all_apps = json(content: app_output).params
 

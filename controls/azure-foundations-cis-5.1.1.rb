@@ -52,7 +52,7 @@ control 'azure-foundations-cis-5.1.1' do
   ref 'https://docs.microsoft.com/en-us/azure/sql-database/sql-database-auditing'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-3-enable-logging-for-security-investigation'
 
-  servers_script = 'Get-AzSqlServer | ConvertTo-Json -Depth 10'
+  servers_script = 'Get-AzSqlServer | ConvertTo-Json'
   servers_output = powershell(servers_script).stdout.strip
   all_servers = json(content: servers_output).params
 

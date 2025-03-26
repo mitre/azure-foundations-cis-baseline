@@ -60,7 +60,7 @@ control 'azure-foundations-cis-8.1' do
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.network/get-azbastion?view=azps-9.2.0'
   ref 'https://learn.microsoft.com/en-us/cli/azure/network/bastion?view=azure-cli-latest'
 
-  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_script = 'Get-AzVM | ConvertTo-Json'
   vm_output = powershell(vm_script).stdout.strip
   all_vms = json(content: all_vms).params
 

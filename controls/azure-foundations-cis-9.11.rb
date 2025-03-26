@@ -144,7 +144,7 @@ control 'azure-foundations-cis-9.11' do
   ref 'https://docs.microsoft.com/en-us/cli/azure/keyvault?view=azure-cli-latest'
   ref 'https://docs.microsoft.com/en-us/cli/azure/keyvault?view=azure-cli-latest'
 
-  app_script = 'Get-AzKeyVault | ConvertTo-Json -Depth 10'
+  app_script = 'Get-AzKeyVault | ConvertTo-Json'
   app_output = powershell(app_script).stdout.strip
   all_apps = json(content: app_output).params
 

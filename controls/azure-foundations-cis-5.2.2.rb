@@ -48,7 +48,7 @@ control 'azure-foundations-cis-5.2.2' do
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.postgresql/get-azpostgresqlflexibleserverconfiguration?view=azps-12.2.0#example-1-get-specified-postgresql-configuration-by-name'
   ref 'https://learn.microsoft.com/en-us/powershell/module/az.postgresql/update-azpostgresqlflexibleserverconfiguration?view=azps-12.2.0#example-1-updatae-specified-postgresql-configuration-by-name'
 
-  servers_script = 'Get-AzPostgreSqlFlexibleServer | ConvertTo-Json -Depth 10'
+  servers_script = 'Get-AzPostgreSqlFlexibleServer | ConvertTo-Json'
   servers_output = powershell(servers_script).stdout.strip
   all_servers = json(content: servers_output).params
 

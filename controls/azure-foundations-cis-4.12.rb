@@ -71,7 +71,7 @@ control 'azure-foundations-cis-4.12' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-4-enable-network-logging-for-security-investigation'
   ref 'https://docs.microsoft.com/en-us/azure/storage/queues/monitor-queue-storage?tabs=azure-portal'
 
-  storage_script = 'Get-AzStorageAccount | ConvertTo-Json -Depth 10'
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
   storage_output = powershell(storage_script).stdout.strip
   all_storage = json(content: storage_output).params
 

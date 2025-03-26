@@ -56,7 +56,7 @@ control 'azure-foundations-cis-5.3.4' do
   ref 'https://learn.microsoft.com/en-us/azure/mysql/flexible-server/tutorial-configure-audit'
   ref 'https://learn.microsoft.com/en-us/azure/mysql/flexible-server/tutorial-configure-audit#configure-auditing-by-using-the-azure-cli'
 
-  servers_script = 'Get-AzMysqlFlexibleServer | ConvertTo-Json -Depth 10'
+  servers_script = 'Get-AzMysqlFlexibleServer | ConvertTo-Json'
   servers_output = powershell(servers_script).stdout.strip
   all_servers = json(content: servers_output).params
 

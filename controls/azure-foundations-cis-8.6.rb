@@ -57,7 +57,7 @@ control 'azure-foundations-cis-8.6' do
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/windows/download-vhd?tabs=azure-portal#secure-downloads-and-uploads-with-microsoft-entra-id'
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/windows/download-vhd?tabs=azure-portal#secure-downloads-and-uploads-with-microsoft-entra-id'
 
-  vm_script = 'Get-AzVM | ConvertTo-Json -Depth 10'
+  vm_script = 'Get-AzVM | ConvertTo-Json'
   vm_output = powershell(vm_script).stdout.strip
   all_vms = json(content: all_vms).params
 
