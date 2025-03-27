@@ -64,7 +64,7 @@ control 'azure-foundations-cis-8.3' do
 
   vm_script = 'Get-AzVM | ConvertTo-Json'
   vm_output = powershell(vm_script).stdout.strip
-  all_vms = json(content: all_vms).params
+  all_vms = json(content: vm_output).params
 
   only_if('N/A - No Virtual Machines found', impact: 0) do
     case all_vms
