@@ -96,10 +96,12 @@ control 'azure-foundations-cis-3.1.1.1' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-incident-response#ir-2-preparation---setup-incident-notification'
 
   script = <<-EOH
+    $ErrorActionPreference = "Stop"
 		(Get-AzSecurityAutoProvisioningSetting -Name 'default').AutoProvision
   EOH
 
   pwsh_output = powershell(script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe "Ensure that Auto provisioning of 'Log Analytics agent for Azure VMs'" do
     subject { pwsh_output.stdout.strip }

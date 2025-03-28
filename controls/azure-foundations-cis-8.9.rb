@@ -74,6 +74,7 @@ control 'azure-foundations-cis-8.9' do
   end
 
   only_approved_extensions_approved_script = %(
+    $ErrorActionPreference = "Stop"
     $vms = Get-AzVM
 
     # Iterate over each VM
@@ -82,7 +83,7 @@ control 'azure-foundations-cis-8.9' do
         $resourceGroupName = $vm.ResourceGroupName
 
         # Get all extensions for the current VM
-        $virtualMachine = Get-AzVM --Name $vmName -ResourceGroup $resourceGroupName |Select-Object -ExpandProperty StorageProfile
+        $virtualMachine = Get-AzVM -Name $vmName -ResourceGroup $resourceGroupName | Select-Object -ExpandProperty StorageProfile
         $osDisk = $virtualMachine.OsDisk
         $dataDisk = $virtualMachine.DataDisks
 
@@ -109,6 +110,7 @@ control 'azure-foundations-cis-8.9' do
   )
 
   pwsh_output = powershell(only_approved_extensions_approved_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe "Ensure the number of resource group/VMs that has storageAccount.Encryption.Services.Blob set to 'False'" do
     subject { pwsh_output.stdout.strip }

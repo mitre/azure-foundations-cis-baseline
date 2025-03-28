@@ -71,10 +71,14 @@ control 'azure-foundations-cis-5.1.5' do
     resource_group, = pair.split('.')
 
     sql_servers_script = <<-EOH
+      $ErrorActionPreference = "Stop"
       Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
 
-    sql_servers_output = powershell(sql_servers_script).stdout.strip
+    sql_servers_output_pwsh = powershell(sql_servers_script)
+    raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
+
+    sql_servers_output = sql_servers_output_pwsh.stdout.strip
     sql_servers = json(content: sql_servers_output).params
     sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
@@ -83,10 +87,14 @@ control 'azure-foundations-cis-5.1.5' do
       server_name = server['ServerName']
 
       databases_script = <<-EOH
+        $ErrorActionPreference = "Stop"
         Get-AzSqlDatabase -ServerName "#{server_name}" -ResourceGroupName "#{resource_group_server}" | ConvertTo-Json -Depth 10
       EOH
 
-      databases_output = powershell(databases_script).stdout.strip
+      databases_output_pwsh = powershell(databases_script)
+      databases_output = databases_output_pwsh.stdout.strip
+      raise Inspec::Error, "The powershell output returned the following error:  #{databases_output_pwsh.stderr}" if databases_output_pwsh.exit_status != 0
+
       databases = json(content: databases_output).params
       databases = [databases] unless databases.is_a?(Array)
 
@@ -97,10 +105,14 @@ control 'azure-foundations-cis-5.1.5' do
 
         describe "Transparent Data Encryption for database '#{db_name}' on SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
           tde_script = <<-EOH
+            $ErrorActionPreference = "Stop"
             Get-AzSqlDatabaseTransparentDataEncryption -ServerName "#{server_name}" -ResourceGroupName "#{resource_group_server}" -DatabaseName "#{db_name}" | ConvertTo-Json -Depth 10
           EOH
 
-          tde_output = powershell(tde_script).stdout.strip
+          tde_output_pwsh = powershell(tde_script)
+          tde_output = tde_output_pwsh.stdout.strip
+          raise Inspec::Error, "The powershell output returned the following error:  #{tde_output_pwsh.stderr}" if tde_output_pwsh.exit_status != 0
+
           tde = json(content: tde_output).params
 
           it 'should have DataEncryption (TDE) enabled' do

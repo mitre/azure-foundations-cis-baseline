@@ -74,12 +74,14 @@ control 'azure-foundations-cis-6.2.1' do
   subscription_id = input('subscription_id')
 
   activity_log_exists_cpa_script = %(
+		$ErrorActionPreference = "Stop"
 		Get-AzActivityLogAlert -SubscriptionId "#{subscription_id}" |
 		Where-Object { $_.ConditionAllOf.Equal -match "Microsoft.Authorization/policyAssignments/write" } |
 		Select-Object Location, Name, Enabled, ResourceGroupName, ConditionAllOf
 	)
 
   pwsh_output = powershell(activity_log_exists_cpa_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure that the subscription`s output for the activity log alert rule for Create Policy Assignments' do
     subject { pwsh_output.stdout.strip }

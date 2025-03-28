@@ -68,11 +68,15 @@ control 'azure-foundations-cis-6.3.1' do
 
   describe "Application Insights configuration for Subscription '#{subscription_id}'" do
     script = <<-EOH
+            $ErrorActionPreference = "Stop"
             Set-AzContext -Subscription #{subscription_id} | Out-Null
             Get-AzApplicationInsights | select location,name,appid,provisioningState,tenantid
     EOH
 
-    describe powershell(script) do
+    pwsh_output = powershell(script)
+    raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+    describe pwsh_output do
       its('stdout.strip') { should_not be_empty }
     end
   end

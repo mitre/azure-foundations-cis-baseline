@@ -67,10 +67,14 @@ control 'azure-foundations-cis-5.2.5' do
     resource_group, = pair.split('.')
 
     postgres_servers_script = <<-EOH
+      $ErrorActionPreference = "Stop"
       Get-AzPostgreSqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
 
-    postgres_servers_output = powershell(postgres_servers_script).stdout.strip
+    postgres_servers_output_pwsh = powershell(postgres_servers_script)
+    postgres_servers_output = postgres_servers_output_pwsh.stdout.strip
+    raise Inspec::Error, "The powershell output returned the following error:  #{postgres_servers_output_pwsh.stderr}" if postgres_servers_output_pwsh.exit_status != 0
+
     postgres_servers = json(content: postgres_servers_output).params
     postgres_servers = [postgres_servers] unless postgres_servers.is_a?(Array)
 
@@ -79,10 +83,14 @@ control 'azure-foundations-cis-5.2.5' do
 
       describe "Firewall rules for PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}'" do
         firewall_script = <<-EOH
+          $ErrorActionPreference = "Stop"
           Get-AzPostgreSqlFlexibleServerFirewallRule -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
         EOH
 
-        firewall_output = powershell(firewall_script).stdout.strip
+        firewall_output_pwsh = powershell(firewall_script)
+        firewall_output = firewall_output_pwsh.stdout.strip
+        raise Inspec::Error, "The powershell output returned the following error:  #{firewall_output_pwsh.stderr}" if firewall_output_pwsh.exit_status != 0
+
         firewall_rules = json(content: firewall_output).params
         firewall_rules = [firewall_rules] unless firewall_rules.is_a?(Array)
 

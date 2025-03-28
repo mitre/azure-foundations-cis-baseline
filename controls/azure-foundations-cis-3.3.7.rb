@@ -128,6 +128,7 @@ control 'azure-foundations-cis-3.3.7' do
   subscription_id = input('subscription_id')
 
   check_private_endpoints_non_null_script = %(
+      $ErrorActionPreference = "Stop"
       $keyVaults = Get-AzKeyVault
       if ($keyVaults -eq $null){
             Write-Output "No Key Vaults Found"
@@ -146,6 +147,7 @@ control 'azure-foundations-cis-3.3.7' do
   )
 
   pwsh_output = powershell(check_private_endpoints_non_null_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure the number of vaults with PrivateEndpointConnections set to null' do
     subject { pwsh_output.stdout.strip }

@@ -74,12 +74,15 @@ control 'azure-foundations-cis-6.2.7' do
   subscription_id = input('subscription_id')
 
   activity_log_exists_create_update_sql_server_script = %(
+            $ErrorActionPreference = "Stop"
             Get-AzActivityLogAlert -SubscriptionId "#{subscription_id}"|
             where-object {$_.ConditionAllOf.Equal -match "Microsoft.Sql/servers/firewallRules/write"}|
             select-object Location,Name,Enabled,ResourceGroupName,ConditionAllOf
     )
 
   pwsh_output = powershell(activity_log_exists_create_update_sql_server_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
   describe 'Ensure that the subscription`s output for the activity log alert rule for Creating/Updating a SQL Server Firewall Rule' do
     subject { pwsh_output.stdout.strip }
     it 'is not empty' do

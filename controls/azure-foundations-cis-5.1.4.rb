@@ -83,10 +83,14 @@ control 'azure-foundations-cis-5.1.4' do
     resource_group, = pair.split('.')
 
     sql_servers_script = <<-EOH
+      $ErrorActionPreference = "Stop"
       Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
 
-    sql_servers_output = powershell(sql_servers_script).stdout.strip
+    sql_servers_output_pwsh = powershell(sql_servers_script)
+    raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
+
+    sql_servers_output = sql_servers_output_pwsh.stdout.strip
     sql_servers = json(content: sql_servers_output).params
     sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
@@ -95,10 +99,14 @@ control 'azure-foundations-cis-5.1.4' do
       resource_group_server = server['ResourceGroupName']
 
       script = <<-EOH
+        $ErrorActionPreference = "Stop"
         Get-AzSqlServerActiveDirectoryAdministrator -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
       EOH
 
-      output = powershell(script).stdout.strip
+      output_pwsh = powershell(script)
+      output = output_pwsh.stdout.strip
+      raise Inspec::Error, "The powershell output returned the following error:  #{output_pwsh.stderr}" if output_pwsh.exit_status != 0
+
       ad_admin = json(content: output).params
 
       describe "Microsoft Entra authentication for SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do

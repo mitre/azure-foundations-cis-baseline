@@ -75,10 +75,14 @@ control 'azure-foundations-cis-5.3.3' do
     resource_group, = pair.split('.')
 
     script = <<-EOH
+      $ErrorActionPreference = "Stop"
 			Get-AzMysqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
 
-    server_output = powershell(script).stdout.strip
+    server_output_pwsh = powershell(script)
+    server_output = server_output_pwsh.stdout.strip
+    raise Inspec::Error, "The powershell output returned the following error:  #{server_output_pwsh.stderr}" if server_output_pwsh.exit_status != 0
+
     servers = json(content: server_output).params
     servers = [servers] unless servers.is_a?(Array)
 
@@ -87,11 +91,14 @@ control 'azure-foundations-cis-5.3.3' do
 
       describe "MySQL Flexible Server '#{server_name}' audit_log_enabled configuration" do
         config_script = <<-EOH
+          $ErrorActionPreference = "Stop"
 					Get-AzMysqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name audit_log_enabled | ConvertTo-Json -Depth 10
         EOH
 
-        config_output = powershell(config_script).stdout.strip
-        puts config_output
+        config_output_pwsh = powershell(config_script)
+        config_output = config_output_pwsh.stdout.strip
+        raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
+
         configuration = json(content: config_output).params
 
         it "should have audit_log_enabled set to 'ON'" do

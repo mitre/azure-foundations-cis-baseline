@@ -66,10 +66,12 @@ control 'azure-foundations-cis-3.1.16' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-logging-threat-detection#lt-1-enable-threat-detection-capabilities'
 
   script = <<-EOH
+        $ErrorActionPreference = "Stop"
         (Get-AzSecurityPricing -Name 'DNS').PricingTier
   EOH
 
   pwsh_output = powershell(script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure That Microsoft Defender for Resource Manager' do
     subject { pwsh_output.stdout.strip }

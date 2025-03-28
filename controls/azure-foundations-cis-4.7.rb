@@ -92,11 +92,14 @@ control 'azure-foundations-cis-4.7' do
 
     describe "Storage Account Network Ruleset for '#{storage_account}' in Resource Group '#{resource_group}'" do
       script = <<-EOH
+                $ErrorActionPreference = "Stop"
                 Set-AzContext -Subscription #{subscription_id} | Out-Null
                 (Get-AzStorageAccountNetworkRuleset -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").DefaultAction
       EOH
+      pwsh_output = powershell(script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-      describe powershell(script) do
+      describe pwsh_output do
         its('stdout.strip') { should cmp 'Deny' }
       end
     end

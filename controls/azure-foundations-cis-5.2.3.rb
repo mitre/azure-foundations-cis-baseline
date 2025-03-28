@@ -69,10 +69,14 @@ control 'azure-foundations-cis-5.2.3' do
     resource_group, = pair.split('.')
 
     postgres_servers_script = <<-EOH
+        $ErrorActionPreference = "Stop"
 				Get-AzPostgreSqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
 
-    postgres_servers_output = powershell(postgres_servers_script).stdout.strip
+    postgres_servers_output_pwsh = powershell(postgres_servers_script)
+    postgres_servers_output = postgres_servers_output_pwsh.stdout.strip
+    raise Inspec::Error, "The powershell output returned the following error:  #{postgres_servers_output_pwsh.stderr}" if postgres_servers_output_pwsh.exit_status != 0
+
     postgres_servers = json(content: postgres_servers_output).params
     postgres_servers = [postgres_servers] unless postgres_servers.is_a?(Array)
 
@@ -81,10 +85,14 @@ control 'azure-foundations-cis-5.2.3' do
 
       describe "PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}' connection_throttle.enable configuration" do
         config_script = <<-EOH
+            $ErrorActionPreference = "Stop"
 						Get-AzPostgreSqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name connection_throttle.enable | ConvertTo-Json -Depth 10
         EOH
 
-        config_output = powershell(config_script).stdout.strip
+        config_output_pwsh = powershell(config_script)
+        config_output = config_output_pwsh.stdout.strip
+        raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
+
         configuration = json(content: config_output).params
 
         it "should have connection_throttle.enable set to 'ON'" do

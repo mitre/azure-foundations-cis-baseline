@@ -152,6 +152,7 @@ control 'azure-foundations-cis-3.3.8' do
   end
 
   vault_automatic_key_rotation_script = %(
+      $ErrorActionPreference = "Stop"
       $keyVaults = Get-AzKeyVault
       if ($keyVaults -eq $null){
             Write-Output "No Key Vaults Found"
@@ -172,6 +173,7 @@ control 'azure-foundations-cis-3.3.8' do
   )
 
   pwsh_output = powershell(vault_automatic_key_rotation_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure the number of vaults/key pairs with LifetimeActions setting not set to "Rotate"' do
     subject { pwsh_output.stdout.strip }

@@ -75,12 +75,15 @@ control 'azure-foundations-cis-6.2.10' do
   subscription_id = input('subscription_id')
 
   activity_log_exists_delete_public_ip_address_script = %(
+            $ErrorActionPreference = "Stop"
             Get-AzActivityLogAlert -SubscriptionId "#{subscription_id}"|
             where-object {$_.ConditionAllOf.Equal -match "Microsoft.Network/publicIPAddresses/delete"}|
             select-object Location,Name,Enabled,ResourceGroupName,ConditionAllOf
     )
 
   pwsh_output = powershell(activity_log_exists_delete_public_ip_address_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
   describe 'Ensure that the subscription`s output for the activity log alert rule for Deleting a Public IP address Rule' do
     subject { pwsh_output.stdout.strip }
     it 'is not empty' do

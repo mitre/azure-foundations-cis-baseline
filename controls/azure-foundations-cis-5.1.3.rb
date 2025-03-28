@@ -95,10 +95,14 @@ control 'azure-foundations-cis-5.1.3' do
     resource_group, = pair.split('.')
 
     sql_servers_script = <<-EOH
+      $ErrorActionPreference = "Stop"
       Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
 
-    sql_servers_output = powershell(sql_servers_script).stdout.strip
+    sql_servers_output_pwsh = powershell(sql_servers_script)
+    raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
+
+    sql_servers_output = sql_servers_output_pwsh.stdout.strip
     sql_servers = json(content: sql_servers_output).params
     sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
@@ -108,10 +112,14 @@ control 'azure-foundations-cis-5.1.3' do
 
       describe "Transparent Data Encryption Protector for SQL Server #{server_name} (Resource Group: #{resource_group_server})" do
         tde_script = <<-EOH
+          $ErrorActionPreference = "Stop"
           Get-AzSqlServerTransparentDataEncryptionProtector -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
         EOH
 
-        tde_output = powershell(tde_script).stdout.strip
+        tde_output_pwsh = powershell(tde_script)
+        tde_output = tde_output_pwsh.stdout.strip
+        raise Inspec::Error, "The powershell output returned the following error:  #{tde_output_pwsh.stderr}" if tde_output_pwsh.exit_status != 0
+
         tde = json(content: tde_output).params
 
         it "should have Type set to 'AzureKeyVault'" do

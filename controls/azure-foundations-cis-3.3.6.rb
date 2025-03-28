@@ -96,6 +96,7 @@ control 'azure-foundations-cis-3.3.6' do
   end
 
   check_rbac_vault_script = %(
+      $ErrorActionPreference = "Stop"
       $keyVaults = Get-AzKeyVault
       if ($keyVaults -eq $null){
             Write-Output "No Key Vaults Found"
@@ -114,6 +115,7 @@ control 'azure-foundations-cis-3.3.6' do
   )
 
   pwsh_output = powershell(check_rbac_vault_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe "Ensure the number of vaults with EnableRbacAuthorization set to 'False" do
     subject { pwsh_output.stdout.strip }

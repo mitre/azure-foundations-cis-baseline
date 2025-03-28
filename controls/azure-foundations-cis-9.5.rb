@@ -64,6 +64,7 @@ control 'azure-foundations-cis-9.5' do
   end
 
   ensure_register_entra_id_enabled_app_service_script = %(
+        $ErrorActionPreference = "Stop"
         $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
         $unique_id_tracker = @{}
         foreach ($webApp in $filteredWebApps) {
@@ -87,6 +88,7 @@ control 'azure-foundations-cis-9.5' do
     )
 
   pwsh_output = powershell(ensure_register_entra_id_enabled_app_service_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure that the number of Web Applications/Resource Group combinations without Unique Identity Principal ID' do
     subject { pwsh_output.stdout.strip }

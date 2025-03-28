@@ -66,6 +66,7 @@ control 'azure-foundations-cis-9.1' do
   end
 
   https_only_set_on_script = %(
+    $ErrorActionPreference = "Stop"
     $webApps = Get-AzWebApp
     # Filter web apps where HttpsOnly is not set to True
     $nonHttpsOnlyWebApps = $webApps | Where-Object { $_.HttpsOnly -ne $true }
@@ -80,6 +81,8 @@ control 'azure-foundations-cis-9.1' do
     }
   )
   pwsh_output = powershell(https_only_set_on_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
   describe "Ensure the number of web apps that have HttpsOnly setting set to 'False'" do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do

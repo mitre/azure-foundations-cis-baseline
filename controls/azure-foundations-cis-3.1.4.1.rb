@@ -75,10 +75,12 @@ control 'azure-foundations-cis-3.1.4.1' do
   ref 'https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-containers-introduction?tabs=defender-for-container-arch-aks'
 
   script = <<-EOH
+        $ErrorActionPreference = "Stop"
         (Get-AzSecurityPricing -Name 'Containers').PricingTier
   EOH
 
   pwsh_output = powershell(script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure That Microsoft Defender for Containers' do
     subject { pwsh_output.stdout.strip }
