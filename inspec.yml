@@ -1,10 +1,159 @@
 name: azure-foundations-cis-baseline
 title: Azure Foundations CIS Benchmark
 maintainer: MITRE SAF Team
-copyright: The MITRE Corporation 
+copyright: The MITRE Corporation
 copyright_email: saf@groups.mitre.org
 license: Apache-2.0
 summary: An InSpec Compliance Profile
 version: 0.1.0
 supports:
   platform: os
+
+inputs:
+  # 2.1.2, 2.1.3, 3.1.1.1, 3.1.1.2, 3.1.3.3, 3.1.12, 3.1.13, 3.1.14, 3.3.7,
+  # 4.4, 4.7, 4.8, 4.11, 4.15 5.1.1, 5.1.6, 6.1.2, 6.2.1, 6.2.2, 
+  # 6.2.3, 6.2.4, 6.2.5, 6.2.6, 6.2.7, 6.2.8, 6.2.9, 6.2.10, 6.3.1, 6.4,,8.1
+  subscription_id:
+    description: "Azure subscription id"
+    value: null
+    sensitive: true
+    required: true
+
+  # 2.2.1, 2.2.2, 2.3, 2.4, 2.12, 2.13, 2.14, 2.15, 2.16
+  client_id:
+    description: "Azure client id"
+    value: null
+    sensitive: true
+    required: true
+
+  # 2.2.1, 2.2.2, 2.3, 2.4, 2.12, 2.13, 2.14, 2.15, 2.16
+  tenant_id:
+    description: "Azure tenant id"
+    value: null
+    sensitive: true
+    required: true
+
+  # 2.2.1, 2.2.2, 2.3, 2.4, 2.12, 2.13, 2.14, 2.15, 2.16
+  client_secret:
+    description: "Azure client secret"
+    value: null
+    sensitive: true
+    required: true
+
+  # 2.13
+  custom_policy_id:
+    description: "Custom policy IDs"
+    value: null
+    
+  # 2.2.2
+  included_location_ids:
+    description: 'Included location IDs'
+    value: ""
+
+  # 2.2.2
+  excluded_location_ids:
+    description: 'Excluded location IDs'
+    value: ""
+
+  # 2.4
+  allowed_guest_user_display_names:
+    description: "Allowed guest user display names"
+    value: null
+
+  # 3.3.1, 3.3.2, 3.3.3, 3.3.4
+  rbac_keys_appropriate_expiry_date:
+    description: "Expiration dates for RBAC keys (format: 'M/d/yyyy h:mm:ss tt')"
+    value: null
+
+  # 3.3.1, 3.3.2, 3.3.3, 3.3.4
+  non_rbac_keys_appropriate_expiry_date:
+    description: "Expiration dates for non-RBAC keys (format: 'M/d/yyyy h:mm:ss tt')"
+    value: null
+
+  # 3.3.1, 3.3.2, 3.3.3, 3.3.4
+  rbac_secrets_appropriate_expiry_date:
+    description: "Expiration dates for RBAC secrets (format: 'M/d/yyyy h:mm:ss tt')"
+    value: null
+
+  # 3.3.1, 3.3.2, 3.3.3, 3.3.4
+  non_rbac_secrets_appropriate_expiry_date:
+    description: "Expiration dates for non-RBAC secrets (format: 'M/d/yyyy h:mm:ss tt')"
+    value: null
+
+  # 4.3, 4.6, 4.7, 4.8, 4.9, 4.10, 4.11, 4.12, 4.13, 4.14
+  # 4.15, 4.17, 5.1.1, 5.1.2, 5.1.3, 5.1.4, 5.1.5, 5.1.6, 5.2.1, 5.2.2
+  # 5.2.3, 5.2.4, 5.2.5, 5.2.6, 5.2.7, 5.3.1, 5.3.2, 5.3.3, 5.3.4, 5.4.1
+  # 5.4.2, 5.4.3, 6.1.3
+  resource_groups_and_storage_accounts:
+    description: "List of resource groups and storage accounts (format: 'resource_group.storage_account')"
+    value: null
+
+  # 5.1.3
+  key_vault_full_key_uri:
+    description: "Full Key Vault key URI"
+    value: null
+
+  # 5.2.6, 5.2.7, 5.2.8
+  postgresql_single_server:
+    description: "Legacy PostgreSQL Single Server option (for non-flexible servers)"
+    value: false
+
+  # 7.5
+  resource_group_and_network_watcher:
+    description: "Resource group and network watcher name"
+    value: null
+
+  # 7.7
+  relevant_public_ip_addresses:
+    description: "Relevant public IP addresses"
+    value: null
+
+  # 8.3, 8.5, 8.6
+  resource_group_and_disk_name:
+    description: "Resource group and disk name (format: 'resource_group.disk')"
+    value: null
+
+  # 8.3, 8.5, 8.6
+  unauthorized_extension_names:
+    description: "Unauthorized extension names for VMs"
+    value: null
+
+  # 8.3, 8.5, 8.6
+  unauthorized_extension_types:
+    description: "Unauthorized extension types for VMs"
+    value: null
+
+  # 8.3, 8.5, 8.6
+  unauthorized_provision_states:
+    description: "Unauthorized provision states for VM extensions."
+    value: null
+
+  # 8.8
+  resource_group_and_virtual_machine:
+    description: "Resource group and virtual machine names"
+    value: null
+
+  # 8.8
+  desired_extensions:
+    description: "Desired extensions for each VM. Format by name of VM as outer list; inner list are desired extensions for that VM"
+    value: null
+
+  # 9.2
+  resource_group_and_app_name:
+    description: "Resource group and application name"
+    value: null
+
+  # 9.7
+  php_version_unsupported_web_app:
+    description: "Unsupported PHP versions in web apps"
+    value: null
+
+  # 9.8
+  python_version_unsupported_web_app:
+    description: "Unsupported Python versions in web apps"
+    value: null
+
+  # 9.9
+  java_version_unsupported_web_app:
+    description: "Unsupported Java versions in web apps (format: '1.3.17-java17')"
+    value: null
