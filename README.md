@@ -121,7 +121,16 @@ To configure your **Azure App Registration Service Principal** with the correct 
       2. Go to **Access Control (IAM)** → **Role Assignments**.
       3. Confirm that your account is assigned the ***Owner*** role.
 
-#### General Permissions
+#### App Registration Permissions
+
+- **App Registration Permission**
+  - **Required Role:** Policy.Read.All, User.Read.All, 
+  - **Verification:**
+      1. Navigate to your App Registration in the Azure Portal.
+      2. Go to **API Permissions** → **Add a Permission**.
+      3. Select **Microsoft Graph** → **Application Permissions** .
+      4. Type in the name of one of the roles above.
+      5. Repeat Steps 1-4 for next role.
 
 - **Subscriptions**
   - **Required Role:** Reader
@@ -137,14 +146,21 @@ To configure your **Azure App Registration Service Principal** with the correct 
   - **Verification:**
     1. Navigate to your Key Vault in the Azure Portal.
     2. Go to **Access Control (IAM)** → **Role Assignments**.
-    3. Confirm that the **App Registration Service Principal** is assigned the ***Key Vault Administrator*** role.
+    3. Click 'Add' button and confirm that the **App Registration Service Principal** is assigned the ***Key Vault Administrator*** role.
 
 - **Storage Accounts**
   - **Required Role:** App Compliance Automation Administrator
   - **Verification:**
     1. Navigate to your Storage Account in the Azure Portal.
     2. Go to **Access Control (IAM)** → **Role Assignments**.
-    3. Confirm that the **App Registration Service Principal** is assigned the ***App Compliance Automation Administrator*** role.
+    3. Click 'Add' button and confirm that the **App Registration Service Principal** is assigned the ***App Compliance Automation Administrator*** role.
+
+- **App Services**
+  - **Required Role:** App Compliance Automation Administrator
+  - **Verification:**
+    1. Navigate to your Web App in the Azure Portal.
+    2. Go to **Access Control (IAM)** → **Role Assignments**.
+    3. Click 'Add' button and confirm that the **App Registration Service Principal** is assigned the ***Website Contributor*** role.
 
 ## Getting Started
 
@@ -307,55 +323,8 @@ bundle exec rake pre_commit_checks
 
 ### Example `inputs.yml`
 
-```yaml
-# Azure Connection Settings
-subscription_id: "00000000-0000-0000-0000-000000000000"
-client_id: "00000000-0000-0000-0000-000000000000"
-tenant_id: "00000000-0000-0000-0000-000000000000"
-client_secret: "0000000000000000000000000000000000000000"
+This [inputs_template.yml](https://github.com/mitre/azure-foundations-cis-baseline/blob/main/inputs_template.yml) file provides a detailed template of the required inputs for this profile, along with their descriptions.
 
-# Resource Configuration
-resource_groups_and_storage_accounts:
-  - "group1.account1"
-key_vault_full_key_uri:
-  - "https://test.vault.azure.net/keys/vault-key-name/current-version"
-
-# Control 7.7
-relevant_public_ip_addresses:
-  - "1"
-  - "2"
-# Control 8.3, 8.5, 8.6
-resource_group_and_disk_name:
-  - "group1.disk1"
-# Provide unauthorized extension names, types, and states in the order they appear in VM
-# For example, list VM 1’s Extension Name first, followed by subsequent VMs/Names in sequence.
-# Use "null" to omit a date.
-unauthorized_extension_names:
-  - "test"
-  - "null"
-unauthorized_extension_types:
-  - "test"
-  - "null"
-unauthorized_provision_states:
-  - "test"
-  - "null"
-# Controls 3.3.1, 3.3.2, 3.3.3, 3.3.4
-# Provide expiration dates in the order the keys appear in the GUI
-# For example, list Vault 1’s Key 1 first, followed by subsequent keys and vaults in sequence.
-# Use "null" to omit a date. Format for dates: "M/d/yyyy h:mm:ss tt"
-rbac_keys_appropriate_expiry_date:
-  - "2/28/2027 8:57:19 PM"
-  - "null"
-non_rbac_keys_appropriate_expiry_date:
-  - "2/28/2027 8:57:19 PM"
-  - "null"
-rbac_secrets_appropriate_expiry_date:
-  - "2/28/2027 8:57:19 PM"
-  - "null"
-non_rbac_secrets_appropriate_expiry_date:
-  - "2/28/2027 8:57:19 PM"
-  - "null"
-```
 
 ## Running the Profile
 
