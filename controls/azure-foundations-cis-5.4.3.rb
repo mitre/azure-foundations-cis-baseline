@@ -40,10 +40,14 @@ control 'azure-foundations-cis-5.4.3' do
     resource_group, = pair.split('.')
 
     cosmos_accounts_script = <<-EOH
+      $ErrorActionPreference = "Stop"
       Get-AzCosmosDBAccount -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
 
-    cosmos_accounts_output = powershell(cosmos_accounts_script).stdout.strip
+    cosmos_accounts_output_pwsh = powershell(cosmos_accounts_script)
+    cosmos_accounts_output = cosmos_accounts_output_pwsh.stdout.strip
+    raise Inspec::Error, "The powershell output returned the following error:  #{cosmos_accounts_output_pwsh.stderr}" if cosmos_accounts_output_pwsh.exit_status != 0
+
     cosmos_accounts = json(content: cosmos_accounts_output).params
 
     if cosmos_accounts.is_a?(Hash)

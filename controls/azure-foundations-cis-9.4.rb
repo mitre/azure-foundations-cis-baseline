@@ -65,6 +65,7 @@ control 'azure-foundations-cis-9.4' do
   end
 
   ensure_web_app_using_latest_tls_script = %(
+        $ErrorActionPreference = "Stop"
         $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
         foreach ($webApp in $filteredWebApps) {
             $resourceGroup = $webApp.ResourceGroup
@@ -80,6 +81,7 @@ control 'azure-foundations-cis-9.4' do
     )
 
   pwsh_output = powershell(ensure_web_app_using_latest_tls_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure that the number of Web Applications/Resource Group combinations with SiteConfig.MinTlsVersion less than 1.2' do
     subject { pwsh_output.stdout.strip }

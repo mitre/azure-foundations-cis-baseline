@@ -56,10 +56,14 @@ control 'azure-foundations-cis-6.5' do
   end
 
   script = <<-EOH
+     $ErrorActionPreference = "Stop"
      Get-AzResource | Where-Object { $_.Sku -eq 'Basic' }
   EOH
 
-  describe powershell(script) do
+  pwsh_output = powershell(script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  describe pwsh_output do
     its('stdout.strip') { should eq '' }
   end
 end

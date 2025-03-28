@@ -63,6 +63,7 @@ control 'azure-foundations-cis-7.6' do
   end
 
   ensure_provision_state_succeeds_script = %(
+    $ErrorActionPreference = "Stop"
     $networkWatchersNotSucceeded = Get-AzNetworkWatcher | Where-Object { $_.ProvisioningState -ne 'Succeeded' }
 
     if ($networkWatchersNotSucceeded) {
@@ -72,6 +73,8 @@ control 'azure-foundations-cis-7.6' do
     }
   )
   pwsh_output_provision_state = powershell(ensure_provision_state_succeeds_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output_provision_state.stderr}" if pwsh_output_provision_state.exit_status != 0
+
   describe 'Ensure the number of network watchers with ProvisioningState not set to Succeeded' do
     subject { pwsh_output_provision_state.stdout.strip }
     it 'is 0' do
@@ -81,6 +84,7 @@ control 'azure-foundations-cis-7.6' do
   end
 
   ensure_locations_using_watcher_script = %(
+    $ErrorActionPreference = "Stop"
     $locationsInUse = Get-AzResource | Select-Object -ExpandProperty Location | Sort-Object -Unique
     $networkWatcherLocations = Get-AzNetworkWatcher | Select-Object -ExpandProperty Location | Sort-Object -Unique
     $difference = Compare-Object -ReferenceObject $locationsInUse -DifferenceObject $networkWatcherLocations -PassThru | Where-Object { $_.SideIndicator -eq '<=' }
@@ -88,6 +92,8 @@ control 'azure-foundations-cis-7.6' do
 
   )
   pwsh_output_location_watcher = powershell(ensure_locations_using_watcher_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output_location_watcher.stderr}" if pwsh_output_location_watcher.exit_status != 0
+
   describe 'Ensure the number of locations without a Network Watcher' do
     subject { pwsh_output_location_watcher.stdout.strip }
     it 'is 0' do

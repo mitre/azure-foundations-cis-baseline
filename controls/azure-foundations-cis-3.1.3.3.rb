@@ -100,11 +100,13 @@ control 'azure-foundations-cis-3.1.3.3' do
   subscription_id = input('subscription_id')
 
   script = <<-EOH
+        $ErrorActionPreference = "Stop"
         Set-AzContext -Subscription #{subscription_id} | Out-Null
         (Get-AzSecuritySetting | Where-Object { $_.name -eq 'WDATP' }).enabled
   EOH
 
   pwsh_output = powershell(script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe "Ensure that 'Endpoint protection' component status" do
     subject { pwsh_output.stdout.strip }

@@ -72,6 +72,7 @@ control 'azure-foundations-cis-8.2' do
   end
 
   ensure_vms_using_managed_disks_script = %(
+    $ErrorActionPreference = "Stop"
     $vmNames = Get-AzVM | ForEach-Object {
     if (-not $_.StorageProfile.OsDisk.ManagedDisk.Id) {
         $_.Name
@@ -81,6 +82,7 @@ control 'azure-foundations-cis-8.2' do
   )
 
   pwsh_output = powershell(ensure_vms_using_managed_disks_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure the number of VMs with ManagedDisk state empty' do
     subject { pwsh_output.stdout.strip }

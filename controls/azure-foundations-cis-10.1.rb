@@ -64,6 +64,7 @@ control 'azure-foundations-cis-10.1' do
   end
 
   ensure_resource_locks_set_script = %(
+        $ErrorActionPreference = "Stop"
         # Get all resources in the subscription
         $resources = Get-AzResource
 
@@ -98,6 +99,7 @@ control 'azure-foundations-cis-10.1' do
   )
 
   pwsh_output = powershell(ensure_resource_locks_set_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure the number of resources with Properties setting not set to CanNotDelete or ReadOnly' do
     subject { pwsh_output.stdout.strip }

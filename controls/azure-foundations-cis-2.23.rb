@@ -76,10 +76,13 @@ control 'azure-foundations-cis-2.23' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-7-follow-just-enough-administration-least-privilege-principle'
 
   script = <<-EOH
+    $ErrorActionPreference = "Stop"
     Get-AzRoleDefinition | Where-Object { ($_.IsCustom -eq $true) -and ($_.Actions.contains('*')) } | ConvertTo-Json -Depth 10
   EOH
 
-  role_defs_output = powershell(script).stdout.strip
+  role_defs_output_pwsh = powershell(script)
+  role_defs_output = role_defs_output_pwsh.stdout.strip
+  raise Inspec::Error, "The powershell output returned the following error:  #{role_defs_output_pwsh.stderr}" if role_defs_output_pwsh.exit_status != 0
 
   role_defs = []
   unless role_defs_output.empty?

@@ -78,6 +78,7 @@ control 'azure-foundations-cis-9.3' do
   end
 
   ftps_state_set_to_ftps_only_script = %(
+        $ErrorActionPreference = "Stop"
         $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
         foreach ($webApp in $filteredWebApps) {
             $resourceGroup = $webApp.ResourceGroup
@@ -94,6 +95,7 @@ control 'azure-foundations-cis-9.3' do
     )
 
   pwsh_output = powershell(ftps_state_set_to_ftps_only_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe "Ensure that the number of Web Applications/Resource Group combinations with SiteConfig.FtpsState set to 'AllAllowed'" do
     subject { pwsh_output.stdout.strip }

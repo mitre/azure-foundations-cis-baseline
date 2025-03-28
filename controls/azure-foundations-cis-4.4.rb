@@ -93,7 +93,7 @@ control 'azure-foundations-cis-4.4' do
     sa_rg = sa['resourceGroup']
 
     activity_script = <<-EOH
-      az monitor activity-log list --namespace Microsoft.Storage --offset 90d --query "[?contains(authorization.action, 'regenerateKey')]" --resource-id "#{sa_id}"
+      az monitor activity-log list --namespace Microsoft.Storage --offset 90d --query "[?authorization.action != null && contains(authorization.action, 'regenerateKey')]" --resource-id "#{sa_id}"
     EOH
 
     activity_output = powershell(activity_script).stdout.strip

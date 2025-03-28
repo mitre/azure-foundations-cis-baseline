@@ -89,6 +89,7 @@ control 'azure-foundations-cis-4.6' do
   rg_sa_list = input('resource_groups_and_storage_accounts')
 
   script = <<-EOH
+    $ErrorActionPreference = "Stop"
 		$rg_sa_list = ConvertFrom-Json '#{rg_sa_list.to_json}'
 
 		$nonCompliantResources = @()
@@ -122,6 +123,7 @@ control 'azure-foundations-cis-4.6' do
   EOH
 
   pwsh_output = powershell(script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Storage Accounts with non-disabled Public Network Access' do
     subject { pwsh_output.stdout.strip.split(',').map(&:strip).reject(&:empty?) }

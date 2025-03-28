@@ -86,11 +86,15 @@ control 'azure-foundations-cis-4.15' do
 
     describe "Minimum TLS version for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
       script = <<-EOH
+                $ErrorActionPreference = "Stop"
                 Set-AzContext -Subscription #{subscription_id} | Out-Null
                 (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").MinimumTlsVersion
       EOH
 
-      describe powershell(script) do
+      pwsh_output = powershell(script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+      describe pwsh_output do
         its('stdout.strip') { should cmp 'TLS1_2' }
       end
     end

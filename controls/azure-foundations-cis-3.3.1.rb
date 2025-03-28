@@ -97,6 +97,7 @@ control 'azure-foundations-cis-3.3.1' do
   rbac_keys_dates_list = rbac_keys_appropriate_expiry_date.map { |key_date| "'#{key_date}'" }.join(', ')
 
   expiration_date_set_all_keys_script = %(
+      $ErrorActionPreference = "Stop"
       $dateStrings = @(#{rbac_keys_dates_list})
       $dateObjects = $dateStrings | ForEach-Object {
             if ("null" -eq $_) {
@@ -133,6 +134,7 @@ control 'azure-foundations-cis-3.3.1' do
   )
 
   pwsh_output = powershell(expiration_date_set_all_keys_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure the the number of RBAC vault/key combinations with incorrect expiration dates' do
     subject { pwsh_output.stdout.strip }

@@ -68,10 +68,12 @@ control 'azure-foundations-cis-3.1.3.1' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-endpoint-security#es-1-use-endpoint-detection-and-response-edr'
 
   script = <<-EOH
+        $ErrorActionPreference = "Stop"
         (Get-AzSecurityPricing -Name 'VirtualMachines').PricingTier
   EOH
 
   pwsh_output = powershell(script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure That Microsoft Defender for Servers' do
     subject { pwsh_output.stdout.strip }

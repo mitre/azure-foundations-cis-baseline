@@ -97,10 +97,8 @@ control 'azure-foundations-cis-6.1.1' do
     end
   end
 
-  subscription_id = input('subscription_id')
-
   activity_diagnostic_setting_exists_for_sub_script = %(
-	    Get-AzDiagnosticSetting -SubscriptionId "#{subscription_id}"
+      $ErrorActionPreference = "Stop"
         $allResources = Get-AzResource
         $resourceIds = $allResources | Select-Object -ExpandProperty ResourceId
         foreach ($resourceId in $resourceIds) {
@@ -117,6 +115,7 @@ control 'azure-foundations-cis-6.1.1' do
 	)
 
   pwsh_output = powershell(activity_diagnostic_setting_exists_for_sub_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure that the number the subscription`s resources without diagnostic setting set' do
     subject { pwsh_output.stdout.strip }

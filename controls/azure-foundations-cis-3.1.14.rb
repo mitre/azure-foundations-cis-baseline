@@ -81,6 +81,7 @@ control 'azure-foundations-cis-3.1.14' do
   subscription_id = input('subscription_id')
 
   script = <<-EOH
+    $ErrorActionPreference = "Stop"
     $tokenInfo = az account get-access-token --query "{accessToken:accessToken}" --out tsv
     $accessToken = $tokenInfo.Trim()
     $subscription = "#{subscription_id}"
@@ -93,7 +94,10 @@ control 'azure-foundations-cis-3.1.14' do
     Write-Output $result
   EOH
 
-  result = powershell(script).stdout.strip
+  pwsh_output = powershell(script)
+  result = pwsh_output.stdout.strip
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
   alert_notifications = json(content: result).params
 
   describe 'Security Alert Notifications configuration' do

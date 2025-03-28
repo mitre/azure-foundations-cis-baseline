@@ -76,6 +76,7 @@ control 'azure-foundations-cis-8.6' do
   rg_pattern = resource_group_and_disk_name.map { |rg_disk| "'#{rg_disk}'" }.join(', ')
 
   ensure_data_auth_mode_script = %(
+    $ErrorActionPreference = "Stop"
     $rg_disk_groups = @(#{rg_pattern})
     foreach ($rg in $rg_disk_groups) {
         $rg = $rg.Trim("'")
@@ -93,6 +94,7 @@ control 'azure-foundations-cis-8.6' do
   )
 
   pwsh_output = powershell(ensure_data_auth_mode_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure the number of resource group and disk combinations that has DataAccessAuthMode setting not set to AzureActiveDirectory' do
     subject { pwsh_output.stdout.strip }

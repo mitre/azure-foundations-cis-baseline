@@ -94,6 +94,7 @@ control 'azure-foundations-cis-3.3.3' do
   rbac_secrets_dates_list = rbac_secrets_appropriate_expiry_date.map { |secret_date| "'#{secret_date}'" }.join(', ')
 
   expiration_date_set_all_secrets_script = %(
+      $ErrorActionPreference = "Stop"
       $dateStrings = @(#{rbac_secrets_dates_list})
       $dateObjects = $dateStrings | ForEach-Object {
             if ("null" -eq $_) {
@@ -130,6 +131,7 @@ control 'azure-foundations-cis-3.3.3' do
   )
 
   pwsh_output = powershell(expiration_date_set_all_secrets_script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure the the number of RBAC vault/secret combinations with incorrect expiration dates' do
     subject { pwsh_output.stdout.strip }
