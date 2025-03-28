@@ -123,14 +123,13 @@ To configure your **Azure App Registration Service Principal** with the correct 
 
 #### App Registration Permissions
 
-- **App Registration Permission**
-  - **Required Role:** Policy.Read.All, User.Read.All, 
+- **App Registration Permissions**
+  - **Required Permissions:** Policy.Read.All
   - **Verification:**
       1. Navigate to your App Registration in the Azure Portal.
       2. Go to **API Permissions** → **Add a Permission**.
       3. Select **Microsoft Graph** → **Application Permissions** .
-      4. Type in the name of one of the roles above.
-      5. Repeat Steps 1-4 for next role.
+      4. Select and add ***Policy.Read.All***.
 
 - **Subscriptions**
   - **Required Role:** Reader
@@ -140,6 +139,13 @@ To configure your **Azure App Registration Service Principal** with the correct 
       3. Confirm that the **App Registration Service Principal** is assigned the ***Reader*** role.
 
 #### Resource-Specific Permissions
+
+- **App Services**
+  - **Required Role:** Website Contributor
+  - **Verification:**
+    1. Navigate to your Web App in the Azure Portal.
+    2. Go to **Access Control (IAM)** → **Role Assignments**.
+    3. Click 'Add' button and confirm that the **App Registration Service Principal** is assigned the ***Website Contributor*** role.
 
 - **Key Vault**
   - **Required Role:** Key Vault Administrator
@@ -154,13 +160,6 @@ To configure your **Azure App Registration Service Principal** with the correct 
     1. Navigate to your Storage Account in the Azure Portal.
     2. Go to **Access Control (IAM)** → **Role Assignments**.
     3. Click 'Add' button and confirm that the **App Registration Service Principal** is assigned the ***App Compliance Automation Administrator*** role.
-
-- **App Services**
-  - **Required Role:** Website Contributor
-  - **Verification:**
-    1. Navigate to your Web App in the Azure Portal.
-    2. Go to **Access Control (IAM)** → **Role Assignments**.
-    3. Click 'Add' button and confirm that the **App Registration Service Principal** is assigned the ***Website Contributor*** role.
 
 ## Getting Started
 
@@ -323,8 +322,7 @@ bundle exec rake pre_commit_checks
 
 ### Example `inputs.yml`
 
-This [inputs_template.yml](https://github.com/mitre/azure-foundations-cis-baseline/blob/main/inputs_template.yml) file provides a detailed template of the required inputs for this profile, along with their descriptions.
-
+The [inputs_template.yml](https://github.com/mitre/azure-foundations-cis-baseline/blob/main/inputs_template.yml) file offers a comprehensive template that outlines all the required inputs for this profile, complete with detailed descriptions for each input.
 
 ## Running the Profile
 
