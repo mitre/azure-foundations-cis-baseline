@@ -156,7 +156,7 @@ To configure your **Azure App Registration Service Principal** with the correct 
     3. Click 'Add' button and confirm that the **App Registration Service Principal** is assigned the ***App Compliance Automation Administrator*** role.
 
 - **App Services**
-  - **Required Role:** App Compliance Automation Administrator
+  - **Required Role:** Website Contributor
   - **Verification:**
     1. Navigate to your Web App in the Azure Portal.
     2. Go to **Access Control (IAM)** → **Role Assignments**.
