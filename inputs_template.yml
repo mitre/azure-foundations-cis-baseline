@@ -1,35 +1,31 @@
-# Azure Connection Settings
+## Required Inputs
+# 2.1.2, 2.1.3, 3.1.1.1, 3.1.1.2, 3.1.3.3, 3.1.12, 3.1.13, 3.1.14, 3.3.7,
+# 4.4, 4.7, 4.8, 4.11, 4.15 5.1.1, 5.1.6, 6.1.2, 6.2.1, 6.2.2, 
+# 6.2.3, 6.2.4, 6.2.5, 6.2.6, 6.2.7, 6.2.8, 6.2.9, 6.2.10, 6.3.1, 6.4,,8.1
 subscription_id: "00000000-0000-0000-0000-000000000000"
+
+# 2.2.1, 2.2.2, 2.3, 2.4, 2.12, 2.13, 2.14, 2.15, 2.16
 client_id: "00000000-0000-0000-0000-000000000000"
 tenant_id: "00000000-0000-0000-0000-000000000000"
 client_secret: "0000000000000000000000000000000000000000"
-# Resource Configuration
-postgresql_single_server: false
-resource_groups_and_storage_accounts:
-  - "group1.account1"
-key_vault_full_key_uri:
-  - "https://test.vault.azure.net/keys/vault-key-name/current-version"
 
-# Control 7.7
-relevant_public_ip_addresses:
-  - "1"
-  - "2"
-# Control 8.3, 8.5, 8.6
-resource_group_and_disk_name:
-  - "group1.disk1"
-# Provide unauthorized extension names, types, and states in the order they appear in VM
-# For example, list VM 1’s Extension Name first, followed by subsequent VMs/Names in sequence.
-# Use "null" to omit a date.
-unauthorized_extension_names:
+## Optional Inputs
+# 2.13
+custom_policy_id:
   - "test"
-  - "null"
-unauthorized_extension_types:
+
+# 2.2.2
+# Set value to "" if nothing should be included or excluded.
+included_location_ids:
   - "test"
-  - "null"
-unauthorized_provision_states:
-  - "test"
-  - "null"
-# Controls 3.3.1, 3.3.2, 3.3.3, 3.3.4
+excluded_location_ids:
+  - ""
+  
+# 2.4
+allowed_guest_user_display_names:
+  - "names"
+
+# 3.3.1, 3.3.2, 3.3.3, 3.3.4
 # Provide expiration dates in the order the keys appear in the GUI
 # For example, list Vault 1’s Key 1 first, followed by subsequent keys and vaults in sequence.
 # Use "null" to omit a date. Format for dates: "M/d/yyyy h:mm:ss tt"
@@ -45,42 +41,80 @@ rbac_secrets_appropriate_expiry_date:
 non_rbac_secrets_appropriate_expiry_date:
   - "2/28/2027 8:57:19 PM"
   - "null"
-# Control 2.2.2
-# Enter "" if nothing should be included or excluded.
-included_location_ids:
-  - "test"
-excluded_location_ids:
-  - "test"
-# Control 2.4
-allowed_guest_user_display_names:
-  - "test"
-#Control 2.13
-custom_policy_id:
-  - "test"
-#Control 7.5
+
+# 4.3, 4.6, 4.7, 4.8, 4.9, 4.10, 4.11, 4.12, 4.13, 4.14
+# 4.15, 4.17, 5.1.1, 5.1.2, 5.1.3, 5.1.4, 5.1.5, 5.1.6, 5.2.1, 5.2.2
+# 5.2.3, 5.2.4, 5.2.5, 5.2.6, 5.2.7, 5.3.1, 5.3.2, 5.3.3, 5.3.4, 5.4.1
+# 5.4.2, 5.4.3, 6.1.3
+# Format: The resource group and storage account under it separated by a period -> resource_group.storage_account
+resource_groups_and_storage_accounts:
+  - "resource_group.storage_account"
+
+# 5.1.3
+# Full URI can be found by going to Key Vault -> Your Key Vault -> Objects -> Keys -> Your Key -> Overview -> Click Current Version -> Copy Key Identifier
+key_vault_full_key_uri:
+  - "https://myvault.vault.azure.net/keys/vault-key-name/current-version"
+
+# 5.2.6 5.2.7, 5.2.8
+# Set to 'true' to enable Legacy PostgreSQL Single Server checks
+# Set to 'false' if using Azure Database for PostgreSQL flexible servers
+postgresql_single_server: false
+
+# 7.5
+# Format: The resource group and network watcher under it separated by a period -> resource_group.network_watcher
 resource_group_and_network_watcher:
+  - "resource_group.network_watcher"
+
+# 7.7
+relevant_public_ip_addresses:
+  - "192.168.1.1"
+
+# 8.3, 8.5, 8.6
+# Format: The resource group and disk name under it separated by a period -> resource_group.diskname
+resource_group_and_disk_name:
+  - "resource_group.disk"
+
+# 8.3, 8.5, 8.6
+# Provide unauthorized extension names, types, and states in the order they appear in VM
+# For example, list VM 1’s Extension Name first, followed by subsequent VMs/Names in sequence.
+# Use "null" to omit a date.
+unauthorized_extension_names:
   - "test"
-#Control 8.8
+  - "null"
+unauthorized_extension_types:
+  - "test"
+  - "null"
+unauthorized_provision_states:
+  - "test"
+  - "null"
+  
+# 8.8
+# Format: The resource group and network watcher under it separated by a period -> resource_group.network_watcher
 resource_group_and_virtual_machine:
   - "test"
-#Control 8.8
-#Format by name of VM as outer list
-#Inner list are name of desired extensions for that VM
+
+# 8.8
+# Format: The outer list contains VM names, and each inner list contains the desired extensions for that VM
 desired_extensions:
   - - "vm1"
     - "extension1"
     - "extension2"
   - - "vm2"
-#Control 9.2
+
+# 9.2
+# Format: The resource group and web app under it separated by a period -> resource_group.web_app
 resource_group_and_app_name:
-  - "test"
-#Control 9.7
+  - "resource_group.web_app"
+
+# 9.7
 php_version_unsupported_web_app:
-  - "1.1"
-#Control 9.8
+  - "2.7"
+
+# 9.8
 python_version_unsupported_web_app:
   - "8.1"
-#Control 9.9
-#Example format: 1.3.17-java17
+
+# 9.9
+# Format: 1.3.17-java17
 java_version_unsupported_web_app:
   - "1.3.17-java17"
