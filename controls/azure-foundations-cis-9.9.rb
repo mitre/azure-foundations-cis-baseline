@@ -83,6 +83,7 @@ control 'azure-foundations-cis-9.9' do
   ensure_web_app_java_version_supported_script = %(
         $ErrorActionPreference = "Stop"
         $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
+        $java_count = 0
         $unsupported_java_versions = @(#{java_version_unsupported_web_app_list})
         foreach ($webApp in $filteredWebApps) {
             $resourceGroup = $webApp.ResourceGroup
@@ -99,6 +100,7 @@ control 'azure-foundations-cis-9.9' do
             if ($LinuxFxVersion -ne $null -and $LinuxFxVersion.Trim() -ne "") {
                 if ($LinuxFxVersion -like "*java*") {
                     $javaVersionFromLinuxFxVersion = ($LinuxFxVersion.Trim() -split '\\|')[1]
+                    $java_count += 1
                 }
             }
 
@@ -106,6 +108,7 @@ control 'azure-foundations-cis-9.9' do
             if ($WindowsFxVersion -ne $null -and $WindowsFxVersion.Trim() -ne "") {
                 if ($WindowsFxVersion -like "*java*") {
                     $javaVersionFromWindowsFxVersion = ($WindowsFxVersion.Trim() -split '\\|')[1]
+                    $java_count +=1
                 }
             }
             # Check if either Java version is unsupported
@@ -114,11 +117,18 @@ control 'azure-foundations-cis-9.9' do
                 Write-Output "$appName"
             }
         }
+        if ($java_count -eq 0){
+            Write-Output "N/A"
+        }
     )
 
   pwsh_output = powershell(ensure_web_app_java_version_supported_script)
   raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
+  only_if('N/A - No Java detected in any Web Applications', impact: 0) do
+    pwsh_output.stdout.strip != "N/A"
+  end
+  
   describe 'Ensure that the number of Web Applications/Resource Group combinations with unsupported SiteConfig.LinuxFXVersion for Java' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do

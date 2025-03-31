@@ -76,6 +76,7 @@ control 'azure-foundations-cis-9.7' do
   ensure_web_app_php_version_supported_script = %(
         $ErrorActionPreference = "Stop"
         $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
+        $php_count = 0
         $unsupported_php_versions = @(#{php_version_unsupported_web_app_list})
         foreach ($webApp in $filteredWebApps) {
             $resourceGroup = $webApp.ResourceGroup
@@ -87,16 +88,24 @@ control 'azure-foundations-cis-9.7' do
             $phpVersionFromLinuxFxVersion = $null
             if ($LinuxFxVersion -like "PHP|*") {
                 $phpVersionFromLinuxFxVersion = ($LinuxFxVersion.Trim() -split '\\|')[1]
+                $php_count += 1
             }
             if ($unsupported_php_versions -contains $phpVersionFromLinuxFxVersion) {
                 # Print the name of the web app
                 Write-Output $appName
             }
         }
+        if ($php_count -eq 0){
+            Write-Output "N/A"
+        }
     )
 
   pwsh_output = powershell(ensure_web_app_php_version_supported_script)
   raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  only_if('N/A - No PHP detected in any Web Applications', impact: 0) do
+    pwsh_output.stdout.strip != "N/A"
+  end
 
   describe 'Ensure that the number of Web Applications/Resource Group combinations with unsupported SiteConfig.LinuxFXVersion for PHP' do
     subject { pwsh_output.stdout.strip }
