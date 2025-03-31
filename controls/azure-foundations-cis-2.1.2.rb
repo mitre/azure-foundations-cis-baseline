@@ -93,6 +93,7 @@ control 'azure-foundations-cis-2.1.2' do
   ref 'https://stackoverflow.com/questions/41156206/azure-active-directory-premium-mfa-attributes-via-graph-api'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-identity-management#im-4-authenticate-server-and-services'
 
+  subscription_id = input('subscription_id')
   graph_token_cmd = 'az account get-access-token --resource https://graph.microsoft.com --query accessToken -o tsv'
   graph_token = command(graph_token_cmd).stdout.strip
 
@@ -100,32 +101,24 @@ control 'azure-foundations-cis-2.1.2' do
   management_token = command(management_token_cmd).stdout.strip
 
   graph_users = http('https://graph.microsoft.com/v1.0/users',
-                     method: 'GET',
-                     headers: { 'Authorization' => "Bearer #{graph_token}" })
-  describe graph_users do
-    its('status') { should cmp 200 }
-  end
-  users = JSON.parse(graph_users.body)['value']
-
-  subscription_id = input('subscription_id')
+                    method: 'GET',
+                    headers: { 'Authorization' => "Bearer #{graph_token}" })
 
   role_defs = http("https://management.azure.com/subscriptions/#{subscription_id}/providers/Microsoft.Authorization/roleDefinitions?api-version=2017-05-01",
-                   method: 'GET',
-                   headers: { 'Authorization' => "Bearer #{management_token}" })
-  describe role_defs do
-    its('status') { should cmp 200 }
-  end
+                    method: 'GET',
+                    headers: { 'Authorization' => "Bearer #{management_token}" })
+
+  role_assignments = http("https://management.azure.com/subscriptions/#{subscription_id}/providers/Microsoft.Authorization/roleassignments?api-version=2017-10-01-preview",
+                            method: 'GET',
+                            headers: { 'Authorization' => "Bearer #{management_token}" })
+
+  users = JSON.parse(graph_users.body)['value']
+
   role_definitions = JSON.parse(role_defs.body)['value']
   admin_role_ids = role_definitions.select do |role|
     role['properties']['roleName'].match?(/(Owner|Contributor|Admin)/i)
   end.map { |role| role['id'] }
 
-  role_assignments = http("https://management.azure.com/subscriptions/#{subscription_id}/providers/Microsoft.Authorization/roleassignments?api-version=2017-10-01-preview",
-                          method: 'GET',
-                          headers: { 'Authorization' => "Bearer #{management_token}" })
-  describe role_assignments do
-    its('status') { should cmp 200 }
-  end
   assignments = JSON.parse(role_assignments.body)['value']
   admin_user_ids = assignments.select do |assignment|
     assignment['properties']['principalType'] == 'User' &&
