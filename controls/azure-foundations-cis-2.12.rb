@@ -63,7 +63,8 @@ control 'azure-foundations-cis-2.12' do
   describe 'Ensure the output from DefaultUserRolePermissions.PermissionGrantPoliciesAssigned setting' do
     subject { pwsh_output.stdout.strip }
     it 'is empty' do
-      expect(subject).to be_empty
+      failure_message = "Recieved the following output: #{pwsh_output.stdout.strip}"
+      expect(subject).to be_empty, failure_message
     end
   end
 end

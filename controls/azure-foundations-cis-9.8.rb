@@ -76,6 +76,7 @@ control 'azure-foundations-cis-9.8' do
   ensure_web_app_python_version_supported_script = %(
         $ErrorActionPreference = "Stop"
         $filteredWebApps = Get-AzWebApp | Select-Object ResourceGroup, Name
+        $python_count = 0
         $unsupported_python_versions = @(#{python_version_unsupported_web_app_list})
         foreach ($webApp in $filteredWebApps) {
             $resourceGroup = $webApp.ResourceGroup
@@ -92,6 +93,7 @@ control 'azure-foundations-cis-9.8' do
             if ($LinuxFxVersion -ne $null -and $LinuxFxVersion.Trim() -ne "") {
                 if ($LinuxFxVersion -like "Python|*") {
                     $pythonVersionFromLinuxFxVersion = ($LinuxFxVersion.Trim() -split '\\|')[1]
+                    $python_count += 1
                 }
             }
 
@@ -99,6 +101,7 @@ control 'azure-foundations-cis-9.8' do
             if ($WindowsFxVersion -ne $null -and $WindowsFxVersion.Trim() -ne "") {
                 if ($WindowsFxVersion -like "Python|*") {
                     $pythonVersionFromWindowsFxVersion = ($WindowsFxVersion.Trim() -split '\\|')[1]
+                    $python_count += 1
                 }
             }
 
@@ -108,10 +111,17 @@ control 'azure-foundations-cis-9.8' do
                 Write-Output "$appName"
             }
         }
+        if ($python_count -eq 0){
+            Write-Output "N/A"
+        }
     )
 
   pwsh_output = powershell(ensure_web_app_python_version_supported_script)
   raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+  only_if('N/A - No Python detected in any Web Applications', impact: 0) do
+    pwsh_output.stdout.strip != "N/A"
+  end
 
   describe 'Ensure that the number of Web Applications/Resource Group combinations with unsupported SiteConfig.LinuxFXVersion for Python' do
     subject { pwsh_output.stdout.strip }
