@@ -77,7 +77,17 @@ control 'azure-foundations-cis-5.1.4' do
     end
   end
 
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
+
+  if all_storage.is_a?(Array)
+    rg_sa_list = all_storage.map { |account| account['ResourceGroupName'] + '.' + account['StorageAccountName'] }
+  elsif all_storage.is_a?(Hash)
+    rg_sa_list = [ all_storage['ResourceGroupName'] + '.' + all_storage['StorageAccountName'] ]
+  else
+    rg_sa_list = []
+  end
+
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
   rg_sa_list.each do |pair|
     resource_group, = pair.split('.')
