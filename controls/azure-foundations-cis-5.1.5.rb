@@ -100,37 +100,43 @@ control 'azure-foundations-cis-5.1.5' do
       resource_group_server = server['ResourceGroupName']
       server_name = server['ServerName']
 
-      databases_script = <<-EOH
+      if resource_group_server.to_s.empty? || server_name.to_s.empty?
+        describe "Ensure that 'Data encryption' is set to 'On' on a SQL Database" do
+          skip 'ResourceGroupName or ServerName is empty, skipping audit test'
+        end
+      else
+        databases_script = <<-EOH
         $ErrorActionPreference = "Stop"
         Get-AzSqlDatabase -ServerName "#{server_name}" -ResourceGroupName "#{resource_group_server}" | ConvertTo-Json -Depth 10
-      EOH
+        EOH
 
-      databases_output_pwsh = powershell(databases_script)
-      databases_output = databases_output_pwsh.stdout.strip
-      raise Inspec::Error, "The powershell output returned the following error:  #{databases_output_pwsh.stderr}" if databases_output_pwsh.exit_status != 0
+        databases_output_pwsh = powershell(databases_script)
+        databases_output = databases_output_pwsh.stdout.strip
+        raise Inspec::Error, "The powershell output returned the following error:  #{databases_output_pwsh.stderr}" if databases_output_pwsh.exit_status != 0
 
-      databases = json(content: databases_output).params
-      databases = [databases] unless databases.is_a?(Array)
+        databases = json(content: databases_output).params
+        databases = [databases] unless databases.is_a?(Array)
 
-      databases.each do |db|
-        db_name = db['DatabaseName']
+        databases.each do |db|
+          db_name = db['DatabaseName']
 
-        next if db_name.downcase == 'master'
+          next if db_name.downcase == 'master'
 
-        describe "Transparent Data Encryption for database '#{db_name}' on SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
-          tde_script = <<-EOH
+          describe "Transparent Data Encryption for database '#{db_name}' on SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
+            tde_script = <<-EOH
             $ErrorActionPreference = "Stop"
             Get-AzSqlDatabaseTransparentDataEncryption -ServerName "#{server_name}" -ResourceGroupName "#{resource_group_server}" -DatabaseName "#{db_name}" | ConvertTo-Json -Depth 10
-          EOH
+            EOH
 
-          tde_output_pwsh = powershell(tde_script)
-          tde_output = tde_output_pwsh.stdout.strip
-          raise Inspec::Error, "The powershell output returned the following error:  #{tde_output_pwsh.stderr}" if tde_output_pwsh.exit_status != 0
+            tde_output_pwsh = powershell(tde_script)
+            tde_output = tde_output_pwsh.stdout.strip
+            raise Inspec::Error, "The powershell output returned the following error:  #{tde_output_pwsh.stderr}" if tde_output_pwsh.exit_status != 0
 
-          tde = json(content: tde_output).params
+            tde = json(content: tde_output).params
 
-          it 'should have DataEncryption (TDE) enabled' do
-            expect(tde['State']).to cmp 0
+            it 'should have DataEncryption (TDE) enabled' do
+              expect(tde['State']).to cmp 0
+            end
           end
         end
       end
