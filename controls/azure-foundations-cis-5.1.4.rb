@@ -112,20 +112,26 @@ control 'azure-foundations-cis-5.1.4' do
       server_name = server['ServerName']
       resource_group_server = server['ResourceGroupName']
 
-      script = <<-EOH
+      if resource_group_server.to_s.empty? || server_name.to_s.empty?
+        describe "Ensure that Microsoft Entra authentication is Configured for SQL Servers" do
+          skip 'ResourceGroupName or ServerName is empty, skipping audit test'
+        end
+      else
+        script = <<-EOH
         $ErrorActionPreference = "Stop"
         Get-AzSqlServerActiveDirectoryAdministrator -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
-      EOH
+        EOH
 
-      output_pwsh = powershell(script)
-      output = output_pwsh.stdout.strip
-      raise Inspec::Error, "The powershell output returned the following error:  #{output_pwsh.stderr}" if output_pwsh.exit_status != 0
+        output_pwsh = powershell(script)
+        output = output_pwsh.stdout.strip
+        raise Inspec::Error, "The powershell output returned the following error:  #{output_pwsh.stderr}" if output_pwsh.exit_status != 0
 
-      ad_admin = json(content: output).params
+        ad_admin = json(content: output).params
 
-      describe "Microsoft Entra authentication for SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
-        it 'has a non-empty Admin Name' do
-          expect(ad_admin['DisplayName'].to_s.strip).not_to be_empty
+        describe "Microsoft Entra authentication for SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
+          it 'has a non-empty Admin Name' do
+            expect(ad_admin['DisplayName'].to_s.strip).not_to be_empty
+          end
         end
       end
     end

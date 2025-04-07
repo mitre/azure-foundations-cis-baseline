@@ -126,29 +126,35 @@ control 'azure-foundations-cis-5.1.2' do
       server_name = server['ServerName']
       resource_group_server = server['ResourceGroupName']
 
-      describe "Firewall rules for SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
-        firewall_rules_script = <<-EOH
+      if resource_group_server.to_s.empty? || server_name.to_s.empty?
+        describe "Ensure no Azure SQL Databases allow ingress from 0.0.0.0/0 (ANY IP)" do
+          skip 'ResourceGroupName or ServerName is empty, skipping audit test'
+        end
+      else
+        describe "Firewall rules for SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
+          firewall_rules_script = <<-EOH
           $ErrorActionPreference = "Stop"
           Get-AzSqlServerFirewallRule -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
-        EOH
+          EOH
 
-        firewall_rules_output_pwsh = powershell(firewall_rules_script)
-        firewall_rules_output = firewall_rules_output_pwsh.stdout.strip
-        raise Inspec::Error, "The powershell output returned the following error:  #{firewall_rules_output_pwsh.stderr}" if firewall_rules_output_pwsh.exit_status != 0
+          firewall_rules_output_pwsh = powershell(firewall_rules_script)
+          firewall_rules_output = firewall_rules_output_pwsh.stdout.strip
+          raise Inspec::Error, "The powershell output returned the following error:  #{firewall_rules_output_pwsh.stderr}" if firewall_rules_output_pwsh.exit_status != 0
 
-        firewall_rules = json(content: firewall_rules_output).params
-        firewall_rules = [firewall_rules] unless firewall_rules.is_a?(Array)
+          firewall_rules = json(content: firewall_rules_output).params
+          firewall_rules = [firewall_rules] unless firewall_rules.is_a?(Array)
 
-        firewall_rules.each do |rule|
-          describe "Firewall Rule '#{rule['FirewallRuleName']}' on SQL Server '#{server_name}'" do
-            it 'should not allow overly permissive access via StartIpAddress' do
-              start_ip = rule['StartIpAddress']
-              expect(start_ip).not_to match(%r{^0\.0\.0\.0(/0)?$})
-            end
+          firewall_rules.each do |rule|
+            describe "Firewall Rule '#{rule['FirewallRuleName']}' on SQL Server '#{server_name}'" do
+              it 'should not allow overly permissive access via StartIpAddress' do
+                start_ip = rule['StartIpAddress']
+                expect(start_ip).not_to match(%r{^0\.0\.0\.0(/0)?$})
+              end
 
-            it "should not be named 'AllowAllWindowsAzureIps'" do
-              rule_name = rule['FirewallRuleName']
-              expect(rule_name).not_to match(/AllowAllWindowsAzureIps/i)
+              it "should not be named 'AllowAllWindowsAzureIps'" do
+                rule_name = rule['FirewallRuleName']
+                expect(rule_name).not_to match(/AllowAllWindowsAzureIps/i)
+              end
             end
           end
         end
