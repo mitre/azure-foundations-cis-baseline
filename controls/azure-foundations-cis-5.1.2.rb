@@ -127,7 +127,7 @@ control 'azure-foundations-cis-5.1.2' do
       resource_group_server = server['ResourceGroupName']
 
       if resource_group_server.to_s.empty? || server_name.to_s.empty?
-        describe "Ensure no Azure SQL Databases allow ingress from 0.0.0.0/0 (ANY IP)" do
+        describe 'Ensure no Azure SQL Databases allow ingress from 0.0.0.0/0 (ANY IP)' do
           skip 'ResourceGroupName or ServerName is empty, skipping audit test'
         end
       else
