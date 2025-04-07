@@ -72,13 +72,14 @@ control 'azure-foundations-cis-5.1.1' do
   all_storage = json(content: storage_output).params
   exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  if all_storage.is_a?(Array)
-    rg_sa_list = all_storage.map { |account| account['ResourceGroupName'] + '.' + account['StorageAccountName'] }
-  elsif all_storage.is_a?(Hash)
-    rg_sa_list = [ all_storage['ResourceGroupName'] + '.' + all_storage['StorageAccountName'] ]
-  else
-    rg_sa_list = []
-  end
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
@@ -99,25 +100,32 @@ control 'azure-foundations-cis-5.1.1' do
     sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
     sql_servers.each do |server|
+      resource_group_server = server['ResourceGroupName']
       server_name = server['ServerName']
 
-      describe "SQL Server Audit Settings for #{server_name} (Resource Group: #{resource_group})" do
-        audit_script = <<-EOH
-          $ErrorActionPreference = "Stop"
-          Get-AzSqlServerAudit -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
-        EOH
+      if resource_group_server.to_s.empty? || server_name.to_s.empty?
+        describe "Ensure that 'Auditing' Retention is 'greater than 90 days'" do
+          skip 'ResourceGroupName or ServerName is empty, skipping audit test'
+        end
+      else
+        describe "SQL Server Audit Settings for #{server_name} (Resource Group: #{resource_group})" do
+          audit_script = <<-EOH
+            $ErrorActionPreference = "Stop"
+            Get-AzSqlServerAudit -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+          EOH
 
-        audit_output_pwsh = powershell(audit_script)
-        audit_output = audit_output_pwsh.stdout.strip
-        raise Inspec::Error, "The powershell output returned the following error:  #{audit_output_pwsh.stderr}" if audit_output_pwsh.exit_status != 0
+          audit_output_pwsh = powershell(audit_script)
+          audit_output = audit_output_pwsh.stdout.strip
+          raise Inspec::Error, "The powershell output returned the following error:  #{audit_output_pwsh.stderr}" if audit_output_pwsh.exit_status != 0
 
-        audit = json(content: audit_output).params
+          audit = json(content: audit_output).params
 
-        it 'has at least one audit target enabled' do
-          blob_enabled = audit['BlobStorageTargetState'] == 'Enabled'
-          eventhub_enabled = audit['EventHubTargetState'] == 'Enabled'
-          loganalytics_enabled = audit['LogAnalyticsTargetState'] == 'Enabled'
-          expect(blob_enabled || eventhub_enabled || loganalytics_enabled).to cmp true
+          it 'has at least one audit target enabled' do
+            blob_enabled = audit['BlobStorageTargetState'] == 'Enabled'
+            eventhub_enabled = audit['EventHubTargetState'] == 'Enabled'
+            loganalytics_enabled = audit['LogAnalyticsTargetState'] == 'Enabled'
+            expect(blob_enabled || eventhub_enabled || loganalytics_enabled).to cmp true
+          end
         end
       end
     end
