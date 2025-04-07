@@ -113,7 +113,7 @@ control 'azure-foundations-cis-5.1.4' do
       resource_group_server = server['ResourceGroupName']
 
       if resource_group_server.to_s.empty? || server_name.to_s.empty?
-        describe "Ensure that Microsoft Entra authentication is Configured for SQL Servers" do
+        describe 'Ensure that Microsoft Entra authentication is Configured for SQL Servers' do
           skip 'ResourceGroupName or ServerName is empty, skipping audit test'
         end
       else

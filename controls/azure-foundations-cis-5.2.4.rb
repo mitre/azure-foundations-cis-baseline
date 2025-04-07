@@ -97,20 +97,26 @@ control 'azure-foundations-cis-5.2.4' do
     postgres_servers.each do |server|
       server_name = server['Name']
 
-      describe "PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}' logfiles.retention_days configuration" do
-        config_script = <<-EOH
+      if server_name.to_s.empty?
+        describe "Ensure server parameter 'logfiles.retention_days' is greater than 3 days for PostgreSQL flexible server" do
+          skip 'Name is empty, skipping audit test'
+        end
+      else
+        describe "PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}' logfiles.retention_days configuration" do
+          config_script = <<-EOH
             $ErrorActionPreference = "Stop"
 						Get-AzPostgreSqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name logfiles.retention_days | ConvertTo-Json -Depth 10
-        EOH
+          EOH
 
-        config_output_pwsh = powershell(config_script)
-        config_output = config_output_pwsh.stdout.strip
-        raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
+          config_output_pwsh = powershell(config_script)
+          config_output = config_output_pwsh.stdout.strip
+          raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
 
-        configuration = json(content: config_output).params
+          configuration = json(content: config_output).params
 
-        it 'should have logfiles.retention_days set to a value greater than 3' do
-          expect(configuration['Value'].to_i).to be > 3
+          it 'should have logfiles.retention_days set to a value greater than 3' do
+            expect(configuration['Value'].to_i).to be > 3
+          end
         end
       end
     end

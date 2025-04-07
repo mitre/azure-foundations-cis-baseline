@@ -110,20 +110,26 @@ control 'azure-foundations-cis-5.3.2' do
     servers.each do |server|
       server_name = server['Name']
 
-      describe "MySQL Flexible Server '#{server_name}' tls_version configuration" do
-        config_script = <<-EOH
+      if server_name.to_s.empty?
+        describe "Ensure server parameter 'tls_version' is set to 'TLSv1.2' (or higher) for MySQL flexible server" do
+          skip 'Name is empty, skipping audit test'
+        end
+      else
+        describe "MySQL Flexible Server '#{server_name}' tls_version configuration" do
+          config_script = <<-EOH
           $ErrorActionPreference = "Stop"
 					Get-AzMysqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name tls_version | ConvertTo-Json -Depth 10
-        EOH
+          EOH
 
-        config_output_pwsh = powershell(config_script)
-        config_output = config_output_pwsh.stdout.strip
-        raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
+          config_output_pwsh = powershell(config_script)
+          config_output = config_output_pwsh.stdout.strip
+          raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
 
-        configuration = json(content: config_output).params
+          configuration = json(content: config_output).params
 
-        it 'should include TLSv1.2' do
-          expect(configuration['Value']).to match(/TLSv1\.2/)
+          it 'should include TLSv1.2' do
+            expect(configuration['Value']).to match(/TLSv1\.2/)
+          end
         end
       end
     end
