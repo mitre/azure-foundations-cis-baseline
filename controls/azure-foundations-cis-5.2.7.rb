@@ -69,6 +69,9 @@ control 'azure-foundations-cis-5.2.7' do
     servers_exist && input('postgresql_single_server')
   end
 
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
   exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
   if all_storage.is_a?(Array)

@@ -89,6 +89,9 @@ control 'azure-foundations-cis-5.1.3' do
     }
   end.compact
 
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
   exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
   if all_storage.is_a?(Array)
