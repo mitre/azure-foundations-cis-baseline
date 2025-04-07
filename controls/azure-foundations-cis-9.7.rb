@@ -104,7 +104,7 @@ control 'azure-foundations-cis-9.7' do
   raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   only_if('N/A - No PHP detected in any Web Applications', impact: 0) do
-    pwsh_output.stdout.strip != "N/A"
+    pwsh_output.stdout.strip != 'N/A'
   end
 
   describe 'Ensure that the number of Web Applications/Resource Group combinations with unsupported SiteConfig.LinuxFXVersion for PHP' do

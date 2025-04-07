@@ -76,19 +76,20 @@ control 'azure-foundations-cis-5.1.4' do
       false
     end
   end
-  
+
   storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
   storage_output = powershell(storage_script).stdout.strip
   all_storage = json(content: storage_output).params
   exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  if all_storage.is_a?(Array)
-    rg_sa_list = all_storage.map { |account| account['ResourceGroupName'] + '.' + account['StorageAccountName'] }
-  elsif all_storage.is_a?(Hash)
-    rg_sa_list = [ all_storage['ResourceGroupName'] + '.' + all_storage['StorageAccountName'] ]
-  else
-    rg_sa_list = []
-  end
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
