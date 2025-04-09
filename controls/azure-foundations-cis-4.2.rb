@@ -102,6 +102,23 @@ control 'azure-foundations-cis-4.2' do
     end
   end
 
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
+
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
+
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
+    !rg_sa_list.empty?
+  end
+
   query = command('az storage account list --query "[?encryption.requireInfrastructureEncryption==\`false\`].{Name:name}" --output tsv').stdout
 
   describe "Ensure that the number of storage accounts with InfrastructureEncryption setting set to 'False" do
