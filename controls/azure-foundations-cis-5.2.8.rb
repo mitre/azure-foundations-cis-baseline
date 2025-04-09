@@ -47,7 +47,7 @@ control 'azure-foundations-cis-5.2.8' do
   ref 'https://docs.microsoft.com/en-us/azure/postgresql/howto-double-encryption'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-data-protection#dp-4-enable-data-at-rest-encryption-by-default'
 
-  only_if('N/A for Azure Database for PostgreSQL flexible servers', impact: 0) do
+  only_if('N/A - Control applicable only if using PostgreSQL single server', impact: 0) do
     input('postgresql_single_server')
   end
 

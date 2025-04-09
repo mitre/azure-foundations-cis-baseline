@@ -99,6 +99,10 @@ control 'azure-foundations-cis-4.6' do
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
+  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
+    !rg_sa_list.empty?
+  end
+
   script = <<-EOH
     $ErrorActionPreference = "Stop"
 		$rg_sa_list = ConvertFrom-Json '#{rg_sa_list.to_json}'

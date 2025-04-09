@@ -56,7 +56,7 @@ control 'azure-foundations-cis-5.2.7' do
   servers_output = powershell(servers_script).stdout.strip
   all_servers = json(content: servers_output).params
 
-  only_if('Control applicable only if PostgreSQL Flexible Servers exist and using PostgreSQL single server', impact: 0) do
+  only_if('N/A - Control applicable only if PostgreSQL Flexible Servers exist and using PostgreSQL single server', impact: 0) do
     servers_exist = case all_servers
                     when Array
                       !all_servers.empty?
@@ -84,6 +84,10 @@ control 'azure-foundations-cis-5.2.7' do
                end
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
+    !rg_sa_list.empty?
+  end
 
   rg_sa_list.each do |pair|
     resource_group, = pair.split('.')
