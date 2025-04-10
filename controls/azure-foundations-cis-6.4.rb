@@ -99,9 +99,7 @@ control 'azure-foundations-cis-6.4' do
   end
 
   subscription_id = input('subscription_id')
-
-  describe "Diagnostic Settings across all resources in Subscription #{subscription_id}" do
-    script = <<-EOH
+  script = <<-EOH
             $ErrorActionPreference = "Stop"
             Set-AzContext -Subscription #{subscription_id} | Out-Null
             $resources = Get-AzResource
@@ -113,11 +111,13 @@ control 'azure-foundations-cis-6.4' do
             }
     EOH
 
-    pwsh_output = powershell(script)
-    raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+  pwsh_output = powershell(script)
+  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-    describe pwsh_output do
-      its('stdout') { should_not match(/Diagnostic Settings not configured for resource:/) }
+  describe 'Ensure subscription when checking diagnostic settings' do
+      it 'does not indicate missing configuration for any resource' do
+        failure_message = "The following resources do not have diagnostic settings configured: #{pwsh_output.stdout}"
+          expect(pwsh_output.stdout).not_to match(/Diagnostic Settings not configured for resource:/), failure_message
+        end
     end
-  end
 end
