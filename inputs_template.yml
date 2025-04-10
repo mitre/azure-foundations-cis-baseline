@@ -94,12 +94,7 @@ resource_group_and_virtual_machine:
   - "resource_group.virtual_machine"
 
 # 8.8
-# Format: The outer list contains VM names, and each inner list contains the desired extensions for that VM
-desired_extensions:
-  - - "vm1"
-    - "extension1"
-    - "extension2"
-  - - "vm2"
+desired_extensions: "test"
 
 # 9.2
 # Format: The resource group and web app under it separated by a period -> resource_group.web_app
