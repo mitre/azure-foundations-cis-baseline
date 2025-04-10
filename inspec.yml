@@ -163,12 +163,10 @@ inputs:
       - ""
 
   # 8.8
-  - name: desired_extensions
+  - name: desired_extension
     description: "Desired extensions for each VM. Format by name of VM as outer list; inner list are desired extensions for that VM"
-    type: array
-    value:
-      - - ""
-        - ""
+    type: string
+    value: ""
 
   # 9.2
   - name: resource_group_and_app_name
