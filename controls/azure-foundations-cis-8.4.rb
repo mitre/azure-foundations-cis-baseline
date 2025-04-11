@@ -70,12 +70,15 @@ control 'azure-foundations-cis-8.4' do
     end
   end
 
-  unattached_list = command("az disk list --query '[? diskstate == `Unattached`].{encryptionSettings: encryptionSettings, name: name}' -o json").stdout.strip
+  unattached_list_command = command("az disk list --query '[? diskstate == 'Unattached'].{name: name}' -o json")
+  raise Inspec::Error, "The command output returned the following error:  #{unattached_list_command.stderr}" if unattached_list_command.exit_status != 0
 
+  unattached_list = JSON.parse(unattached_list_command.stdout.strip)
   describe 'Ensure that the number of unattached disks without encryption' do
     subject { unattached_list }
     it 'is 0' do
-      expect(subject).to eq('[]')
+      failure_message = "The following unattached disks are do not have encryption: #{subject}"
+      expect(subject).to be_empty, failure_message
     end
   end
 end
