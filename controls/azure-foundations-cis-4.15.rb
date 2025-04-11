@@ -102,7 +102,6 @@ control 'azure-foundations-cis-4.15' do
     describe "Minimum TLS version for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
       script = <<-EOH
                 $ErrorActionPreference = "Stop"
-                Set-AzContext -Subscription #{subscription_id} | Out-Null
                 (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").MinimumTlsVersion
       EOH
 

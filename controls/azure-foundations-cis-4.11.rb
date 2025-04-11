@@ -104,7 +104,6 @@ control 'azure-foundations-cis-4.11' do
     describe "Encryption configuration for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
       script = <<-EOH
                 $ErrorActionPreference = "Stop"
-                Set-AzContext -Subscription #{subscription_id} | Out-Null
                 (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").Encryption.KeySource
       EOH
 

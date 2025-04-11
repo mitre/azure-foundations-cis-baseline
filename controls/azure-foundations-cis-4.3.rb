@@ -117,40 +117,42 @@ control 'azure-foundations-cis-4.3' do
     !rg_sa_list.empty?
   end
 
+  failed_key_expiration = []
+  failed_key1 = []
+  failed_key2 = []
+
   rg_sa_list.each do |pair|
     resource_group, storage_account = pair.split('.')
 
-    describe "Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-      script = <<-EOH
-                $account = Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}"
-                $result = [PSCustomObject]@{
-                    Name                      = "#{storage_account}"
-                    KeyExpirationPeriodInDays = $account.KeyPolicy.KeyExpirationPeriodInDays
-                    Key1CreationTime          = if ($account.KeyCreationTime.Key1) { $account.KeyCreationTime.Key1.ToString("yyyy-MM-dd") } else { "" }
-                    Key2CreationTime          = if ($account.KeyCreationTime.Key2) { $account.KeyCreationTime.Key2.ToString("yyyy-MM-dd") } else { "" }
-                }
-                $result | ConvertTo-Json -Compress
-      EOH
+    script = <<-EOH
+      $account = Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}"
+      $result = [PSCustomObject]@{
+          Name = "#{storage_account}"
+          KeyExpirationPeriodInDays = $account.KeyPolicy.KeyExpirationPeriodInDays
+          Key1CreationTime = if ($account.KeyCreationTime.Key1) { $account.KeyCreationTime.Key1.ToString("yyyy-MM-dd") } else { "" }
+          Key2CreationTime = if ($account.KeyCreationTime.Key2) { $account.KeyCreationTime.Key2.ToString("yyyy-MM-dd") } else { "" }
+      }
+      $result | ConvertTo-Json -Compress
+    EOH
 
-      account_info = json(command: "pwsh -NoProfile -NonInteractive -Command '#{script}'")
+    account_info = json(command: "pwsh -NoProfile -NonInteractive -Command '#{script}'")
 
-      describe 'Key Expiration Reminder' do
-        it 'should be set to 90 days' do
-          expect(account_info['KeyExpirationPeriodInDays']).to cmp 90
-        end
-      end
+    failed_key_expiration << "#{resource_group}.#{storage_account}" if account_info['KeyExpirationPeriodInDays'] != 90
+    failed_key1 << "#{resource_group}.#{storage_account}" if account_info['Key1CreationTime'] == ''
+    failed_key2 << "#{resource_group}.#{storage_account}" if account_info['Key2CreationTime'] == ''
+  end
 
-      describe 'Key1 Creation Time' do
-        it 'should not be empty' do
-          expect(account_info['Key1CreationTime']).not_to eq('')
-        end
-      end
+  describe 'Storage Accounts Key Expiration Reminder' do
+    it 'should be set to 90 days for all accounts' do
+      expect(failed_key_expiration).to be_empty, "The following storage accounts do not have a 90-day key expiration: #{failed_key_expiration.join(', ')}"
+    end
 
-      describe 'Key2 Creation Time' do
-        it 'should not be empty' do
-          expect(account_info['Key2CreationTime']).not_to eq('')
-        end
-      end
+    it 'should have Key1 creation time set for all accounts' do
+      expect(failed_key1).to be_empty, "The following storage accounts have an empty Key1 creation time: #{failed_key1.join(', ')}"
+    end
+
+    it 'should have Key2 creation time set for all accounts' do
+      expect(failed_key2).to be_empty, "The following storage accounts have an empty Key2 creation time: #{failed_key2.join(', ')}"
     end
   end
 end

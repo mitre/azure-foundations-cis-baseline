@@ -103,6 +103,8 @@ control 'azure-foundations-cis-4.4' do
   storage_accounts = json(content: storage_output).params
   storage_accounts = [storage_accounts] unless storage_accounts.is_a?(Array)
 
+  failed_regeneration = []
+
   storage_accounts.each do |sa|
     sa_id = sa['id']
     sa_name = sa['name']
@@ -124,10 +126,12 @@ control 'azure-foundations-cis-4.4' do
         event['status']['value'] == 'Succeeded'
     end
 
-    describe "Storage Account '#{sa_name}' (Resource Group: #{sa_rg}) key regeneration" do
-      it 'should have at least one successful key regeneration event in the past 90 days' do
-        expect(compliant_event).to cmp true
-      end
+    failed_regeneration << "#{sa_rg}.#{sa_name}" unless compliant_event
+  end
+
+  describe 'Storage Accounts Key Regeneration' do
+    it 'should have at least one successful key regeneration event in the past 90 days for all accounts' do
+      expect(failed_regeneration).to be_empty, "The following storage accounts do not have a successful key regeneration event in the past 90 days: #{failed_regeneration.join(', ')}"
     end
   end
 end
