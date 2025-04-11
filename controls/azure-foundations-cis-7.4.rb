@@ -71,34 +71,76 @@ control 'azure-foundations-cis-7.4' do
   end
 
   query = command('az network nsg list --query "[*].[name,securityRules]" -o json').stdout
-  query_results_json = JSON.parse(query) unless query.empty?
-  query_results_json.each do |nsg|
-    nsg_name = nsg[0] # NSG name
-    security_rules = nsg[1]
-    describe "NSG: #{nsg_name}" do
-      it 'should not return any unrestricted HTTP/HTTPS rule' do
-        insecure_rules = security_rules.select do |rule|
-          rule['access'] == 'Allow' &&
-            rule['direction'] == 'Inbound' &&
-            rule['protocol'] == 'TCP' &&
-            (
-              rule['destinationPortRange'] == '80' ||
-              rule['destinationPortRange'] == '443' ||
-              rule['destinationPortRange'] == '*' ||
-              (rule['destinationPortRange'] =~ /80|443/) # Port range containing 80 or 443
-            ) &&
-            (
-              rule['sourceAddressPrefix'] == '*' ||
-              rule['sourceAddressPrefix'] == '0.0.0.0' ||
-              rule['sourceAddressPrefix'] == '/0' ||
-              rule['sourceAddressPrefix'] =~ %r{/0} || # CIDR ranges ending in /0
-              rule['sourceAddressPrefix'].downcase == 'internet' ||
-              rule['sourceAddressPrefix'].downcase == 'any'
-            )
-        end
-        failure_message = "Check #{nsg_name} NSG's HTTP/HTTPS access, direction, protocol, destinationPortRange, and sourceAddressPrefix fields for proper configurations"
-        expect(insecure_rules).to be_empty, failure_message # Ensure no insecure rules exist
-      end
-    end
+query_results_json = JSON.parse(query) unless query.empty?
+
+# Collect NSGs with at least one insecure HTTP/HTTPS rule
+nsgs_with_insecure_rules = query_results_json.select do |nsg|
+  nsg_name = nsg[0]
+  security_rules = nsg[1]
+
+  security_rules.any? do |rule|
+    rule['access'] == 'Allow' &&
+      rule['direction'] == 'Inbound' &&
+      rule['protocol'] == 'TCP' &&
+      (
+        rule['destinationPortRange'] == '80' ||
+        rule['destinationPortRange'] == '443' ||
+        rule['destinationPortRange'] == '*' ||
+        (rule['destinationPortRange'] =~ /80|443/)
+      ) &&
+      (
+        rule['sourceAddressPrefix'] == '*' ||
+        rule['sourceAddressPrefix'] == '0.0.0.0' ||
+        rule['sourceAddressPrefix'] == '/0' ||
+        rule['sourceAddressPrefix'] =~ %r{/0} ||
+        rule['sourceAddressPrefix'].downcase == 'internet' ||
+        rule['sourceAddressPrefix'].downcase == 'any'
+      )
   end
+end
+
+describe 'Network Security Groups (NSGs)' do
+  it 'should not have any unrestricted HTTP/HTTPS rules' do
+    failure_message = nsgs_with_insecure_rules.map do |nsg|
+      nsg_name = nsg[0]
+      security_rules = nsg[1]
+
+      insecure_rules = security_rules.select do |rule|
+        rule['access'] == 'Allow' &&
+          rule['direction'] == 'Inbound' &&
+          rule['protocol'] == 'TCP' &&
+          (
+            rule['destinationPortRange'] == '80' ||
+            rule['destinationPortRange'] == '443' ||
+            rule['destinationPortRange'] == '*' ||
+            (rule['destinationPortRange'] =~ /80|443/)
+          ) &&
+          (
+            rule['sourceAddressPrefix'] == '*' ||
+            rule['sourceAddressPrefix'] == '0.0.0.0' ||
+            rule['sourceAddressPrefix'] == '/0' ||
+            rule['sourceAddressPrefix'] =~ %r{/0} ||
+            rule['sourceAddressPrefix'].downcase == 'internet' ||
+            rule['sourceAddressPrefix'].downcase == 'any'
+          )
+      end
+
+      # Format the failure message for this NSG
+      rules_messages = insecure_rules.map do |rule|
+        <<~RULE_DETAILS
+          Rule '#{rule['name']}' failed due to matched insecure configuration:
+          - Access: #{rule['access']} (Matched Condition: #{'Access is "Allow"' if rule['access'] == 'Allow'})
+          - Direction: #{rule['direction']} (Matched Condition: #{'Direction is "Inbound"' if rule['direction'] == 'Inbound'})
+          - Protocol: #{rule['protocol']} (Matched Condition: #{'Protocol is "TCP"' if rule['protocol'] == 'TCP'})
+          - Destination Port Range: #{rule['destinationPortRange']} (Matched Condition: #{'Destination Port Range is "80", "443", "*", or matches /80|443/' if rule['destinationPortRange'] == '80' || rule['destinationPortRange'] == '443' || rule['destinationPortRange'] == '*' || (rule['destinationPortRange'] =~ /80|443/)})
+          - Source Address Prefix: #{rule['sourceAddressPrefix']} (Matched Condition: #{'Source Address Prefix is "*", "0.0.0.0", "/0", matches /0, "internet", or "any"' if rule['sourceAddressPrefix'] == '*' || rule['sourceAddressPrefix'] == '0.0.0.0' || rule['sourceAddressPrefix'] == '/0' || rule['sourceAddressPrefix'] =~ %r{/0} || rule['sourceAddressPrefix'].downcase == 'internet' || rule['sourceAddressPrefix'].downcase == 'any'})
+        RULE_DETAILS
+      end.join("\n")
+      "NSG '#{nsg_name}' has the following insecure rules:\n#{rules_messages}"
+    end.join("\n\n")
+
+    expect(nsgs_with_insecure_rules).to be_empty, failure_message
+  end
+end
+
 end

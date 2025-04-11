@@ -55,32 +55,72 @@ control 'azure-foundations-cis-7.3' do
   end
 
   query = command('az network nsg list --query "[*].[name,securityRules]" -o json').stdout
-  query_results_json = JSON.parse(query) unless query.empty?
-  query_results_json.each do |nsg|
-    nsg_name = nsg[0]
-    security_rules = nsg[1]
-    describe "NSG: #{nsg_name}" do
-      it 'should not return any unrestricted UDP rule' do
-        insecure_rules = security_rules.select do |rule|
-          rule['access'] == 'Allow' &&
-            rule['direction'] == 'Inbound' &&
-            rule['protocol'] == 'UDP' &&
-            (
-              rule['destinationPortRange'] == '*' ||
-              (rule['destinationPortRange'] =~ /53|123|161|389|1900/)
-            ) &&
-            (
-              rule['sourceAddressPrefix'] == '*' ||
-              rule['sourceAddressPrefix'] == '0.0.0.0' ||
-              rule['sourceAddressPrefix'] == '/0' ||
-              rule['sourceAddressPrefix'] =~ %r{/0} ||
-              rule['sourceAddressPrefix'].downcase == 'internet' ||
-              rule['sourceAddressPrefix'].downcase == 'any'
-            )
-        end
-        failure_message = "Check #{nsg_name} NSG's UDP access, direction, protocol, destinationPortRange, and sourceAddressPrefix fields for proper configurations"
-        expect(insecure_rules).to be_empty, failure_message
-      end
-    end
+query_results_json = JSON.parse(query) unless query.empty?
+
+# Collect NSGs with at least one insecure UDP rule
+nsgs_with_insecure_rules = query_results_json.select do |nsg|
+  nsg_name = nsg[0]
+  security_rules = nsg[1]
+
+  security_rules.any? do |rule|
+    rule['access'] == 'Allow' &&
+      rule['direction'] == 'Inbound' &&
+      rule['protocol'] == 'UDP' &&
+      (
+        rule['destinationPortRange'] == '*' ||
+        (rule['destinationPortRange'] =~ /53|123|161|389|1900/)
+      ) &&
+      (
+        rule['sourceAddressPrefix'] == '*' ||
+        rule['sourceAddressPrefix'] == '0.0.0.0' ||
+        rule['sourceAddressPrefix'] == '/0' ||
+        rule['sourceAddressPrefix'] =~ %r{/0} ||
+        rule['sourceAddressPrefix'].downcase == 'internet' ||
+        rule['sourceAddressPrefix'].downcase == 'any'
+      )
   end
+end
+
+describe 'Network Security Groups (NSGs)' do
+  it 'should not have any unrestricted UDP rules' do
+    failure_message = nsgs_with_insecure_rules.map do |nsg|
+      nsg_name = nsg[0]
+      security_rules = nsg[1]
+
+      insecure_rules = security_rules.select do |rule|
+        rule['access'] == 'Allow' &&
+          rule['direction'] == 'Inbound' &&
+          rule['protocol'] == 'UDP' &&
+          (
+            rule['destinationPortRange'] == '*' ||
+            (rule['destinationPortRange'] =~ /53|123|161|389|1900/)
+          ) &&
+          (
+            rule['sourceAddressPrefix'] == '*' ||
+            rule['sourceAddressPrefix'] == '0.0.0.0' ||
+            rule['sourceAddressPrefix'] == '/0' ||
+            rule['sourceAddressPrefix'] =~ %r{/0} ||
+            rule['sourceAddressPrefix'].downcase == 'internet' ||
+            rule['sourceAddressPrefix'].downcase == 'any'
+          )
+      end
+
+      # Format the failure message for this NSG
+      rules_messages = insecure_rules.map do |rule|
+        <<~RULE_DETAILS
+          Rule '#{rule['name']}' failed due to matched insecure configuration:
+          - Access: #{rule['access']} (Matched Condition: #{'Access is "Allow"' if rule['access'] == 'Allow'})
+          - Direction: #{rule['direction']} (Matched Condition: #{'Direction is "Inbound"' if rule['direction'] == 'Inbound'})
+          - Protocol: #{rule['protocol']} (Matched Condition: #{'Protocol is "UDP"' if rule['protocol'] == 'UDP'})
+          - Destination Port Range: #{rule['destinationPortRange']} (Matched Condition: #{'Destination Port Range is "*", or matches /53|123|161|389|1900/' if rule['destinationPortRange'] == '*' || (rule['destinationPortRange'] =~ /53|123|161|389|1900/)})
+          - Source Address Prefix: #{rule['sourceAddressPrefix']} (Matched Condition: #{'Source Address Prefix is "*", "0.0.0.0", "/0", matches /0, "internet", or "any"' if rule['sourceAddressPrefix'] == '*' || rule['sourceAddressPrefix'] == '0.0.0.0' || rule['sourceAddressPrefix'] == '/0' || rule['sourceAddressPrefix'] =~ %r{/0} || rule['sourceAddressPrefix'].downcase == 'internet' || rule['sourceAddressPrefix'].downcase == 'any'})
+        RULE_DETAILS
+      end.join("\n")
+      "NSG '#{nsg_name}' has the following insecure rules:\n#{rules_messages}"
+    end.join("\n\n")
+
+    expect(nsgs_with_insecure_rules).to be_empty, failure_message
+  end
+end
+
 end

@@ -114,14 +114,27 @@ control 'azure-foundations-cis-6.1.1' do
 
 	)
 
+  subscription_id = input('subscription_id')
+  diagnostic_settings_subscription_output = command(%Q(az monitor diagnostic-settings subscription list --subscription #{subscription_id}  --query "value"))
+  raise Inspec::Error, "The command output returned the following error:  #{diagnostic_settings_subscription_output.stderr}" if diagnostic_settings_subscription_output.exit_status != 0
+  
   pwsh_output = powershell(activity_diagnostic_setting_exists_for_sub_script)
   raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-  describe 'Ensure that the number the subscription`s resources without diagnostic setting set' do
-    subject { pwsh_output.stdout.strip }
-    it 'is 0' do
-      failure_message = "The following resources do not have a diagnostic setting:#{pwsh_output.stdout.strip}"
-      expect(subject).to be_empty, failure_message
+  describe.one do
+    describe 'Diagnostic settings are configured for the subscription' do
+      subject { diagnostic_settings_subscription_output.stdout.strip }
+      it 'has diagnostic settings configured' do
+        failure_message = "Diagnostic settings are not configured for the subscription"
+        expect(subject).not_to eq("[]"), failure_message
+      end
+    end
+    describe 'No resources without diagnostic settings' do
+      subject { pwsh_output.stdout.strip }
+      it 'has no resources without diagnostic settings' do
+        failure_message = "The following resources do not have a diagnostic setting: #{pwsh_output.stdout.strip}"
+        expect(subject).to be_empty, failure_message
+      end
     end
   end
 end

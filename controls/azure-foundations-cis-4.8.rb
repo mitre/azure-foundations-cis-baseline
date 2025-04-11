@@ -112,7 +112,6 @@ control 'azure-foundations-cis-4.8' do
     describe "Storage Account Network Ruleset Bypass for '#{storage_account}' in Resource Group '#{resource_group}'" do
       script = <<-EOH
                 $ErrorActionPreference = "Stop"
-                Set-AzContext -Subscription #{subscription_id} | Out-Null
                 (Get-AzStorageAccountNetworkRuleset -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").Bypass
       EOH
 

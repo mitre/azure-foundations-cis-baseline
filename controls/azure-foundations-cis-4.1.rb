@@ -91,14 +91,13 @@ control 'azure-foundations-cis-4.1' do
   output = powershell(script).stdout.strip
   accounts = json(content: output).params
 
-  accounts.each do |account|
-    storage_name = account[0]
-    https_required = account[1]
+  failed_accounts = accounts.reject do |account|
+    account[1] == true
+  end.map { |account| account[0] }
 
-    describe "Storage Account '#{storage_name}' secure transfer requirement" do
-      it 'should have secure transfer enabled (enableHttpsTrafficOnly is true)' do
-        expect(https_required).to cmp true
-      end
+  describe 'Storage Accounts secure transfer enforcement' do
+    it 'ensures that all storage accounts have secure transfer enabled' do
+      expect(failed_accounts).to be_empty, "The following storage accounts do not have secure transfer enabled: #{failed_accounts.join(', ')}"
     end
   end
 end
