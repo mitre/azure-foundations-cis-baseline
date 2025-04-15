@@ -66,7 +66,7 @@ control 'azure-foundations-cis-6.3.1' do
 
   subscription_id = input('subscription_id')
 
-  describe "Application Insights configuration for subscription" do
+  describe 'Application Insights configuration for subscription' do
     script = <<-EOH
             $ErrorActionPreference = "Stop"
             Set-AzContext -Subscription #{subscription_id} | Out-Null

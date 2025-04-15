@@ -83,7 +83,7 @@ control 'azure-foundations-cis-8.1' do
   describe 'Ensure the bastions for resource groups' do
     subject { JSON.parse(bastion_list.stdout.strip) }
     it 'are not empty' do
-      failure_message = "No bastion hosts were found"
+      failure_message = 'No bastion hosts were found'
       expect(subject).not_to be_empty, failure_message
     end
   end

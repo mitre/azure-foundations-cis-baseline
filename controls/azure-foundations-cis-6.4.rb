@@ -109,15 +109,15 @@ control 'azure-foundations-cis-6.4' do
                 Write-Output "Diagnostic Settings not configured for resource: $($resource.Name)"
             }
             }
-    EOH
+  EOH
 
   pwsh_output = powershell(script)
   raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe 'Ensure subscription when checking diagnostic settings' do
-      it 'does not indicate missing configuration for any resource' do
-        failure_message = "The following resources do not have diagnostic settings configured: #{pwsh_output.stdout}"
-          expect(pwsh_output.stdout).not_to match(/Diagnostic Settings not configured for resource:/), failure_message
-        end
+    it 'does not indicate missing configuration for any resource' do
+      failure_message = "The following resources do not have diagnostic settings configured: #{pwsh_output.stdout}"
+      expect(pwsh_output.stdout).not_to match(/Diagnostic Settings not configured for resource:/), failure_message
     end
+  end
 end

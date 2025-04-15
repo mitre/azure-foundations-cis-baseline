@@ -90,18 +90,22 @@ control 'azure-foundations-cis-4.17' do
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
-    !rg_sa_list.empty?
-  end
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No Storage Accounts found or accounts have been manually excluded'
+    end
+  else
 
-  rg_sa_list.each do |pair|
-    resource_group, storage_account = pair.split('.')
+    rg_sa_list.each do |pair|
+      resource_group, storage_account = pair.split('.')
 
-    allow_blob_public_access = json(command: "az storage account show --name #{storage_account} --query allowBlobPublicAccess").params
+      allow_blob_public_access = json(command: "az storage account show --name #{storage_account} --query allowBlobPublicAccess").params
 
-    describe "Storage Account: #{storage_account} (Resource Group: #{resource_group})" do
-      it "should have allowBlobPublicAccess set to 'False'" do
-        expect(allow_blob_public_access).to cmp false
+      describe "Storage Account: #{storage_account} (Resource Group: #{resource_group})" do
+        it "should have allowBlobPublicAccess set to 'False'" do
+          expect(allow_blob_public_access).to cmp false
+        end
       end
     end
   end

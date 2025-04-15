@@ -64,7 +64,7 @@ control 'azure-foundations-cis-6.1.2' do
   json_output = json(command: "az monitor diagnostic-settings subscription list --subscription #{subscription_id} -o json")
   diag_settings = json_output.params['value'] || []
 
-  describe "Diagnostic settings for subscription" do
+  describe 'Diagnostic settings for subscription' do
     it 'should exist (diag settings should not be nil or empty)' do
       expect(diag_settings).not_to be_empty
     end

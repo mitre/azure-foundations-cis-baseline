@@ -67,7 +67,7 @@ control 'azure-foundations-cis-6.5' do
     subject { pwsh_output.stdout.strip }
     it 'is 0' do
       failure_message = "The following resources have SKU Basic: #{pwsh_output.stdout}"
-        expect(subject).to be_empty, failure_message
-      end
+      expect(subject).to be_empty, failure_message
+    end
   end
 end

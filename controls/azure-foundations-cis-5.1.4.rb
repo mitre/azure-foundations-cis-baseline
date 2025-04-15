@@ -93,48 +93,51 @@ control 'azure-foundations-cis-5.1.4' do
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
-    !rg_sa_list.empty?
-  end
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No Storage Accounts found or accounts have been manually excluded'
+    end
+  else
+    rg_sa_list.each do |pair|
+      resource_group, = pair.split('.')
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
-
-    sql_servers_script = <<-EOH
+      sql_servers_script = <<-EOH
       $ErrorActionPreference = "Stop"
       Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
-    EOH
+      EOH
 
-    sql_servers_output_pwsh = powershell(sql_servers_script)
-    raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
+      sql_servers_output_pwsh = powershell(sql_servers_script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
 
-    sql_servers_output = sql_servers_output_pwsh.stdout.strip
-    sql_servers = json(content: sql_servers_output).params
-    sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+      sql_servers_output = sql_servers_output_pwsh.stdout.strip
+      sql_servers = json(content: sql_servers_output).params
+      sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
-    sql_servers.each do |server|
-      server_name = server['ServerName']
-      resource_group_server = server['ResourceGroupName']
+      sql_servers.each do |server|
+        server_name = server['ServerName']
+        resource_group_server = server['ResourceGroupName']
 
-      if resource_group_server.to_s.empty? || server_name.to_s.empty?
-        describe 'Ensure that Microsoft Entra authentication is Configured for SQL Servers' do
-          skip 'ResourceGroupName or ServerName is empty, skipping audit test'
-        end
-      else
-        script = <<-EOH
+        if resource_group_server.to_s.empty? || server_name.to_s.empty?
+          describe 'Ensure that Microsoft Entra authentication is Configured for SQL Servers' do
+            skip 'ResourceGroupName or ServerName is empty, skipping audit test'
+          end
+        else
+          script = <<-EOH
         $ErrorActionPreference = "Stop"
         Get-AzSqlServerActiveDirectoryAdministrator -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
-        EOH
+          EOH
 
-        output_pwsh = powershell(script)
-        output = output_pwsh.stdout.strip
-        raise Inspec::Error, "The powershell output returned the following error:  #{output_pwsh.stderr}" if output_pwsh.exit_status != 0
+          output_pwsh = powershell(script)
+          output = output_pwsh.stdout.strip
+          raise Inspec::Error, "The powershell output returned the following error:  #{output_pwsh.stderr}" if output_pwsh.exit_status != 0
 
-        ad_admin = json(content: output).params
+          ad_admin = json(content: output).params
 
-        describe "Microsoft Entra authentication for SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
-          it 'has a non-empty Admin Name' do
-            expect(ad_admin['DisplayName'].to_s.strip).not_to be_empty
+          describe "Microsoft Entra authentication for SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
+            it 'has a non-empty Admin Name' do
+              expect(ad_admin['DisplayName'].to_s.strip).not_to be_empty
+            end
           end
         end
       end

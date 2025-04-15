@@ -77,50 +77,54 @@ control 'azure-foundations-cis-5.2.5' do
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
-    !rg_sa_list.empty?
-  end
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No Storage Accounts found or accounts have been manually excluded'
+    end
+  else
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
+    rg_sa_list.each do |pair|
+      resource_group, = pair.split('.')
 
-    postgres_servers_script = <<-EOH
+      postgres_servers_script = <<-EOH
       $ErrorActionPreference = "Stop"
       Get-AzPostgreSqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
-    EOH
+      EOH
 
-    postgres_servers_output_pwsh = powershell(postgres_servers_script)
-    postgres_servers_output = postgres_servers_output_pwsh.stdout.strip
-    raise Inspec::Error, "The powershell output returned the following error:  #{postgres_servers_output_pwsh.stderr}" if postgres_servers_output_pwsh.exit_status != 0
+      postgres_servers_output_pwsh = powershell(postgres_servers_script)
+      postgres_servers_output = postgres_servers_output_pwsh.stdout.strip
+      raise Inspec::Error, "The powershell output returned the following error:  #{postgres_servers_output_pwsh.stderr}" if postgres_servers_output_pwsh.exit_status != 0
 
-    postgres_servers = json(content: postgres_servers_output).params
-    postgres_servers = [postgres_servers] unless postgres_servers.is_a?(Array)
+      postgres_servers = json(content: postgres_servers_output).params
+      postgres_servers = [postgres_servers] unless postgres_servers.is_a?(Array)
 
-    postgres_servers.each do |server|
-      server_name = server['Name']
+      postgres_servers.each do |server|
+        server_name = server['Name']
 
-      if server_name.to_s.empty?
-        describe "Allow public access from any Azure service within Azure to this server' for PostgreSQL flexible server is disabled" do
-          skip 'Name is empty, skipping audit test'
-        end
-      else
-        describe "Firewall rules for PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}'" do
-          firewall_script = <<-EOH
+        if server_name.to_s.empty?
+          describe "Allow public access from any Azure service within Azure to this server' for PostgreSQL flexible server is disabled" do
+            skip 'Name is empty, skipping audit test'
+          end
+        else
+          describe "Firewall rules for PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}'" do
+            firewall_script = <<-EOH
           $ErrorActionPreference = "Stop"
           Get-AzPostgreSqlFlexibleServerFirewallRule -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
-          EOH
+            EOH
 
-          firewall_output_pwsh = powershell(firewall_script)
-          firewall_output = firewall_output_pwsh.stdout.strip
-          raise Inspec::Error, "The powershell output returned the following error:  #{firewall_output_pwsh.stderr}" if firewall_output_pwsh.exit_status != 0
+            firewall_output_pwsh = powershell(firewall_script)
+            firewall_output = firewall_output_pwsh.stdout.strip
+            raise Inspec::Error, "The powershell output returned the following error:  #{firewall_output_pwsh.stderr}" if firewall_output_pwsh.exit_status != 0
 
-          firewall_rules = json(content: firewall_output).params
-          firewall_rules = [firewall_rules] unless firewall_rules.is_a?(Array)
+            firewall_rules = json(content: firewall_output).params
+            firewall_rules = [firewall_rules] unless firewall_rules.is_a?(Array)
 
-          firewall_rules.each do |rule|
-            describe "Firewall rule '#{rule['Name']}'" do
-              it "should not have a name starting with 'AllowAllAzureServicesAndResourcesWithinAzureIps'" do
-                expect(rule['Name']).not_to match(/^AllowAllAzureServicesAndResourcesWithinAzureIps/)
+            firewall_rules.each do |rule|
+              describe "Firewall rule '#{rule['Name']}'" do
+                it "should not have a name starting with 'AllowAllAzureServicesAndResourcesWithinAzureIps'" do
+                  expect(rule['Name']).not_to match(/^AllowAllAzureServicesAndResourcesWithinAzureIps/)
+                end
               end
             end
           end

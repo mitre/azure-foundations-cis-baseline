@@ -105,58 +105,62 @@ control 'azure-foundations-cis-5.1.3' do
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
-    !rg_sa_list.empty?
-  end
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No Storage Accounts found or accounts have been manually excluded'
+    end
+  else
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
+    rg_sa_list.each do |pair|
+      resource_group, = pair.split('.')
 
-    sql_servers_script = <<-EOH
+      sql_servers_script = <<-EOH
       $ErrorActionPreference = "Stop"
       Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
-    EOH
+      EOH
 
-    sql_servers_output_pwsh = powershell(sql_servers_script)
-    raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
+      sql_servers_output_pwsh = powershell(sql_servers_script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
 
-    sql_servers_output = sql_servers_output_pwsh.stdout.strip
-    sql_servers = json(content: sql_servers_output).params
-    sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+      sql_servers_output = sql_servers_output_pwsh.stdout.strip
+      sql_servers = json(content: sql_servers_output).params
+      sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
-    sql_servers.each do |server|
-      server_name = server['ServerName']
-      resource_group_server = server['ResourceGroupName']
+      sql_servers.each do |server|
+        server_name = server['ServerName']
+        resource_group_server = server['ResourceGroupName']
 
-      if resource_group_server.to_s.empty? || server_name.to_s.empty?
-        describe "Ensure SQL server's Transparent Data Encryption (TDE) protector is encrypted with Customer-managed key" do
-          skip 'ResourceGroupName or ServerName is empty, skipping audit test'
-        end
-      else
-        describe "Transparent Data Encryption Protector for SQL Server #{server_name} (Resource Group: #{resource_group_server})" do
-          tde_script = <<-EOH
+        if resource_group_server.to_s.empty? || server_name.to_s.empty?
+          describe "Ensure SQL server's Transparent Data Encryption (TDE) protector is encrypted with Customer-managed key" do
+            skip 'ResourceGroupName or ServerName is empty, skipping audit test'
+          end
+        else
+          describe "Transparent Data Encryption Protector for SQL Server #{server_name} (Resource Group: #{resource_group_server})" do
+            tde_script = <<-EOH
           $ErrorActionPreference = "Stop"
           Get-AzSqlServerTransparentDataEncryptionProtector -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
-          EOH
+            EOH
 
-          tde_output_pwsh = powershell(tde_script)
-          tde_output = tde_output_pwsh.stdout.strip
-          raise Inspec::Error, "The powershell output returned the following error:  #{tde_output_pwsh.stderr}" if tde_output_pwsh.exit_status != 0
+            tde_output_pwsh = powershell(tde_script)
+            tde_output = tde_output_pwsh.stdout.strip
+            raise Inspec::Error, "The powershell output returned the following error:  #{tde_output_pwsh.stderr}" if tde_output_pwsh.exit_status != 0
 
-          tde = json(content: tde_output).params
+            tde = json(content: tde_output).params
 
-          it "should have Type set to 'AzureKeyVault'" do
-            expect(tde['Type']).to cmp 0
-          end
+            it "should have Type set to 'AzureKeyVault'" do
+              expect(tde['Type']).to cmp 0
+            end
 
-          it 'should have ServerKeyVaultKeyName in one of the allowed formats' do
-            allowed_names = expected_values.map { |v| v['ServerKeyVaultKeyName'] }
-            expect(allowed_names).to include(tde['ServerKeyVaultKeyName'])
-          end
+            it 'should have ServerKeyVaultKeyName in one of the allowed formats' do
+              allowed_names = expected_values.map { |v| v['ServerKeyVaultKeyName'] }
+              expect(allowed_names).to include(tde['ServerKeyVaultKeyName'])
+            end
 
-          it 'should have KeyId in one of the allowed formats' do
-            allowed_ids = expected_values.map { |v| v['KeyId'] }
-            expect(allowed_ids).to include(tde['KeyId'])
+            it 'should have KeyId in one of the allowed formats' do
+              allowed_ids = expected_values.map { |v| v['KeyId'] }
+              expect(allowed_ids).to include(tde['KeyId'])
+            end
           end
         end
       end

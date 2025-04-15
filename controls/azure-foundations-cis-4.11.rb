@@ -94,24 +94,28 @@ control 'azure-foundations-cis-4.11' do
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
-    !rg_sa_list.empty?
-  end
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No Storage Accounts found or accounts have been manually excluded'
+    end
+  else
 
-  rg_sa_list.each do |pair|
-    resource_group, storage_account = pair.split('.')
+    rg_sa_list.each do |pair|
+      resource_group, storage_account = pair.split('.')
 
-    describe "Encryption configuration for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-      script = <<-EOH
+      describe "Encryption configuration for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+        script = <<-EOH
                 $ErrorActionPreference = "Stop"
                 (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").Encryption.KeySource
-      EOH
+        EOH
 
-      pwsh_output = powershell(script)
-      raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+        pwsh_output = powershell(script)
+        raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-      describe pwsh_output do
-        its('stdout.strip') { should cmp 'Microsoft.Keyvault' }
+        describe pwsh_output do
+          its('stdout.strip') { should cmp 'Microsoft.Keyvault' }
+        end
       end
     end
   end

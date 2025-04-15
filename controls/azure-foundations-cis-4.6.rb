@@ -99,11 +99,14 @@ control 'azure-foundations-cis-4.6' do
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
-    !rg_sa_list.empty?
-  end
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No Storage Accounts found or accounts have been manually excluded'
+    end
+  else
 
-  script = <<-EOH
+    script = <<-EOH
     $ErrorActionPreference = "Stop"
 		$rg_sa_list = ConvertFrom-Json '#{rg_sa_list.to_json}'
 
@@ -135,15 +138,16 @@ control 'azure-foundations-cis-4.6' do
 			else {
 				$nonCompliantResources -join ","
 			}
-  EOH
+    EOH
 
-  pwsh_output = powershell(script)
-  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+    pwsh_output = powershell(script)
+    raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-  describe 'Storage Accounts with non-disabled Public Network Access' do
-    subject { pwsh_output.stdout.strip.split(',').map(&:strip).reject(&:empty?) }
-    it 'should be empty (i.e. all storage accounts have PublicNetworkAccess set to Disabled)' do
-      expect(subject).to be_empty
+    describe 'Storage Accounts with non-disabled Public Network Access' do
+      subject { pwsh_output.stdout.strip.split(',').map(&:strip).reject(&:empty?) }
+      it 'should be empty (i.e. all storage accounts have PublicNetworkAccess set to Disabled)' do
+        expect(subject).to be_empty
+      end
     end
   end
 end

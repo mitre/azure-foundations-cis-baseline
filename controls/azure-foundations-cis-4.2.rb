@@ -115,17 +115,21 @@ control 'azure-foundations-cis-4.2' do
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
-    !rg_sa_list.empty?
-  end
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No Storage Accounts found or accounts have been manually excluded'
+    end
+  else
 
-  query = command('az storage account list --query "[?encryption.requireInfrastructureEncryption==\`false\`].{Name:name}" --output tsv').stdout
+    query = command('az storage account list --query "[?encryption.requireInfrastructureEncryption==\`false\`].{Name:name}" --output tsv').stdout
 
-  describe "Ensure that the number of storage accounts with InfrastructureEncryption setting set to 'False" do
-    subject { query }
-    it 'is 0' do
-      failure_message = "The following storage accounts have InfrastructureEncryption set to 'False':\n#{query}"
-      expect(subject).to be_empty, failure_message
+    describe "Ensure that the number of storage accounts with InfrastructureEncryption setting set to 'False" do
+      subject { query }
+      it 'is 0' do
+        failure_message = "The following storage accounts have InfrastructureEncryption set to 'False':\n#{query}"
+        expect(subject).to be_empty, failure_message
+      end
     end
   end
 end

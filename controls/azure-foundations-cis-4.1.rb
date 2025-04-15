@@ -80,24 +80,28 @@ control 'azure-foundations-cis-4.1' do
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
-    !rg_sa_list.empty?
-  end
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No Storage Accounts found or accounts have been manually excluded'
+    end
+  else
 
-  script = <<-EOH
-    az storage account list --query "[*].[name,enableHttpsTrafficOnly]"
-  EOH
+    script = <<-EOH
+      az storage account list --query "[*].[name,enableHttpsTrafficOnly]"
+    EOH
 
-  output = powershell(script).stdout.strip
-  accounts = json(content: output).params
+    output = powershell(script).stdout.strip
+    accounts = json(content: output).params
 
-  failed_accounts = accounts.reject do |account|
-    account[1] == true
-  end.map { |account| account[0] }
+    failed_accounts = accounts.reject do |account|
+      account[1] == true
+    end.map { |account| account[0] }
 
-  describe 'Storage Accounts secure transfer enforcement' do
-    it 'ensures that all storage accounts have secure transfer enabled' do
-      expect(failed_accounts).to be_empty, "The following storage accounts do not have secure transfer enabled: #{failed_accounts.join(', ')}"
+    describe 'Storage Accounts secure transfer enforcement' do
+      it 'ensures that all storage accounts have secure transfer enabled' do
+        expect(failed_accounts).to be_empty, "The following storage accounts do not have secure transfer enabled: #{failed_accounts.join(', ')}"
+      end
     end
   end
 end

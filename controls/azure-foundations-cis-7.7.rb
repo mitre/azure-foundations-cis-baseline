@@ -46,7 +46,7 @@ control 'azure-foundations-cis-7.7' do
   relevant_public_ips = input('relevant_public_ip_addresses')
   azure_cli_ip_list = command('az network public-ip list --query "[].name" -o tsv').stdout.split("\n").reject(&:empty?)
   describe 'Ensure all public IPs present' do
-    subject {  relevant_public_ips - azure_cli_ip_list }
+    subject { relevant_public_ips - azure_cli_ip_list }
     it 'are relevant' do
       failure_message = "Unauthorized IPs:\n\t#{subject.join("\n\t")}"
       expect(subject).to be_empty, failure_message

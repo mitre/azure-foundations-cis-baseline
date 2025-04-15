@@ -73,47 +73,51 @@ control 'azure-foundations-cis-5.3.1' do
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
-    !rg_sa_list.empty?
-  end
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No Storage Accounts found or accounts have been manually excluded'
+    end
+  else
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
+    rg_sa_list.each do |pair|
+      resource_group, = pair.split('.')
 
-    script = <<-EOH
+      script = <<-EOH
       $ErrorActionPreference = "Stop"
 			Get-AzMysqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
-    EOH
+      EOH
 
-    server_output_pwsh = powershell(script)
-    server_output = server_output_pwsh.stdout.strip
-    raise Inspec::Error, "The powershell output returned the following error:  #{server_output_pwsh.stderr}" if server_output_pwsh.exit_status != 0
+      server_output_pwsh = powershell(script)
+      server_output = server_output_pwsh.stdout.strip
+      raise Inspec::Error, "The powershell output returned the following error:  #{server_output_pwsh.stderr}" if server_output_pwsh.exit_status != 0
 
-    servers = json(content: server_output).params
-    servers = [servers] unless servers.is_a?(Array)
+      servers = json(content: server_output).params
+      servers = [servers] unless servers.is_a?(Array)
 
-    servers.each do |server|
-      server_name = server['Name']
+      servers.each do |server|
+        server_name = server['Name']
 
-      if server_name.to_s.empty?
-        describe "Ensure server parameter 'require_secure_transport' is set to 'ON' for MySQL flexible server" do
-          skip 'Name is empty, skipping audit test'
-        end
-      else
-        describe "MySQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}' require_secure_transport configuration" do
-          config_script = <<-EOH
+        if server_name.to_s.empty?
+          describe "Ensure server parameter 'require_secure_transport' is set to 'ON' for MySQL flexible server" do
+            skip 'Name is empty, skipping audit test'
+          end
+        else
+          describe "MySQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}' require_secure_transport configuration" do
+            config_script = <<-EOH
             $ErrorActionPreference = "Stop"
 						Get-AzMysqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name require_secure_transport | ConvertTo-Json -Depth 10
-          EOH
+            EOH
 
-          config_output_pwsh = powershell(config_script)
-          config_output = config_output_pwsh.stdout.strip
-          raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
+            config_output_pwsh = powershell(config_script)
+            config_output = config_output_pwsh.stdout.strip
+            raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
 
-          configuration = json(content: config_output).params
+            configuration = json(content: config_output).params
 
-          it "should have require_secure_transport set to 'ON'" do
-            expect(configuration['Value']).to cmp 'on'
+            it "should have require_secure_transport set to 'ON'" do
+              expect(configuration['Value']).to cmp 'on'
+            end
           end
         end
       end

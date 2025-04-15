@@ -96,50 +96,54 @@ control 'azure-foundations-cis-4.10' do
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
-    !rg_sa_list.empty?
-  end
-
-  rg_sa_list.each do |pair|
-    resource_group, storage_account = pair.split('.')
-
-    storage_keys_script = <<-EOH
-      az storage account keys list --account-name "#{storage_account}" --resource-group "#{resource_group}" --query "[].value" -o tsv | ConvertTo-Json -Depth 10
-    EOH
-
-    storage_keys_output = powershell(storage_keys_script).stdout.strip
-    keys = json(content: storage_keys_output).params
-    keys = [keys] unless keys.is_a?(Array)
-    key = keys[0]
-
-    delete_policy_script = <<-EOH
-      az storage blob service-properties delete-policy show --account-name "#{storage_account}" --account-key "#{key}"
-    EOH
-
-    delete_policy_output = powershell(delete_policy_script).stdout.strip
-    delete_policy = json(content: delete_policy_output).params
-
-    blob_service_script = <<-EOH
-      az storage account blob-service-properties show --account-name "#{storage_account}" --resource-group "#{resource_group}"
-    EOH
-
-    blob_service_output = powershell(blob_service_script).stdout.strip
-    blob_service = json(content: blob_service_output).params
-
-    describe "Blob Storage delete policy for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-      it "should have 'enabled' set to true" do
-        expect(delete_policy['enabled']).to cmp true
-      end
-
-      it "should have a 'days' value that is not empty" do
-        expect(delete_policy['days']).not_to be_nil
-        expect(delete_policy['days'].to_s.strip).not_to cmp ''
-      end
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No Storage Accounts found or accounts have been manually excluded'
     end
+  else
 
-    describe "Container delete retention policy for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-      it "should have containerDeleteRetentionPolicy 'enabled' set to true" do
-        expect(blob_service['containerDeleteRetentionPolicy']['enabled']).to cmp true
+    rg_sa_list.each do |pair|
+      resource_group, storage_account = pair.split('.')
+
+      storage_keys_script = <<-EOH
+      az storage account keys list --account-name "#{storage_account}" --resource-group "#{resource_group}" --query "[].value" -o tsv | ConvertTo-Json -Depth 10
+      EOH
+
+      storage_keys_output = powershell(storage_keys_script).stdout.strip
+      keys = json(content: storage_keys_output).params
+      keys = [keys] unless keys.is_a?(Array)
+      key = keys[0]
+
+      delete_policy_script = <<-EOH
+      az storage blob service-properties delete-policy show --account-name "#{storage_account}" --account-key "#{key}"
+      EOH
+
+      delete_policy_output = powershell(delete_policy_script).stdout.strip
+      delete_policy = json(content: delete_policy_output).params
+
+      blob_service_script = <<-EOH
+      az storage account blob-service-properties show --account-name "#{storage_account}" --resource-group "#{resource_group}"
+      EOH
+
+      blob_service_output = powershell(blob_service_script).stdout.strip
+      blob_service = json(content: blob_service_output).params
+
+      describe "Blob Storage delete policy for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+        it "should have 'enabled' set to true" do
+          expect(delete_policy['enabled']).to cmp true
+        end
+
+        it "should have a 'days' value that is not empty" do
+          expect(delete_policy['days']).not_to be_nil
+          expect(delete_policy['days'].to_s.strip).not_to cmp ''
+        end
+      end
+
+      describe "Container delete retention policy for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+        it "should have containerDeleteRetentionPolicy 'enabled' set to true" do
+          expect(blob_service['containerDeleteRetentionPolicy']['enabled']).to cmp true
+        end
       end
     end
   end

@@ -55,10 +55,10 @@ control 'azure-foundations-cis-8.8' do
 
   rg_vm.each do |element|
     resource_group, virtual_machine = element.split('.')
-    
+
     query = command(%(az vm show -g #{resource_group} -n #{virtual_machine} -d --query "resources[?type=='Microsoft.Compute/virtualMachines/extensions'].{ExtensionName:name}" -o tsv)).stdout
     extension_names_list = query.empty? ? [] : query.split("\n")
-    
+
     describe "Ensure the desired extension '#{desired_extension}' is installed for VM #{virtual_machine}" do
       subject { extension_names_list }
       it "contains the extension '#{desired_extension}'" do
