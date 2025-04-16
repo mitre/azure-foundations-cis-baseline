@@ -74,14 +74,7 @@ control 'azure-foundations-cis-4.14' do
   all_storage = json(content: storage_output).params
 
   only_if('N/A - No Storage Accounts found', impact: 0) do
-    case all_storage
-    when Array
-      !all_storage.empty?
-    when Hash
-      !all_storage.empty?
-    else
-      false
-    end
+    !all_storage.empty?
   end
 
   exclusions_list = input('excluded_resource_groups_and_storage_accounts')
@@ -100,7 +93,7 @@ control 'azure-foundations-cis-4.14' do
   if rg_sa_list.empty?
     impact 0.0
     describe 'N/A' do
-      skip 'N/A - No Storage Accounts found or accounts have been manually excluded'
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
   else
 

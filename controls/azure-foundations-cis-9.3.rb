@@ -67,14 +67,7 @@ control 'azure-foundations-cis-9.3' do
   all_apps = json(content: app_output).params
 
   only_if('N/A - No Web Applications found', impact: 0) do
-    case all_apps
-    when Array
-      !all_apps.empty?
-    when Hash
-      !all_apps.empty?
-    else
-      false
-    end
+    !all_apps.empty?
   end
 
   ftps_state_set_to_ftps_only_script = %(

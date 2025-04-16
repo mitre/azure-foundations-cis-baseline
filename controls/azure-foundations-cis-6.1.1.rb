@@ -87,14 +87,7 @@ control 'azure-foundations-cis-6.1.1' do
   all_resources = json(content: resource_output).params
 
   only_if('N/A - No Resources found', impact: 0) do
-    case all_resources
-    when Array
-      !all_resources.empty?
-    when Hash
-      !all_resources.empty?
-    else
-      false
-    end
+    !all_resources.empty?
   end
 
   activity_diagnostic_setting_exists_for_sub_script = %(

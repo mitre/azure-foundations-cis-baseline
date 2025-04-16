@@ -33,14 +33,7 @@ control 'azure-foundations-cis-7.7' do
   all_nsgs = json(content: nsg_output).params
 
   only_if('N/A - No Network Security Groups found', impact: 0) do
-    case all_nsgs
-    when Array
-      !all_nsgs.empty?
-    when Hash
-      !all_nsgs.empty?
-    else
-      false
-    end
+    !all_nsgs.empty?
   end
 
   relevant_public_ips = input('relevant_public_ip_addresses')

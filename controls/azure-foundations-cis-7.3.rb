@@ -44,14 +44,7 @@ control 'azure-foundations-cis-7.3' do
   all_nsgs = json(content: nsg_output).params
 
   only_if('N/A - No Network Security Groups found', impact: 0) do
-    case all_nsgs
-    when Array
-      !all_nsgs.empty?
-    when Hash
-      !all_nsgs.empty?
-    else
-      false
-    end
+    !all_nsgs.empty?
   end
 
   query = command('az network nsg list --query "[*].[name,securityRules]" -o json').stdout

@@ -51,14 +51,7 @@ control 'azure-foundations-cis-5.2.5' do
   all_servers = json(content: servers_output).params
 
   only_if('N/A - No PostgreSQL Flexible Servers found', impact: 0) do
-    case all_servers
-    when Array
-      !all_servers.empty?
-    when Hash
-      !all_servers.empty?
-    else
-      false
-    end
+    !all_servers.empty?
   end
 
   storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
@@ -80,7 +73,7 @@ control 'azure-foundations-cis-5.2.5' do
   if rg_sa_list.empty?
     impact 0.0
     describe 'N/A' do
-      skip 'N/A - No Storage Accounts found or accounts have been manually excluded'
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
   else
 

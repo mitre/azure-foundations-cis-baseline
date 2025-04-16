@@ -55,14 +55,7 @@ control 'azure-foundations-cis-5.1.5' do
   all_servers = json(content: servers_output).params
 
   only_if('N/A - No Azure SQL Databases found', impact: 0) do
-    case all_servers
-    when Array
-      !all_servers.empty?
-    when Hash
-      !all_servers.empty?
-    else
-      false
-    end
+    !all_servers.empty?
   end
 
   storage_script = 'Get-AzStorageAccount | ConvertTo-Json'

@@ -49,14 +49,7 @@ control 'azure-foundations-cis-7.5' do
   all_nsgs = json(content: nsg_output).params
 
   only_if('N/A - No Network Security Groups found', impact: 0) do
-    case all_nsgs
-    when Array
-      !all_nsgs.empty?
-    when Hash
-      !all_nsgs.empty?
-    else
-      false
-    end
+    !all_nsgs.empty?
   end
 
   rg_nsg_list = input('resource_group_and_network_watcher')
