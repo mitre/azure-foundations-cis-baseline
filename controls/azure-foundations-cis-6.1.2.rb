@@ -74,9 +74,7 @@ control 'azure-foundations-cis-6.1.2' do
       diag_setting_name = diag_setting['name']
       required_categories.each do |category|
         log_entry = diag_setting['logs'].find { |log| log['category'] == category }
-        unless log_entry && log_entry['enabled']
-          failures << "#{diag_setting_name}/#{category}"
-        end
+        failures << "#{diag_setting_name}/#{category}" unless log_entry && log_entry['enabled']
       end
     end
   end

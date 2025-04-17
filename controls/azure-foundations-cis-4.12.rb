@@ -98,24 +98,17 @@ control 'azure-foundations-cis-4.12' do
       skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
   else
-
+    failures = []
     rg_sa_list.each do |pair|
       resource_group, storage_account = pair.split('.')
 
       output = json(command: "az storage logging show --services q --account-name #{storage_account}").params
-
-      describe 'Storage Queue Logging Settings' do
-        subject { output['queue'] }
-        it 'has delete logging enabled' do
-          expect(subject['delete']).to cmp true
-        end
-        it 'has read logging enabled' do
-          expect(subject['read']).to cmp true
-        end
-        it 'has write logging enabled' do
-          expect(subject['write']).to cmp true
-        end
-      end
+      queue = output['queue']
+      failures << "#{resource_group}/#{storage_account}" unless queue['delete'] && queue['read'] && queue['write']
+    end
+    describe 'Storage Queue Logging Settings compliance' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

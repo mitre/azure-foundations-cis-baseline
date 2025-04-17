@@ -123,9 +123,7 @@ control 'azure-foundations-cis-5.1.4' do
         raise Inspec::Error, "The powershell output returned the following error:  #{output_pwsh.stderr}" if output_pwsh.exit_status != 0
 
         ad_admin = json(content: output).params
-        if ad_admin['DisplayName'].to_s.strip.empty?
-          failures << "#{resource_group_server}/#{server_name}"
-        end
+        failures << "#{resource_group_server}/#{server_name}" if ad_admin['DisplayName'].to_s.strip.empty?
       end
     end
     describe 'SQL Servers with missing Entra authentication configuration' do

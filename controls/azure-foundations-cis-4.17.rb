@@ -89,17 +89,18 @@ control 'azure-foundations-cis-4.17' do
       skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
   else
+    failures = []
 
     rg_sa_list.each do |pair|
       resource_group, storage_account = pair.split('.')
 
       allow_blob_public_access = json(command: "az storage account show --name #{storage_account} --query allowBlobPublicAccess").params
+      failures << "#{resource_group}/#{storage_account}" unless allow_blob_public_access == false
+    end
 
-      describe "Storage Account: #{storage_account} (Resource Group: #{resource_group})" do
-        it "should have allowBlobPublicAccess set to 'False'" do
-          expect(allow_blob_public_access).to cmp false
-        end
-      end
+    describe 'Storage Accounts allowing anonymous blob access' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

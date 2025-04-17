@@ -95,6 +95,7 @@ control 'azure-foundations-cis-4.10' do
       skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
   else
+    failures = []
 
     rg_sa_list.each do |pair|
       resource_group, storage_account = pair.split('.')
@@ -122,22 +123,15 @@ control 'azure-foundations-cis-4.10' do
       blob_service_output = powershell(blob_service_script).stdout.strip
       blob_service = json(content: blob_service_output).params
 
-      describe "Blob Storage delete policy for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-        it "should have 'enabled' set to true" do
-          expect(delete_policy['enabled']).to cmp true
-        end
+      failures << "#{resource_group}/#{storage_account} - soft delete not enabled" unless delete_policy['enabled']
+      failures << "#{resource_group}/#{storage_account} - retention days missing" if delete_policy['days'].nil? || delete_policy['days'].to_s.strip.empty?
 
-        it "should have a 'days' value that is not empty" do
-          expect(delete_policy['days']).not_to be_nil
-          expect(delete_policy['days'].to_s.strip).not_to cmp ''
-        end
-      end
+      failures << "#{resource_group}/#{storage_account} - container delete retention not enabled" unless blob_service['containerDeleteRetentionPolicy']['enabled']
+    end
 
-      describe "Container delete retention policy for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-        it "should have containerDeleteRetentionPolicy 'enabled' set to true" do
-          expect(blob_service['containerDeleteRetentionPolicy']['enabled']).to cmp true
-        end
-      end
+    describe 'Storage Accounts soft delete and container retention compliance' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

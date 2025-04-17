@@ -160,24 +160,26 @@ control 'azure-foundations-cis-4.9' do
       skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
   else
+    failures = []
 
     rg_sa_list.each do |pair|
       resource_group, storage_account = pair.split('.')
 
-      describe "Private Endpoint Check for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-        script = <<-EOH
-                $ErrorActionPreference = "Stop"
-                $storageAccount = Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}"
-                Get-AzPrivateEndpoint -ResourceGroup "#{resource_group}" | Where-Object { $_.PrivateLinkServiceConnectionsText -match $storageAccount.id }
-        EOH
+      script = <<-EOH
+              $ErrorActionPreference = "Stop"
+              $storageAccount = Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}"
+              Get-AzPrivateEndpoint -ResourceGroup "#{resource_group}" | Where-Object { $_.PrivateLinkServiceConnectionsText -match $storageAccount.id }
+      EOH
 
-        pwsh_output = powershell(script)
-        raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+      pwsh_output = powershell(script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-        describe pwsh_output do
-          its('stdout.strip') { should_not be_empty }
-        end
-      end
+      failures << "#{resource_group}/#{storage_account}" if pwsh_output.stdout.strip.empty?
+    end
+
+    describe 'Storage Accounts without Private Endpoint connections' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

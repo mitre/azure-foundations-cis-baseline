@@ -101,23 +101,24 @@ control 'azure-foundations-cis-4.8' do
       skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
   else
-
+    failures = []
     rg_sa_list.each do |pair|
       resource_group, storage_account = pair.split('.')
 
-      describe "Storage Account Network Ruleset Bypass for '#{storage_account}' in Resource Group '#{resource_group}'" do
-        script = <<-EOH
-                $ErrorActionPreference = "Stop"
-                (Get-AzStorageAccountNetworkRuleset -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").Bypass
-        EOH
+      script = <<-EOH
+              $ErrorActionPreference = "Stop"
+              (Get-AzStorageAccountNetworkRuleset -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").Bypass
+      EOH
 
-        pwsh_output = powershell(script)
-        raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+      pwsh_output = powershell(script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-        describe pwsh_output do
-          its('stdout.strip') { should cmp 'AzureServices' }
-        end
-      end
+      failures << "#{resource_group}/#{storage_account}" unless pwsh_output.stdout.strip == 'AzureServices'
+    end
+
+    describe 'Storage accounts without AzureServices bypass enabled' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end
