@@ -92,9 +92,9 @@ control 'azure-foundations-cis-5.1.4' do
       skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
   else
-    rg_sa_list.each do |pair|
-      resource_group, = pair.split('.')
-
+    failures = []
+    resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+    resource_groups.each do |resource_group|
       sql_servers_script = <<-EOH
       $ErrorActionPreference = "Stop"
       Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
@@ -111,29 +111,26 @@ control 'azure-foundations-cis-5.1.4' do
         server_name = server['ServerName']
         resource_group_server = server['ResourceGroupName']
 
-        if resource_group_server.to_s.empty? || server_name.to_s.empty?
-          describe 'Ensure that Microsoft Entra authentication is Configured for SQL Servers' do
-            skip 'ResourceGroupName or ServerName is empty, skipping audit test'
-          end
-        else
-          script = <<-EOH
+        next if resource_group_server.to_s.empty? || server_name.to_s.empty?
+
+        script = <<-EOH
         $ErrorActionPreference = "Stop"
         Get-AzSqlServerActiveDirectoryAdministrator -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
-          EOH
+        EOH
 
-          output_pwsh = powershell(script)
-          output = output_pwsh.stdout.strip
-          raise Inspec::Error, "The powershell output returned the following error:  #{output_pwsh.stderr}" if output_pwsh.exit_status != 0
+        output_pwsh = powershell(script)
+        output = output_pwsh.stdout.strip
+        raise Inspec::Error, "The powershell output returned the following error:  #{output_pwsh.stderr}" if output_pwsh.exit_status != 0
 
-          ad_admin = json(content: output).params
-
-          describe "Microsoft Entra authentication for SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
-            it 'has a non-empty Admin Name' do
-              expect(ad_admin['DisplayName'].to_s.strip).not_to be_empty
-            end
-          end
+        ad_admin = json(content: output).params
+        if ad_admin['DisplayName'].to_s.strip.empty?
+          failures << "#{resource_group_server}/#{server_name}"
         end
       end
+    end
+    describe 'SQL Servers with missing Entra authentication configuration' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end
