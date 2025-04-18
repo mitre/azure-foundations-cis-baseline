@@ -43,7 +43,18 @@ control 'azure-foundations-cis-8.8' do
     !all_vms.empty?
   end
 
-  rg_vm = input('resource_group_and_virtual_machine')
+  exclusions_list = input('excluded_resource_groups_and_virtual_machine')
+
+  rg_vm = case all_vms
+          when Array
+            all_vms.map { |vm| "#{vm['ResourceGroupName']}.#{vm['Name']}" }
+          when Hash
+            ["#{all_vms['ResourceGroupName']}.#{all_vms['Name']}"]
+          else
+            []
+          end
+  rg_vm.reject! { |vm| exclusions_list.include?(vm) }
+
   desired_extension = input('desired_extension')
 
   rg_vm.each do |element|

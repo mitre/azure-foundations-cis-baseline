@@ -113,9 +113,9 @@ inputs:
     type: boolean
     value: false
 
-  # 7.5
-  - name: resource_group_and_network_watcher
-    description: "Resource group and network watcher name"
+  # 7.5  
+  - name: excluded_resource_groups_and_network_watcher
+    description: "Excluded resource group and network watcher names"
     type: array
     value:
       - ""
@@ -128,8 +128,8 @@ inputs:
       - ""
 
   # 8.3, 8.5, 8.6
-  - name: resource_group_and_disk_name
-    description: "Resource group and disk name (format: 'resource_group.disk')"
+  - name: excluded_resource_groups_and_disks
+    description: "Excluded Resource group and disk name (format: 'resource_group.disk')"
     type: array
     value:
       - ""
@@ -156,8 +156,8 @@ inputs:
       - ""
 
   # 8.8
-  - name: resource_group_and_virtual_machine
-    description: "Resource group and virtual machine names"
+  - name: excluded_resource_groups_and_virtual_machine
+    description: "Excluded resource group and virtual machine names"
     type: array
     value:
       - ""
@@ -169,8 +169,8 @@ inputs:
     value: ""
 
   # 9.2
-  - name: resource_group_and_app_name
-    description: "Resource group and application name"
+  - name: excluded_resource_groups_and_web_apps
+    description: "Excluded resource group and application name"
     type: array
     value:
       - ""

@@ -61,8 +61,8 @@ key_vault_full_key_uri:
 postgresql_single_server: false
 
 # 7.5
-# Format: The resource group and network watcher under it separated by a period -> resource_group.network_watcher
-resource_group_and_network_watcher:
+# Format: Excluded resource group and network watcher under it separated by a period -> resource_group.network_watcher
+excluded_resource_groups_and_network_watcher:
   - "resource_group.network_watcher"
 
 # 7.7
@@ -71,7 +71,7 @@ relevant_public_ip_addresses:
 
 # 8.3, 8.5, 8.6
 # Format: The resource group and disk name under it separated by a period -> resource_group.diskname
-resource_group_and_disk_name:
+excluded_resource_groups_and_disks:
   - "resource_group.disk_name"
 
 # 8.7
@@ -90,7 +90,7 @@ unauthorized_provision_states:
   
 # 8.8
 # Format: The resource group and network watcher under it separated by a period -> resource_group.network_watcher
-resource_group_and_virtual_machine:
+excluded_resource_groups_and_virtual_machine:
   - "resource_group.virtual_machine"
 
 # 8.8
@@ -98,7 +98,7 @@ desired_extensions: "test"
 
 # 9.2
 # Format: The resource group and web app under it separated by a period -> resource_group.web_app
-resource_group_and_app_name:
+excluded_resource_groups_and_web_apps:
   - "resource_group.web_app"
 
 # 9.7

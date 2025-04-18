@@ -64,7 +64,7 @@ control 'azure-foundations-cis-9.2' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
 
-  app_script = 'Get-AzKeyVault | ConvertTo-Json'
+  app_script = 'Get-AzWebApp | ConvertTo-Json'
   app_output = powershell(app_script).stdout.strip
   all_apps = json(content: app_output).params
 
@@ -72,7 +72,17 @@ control 'azure-foundations-cis-9.2' do
     !all_apps.empty?
   end
 
-  rg_an_list = input('resource_group_and_app_name')
+  exclusions_list = input('excluded_resource_groups_and_web_apps')
+
+  rg_an_list = case all_apps
+               when Array
+                 all_apps.map { |webapp| "#{webapp['ResourceGroup']}.#{webapp['Name']}" }
+               when Hash
+                 ["#{all_apps['ResourceGroup']}.#{all_apps['Name']}"]
+               else
+                 []
+               end
+  rg_an_list.reject! { |an| exclusions_list.include?(an) }
 
   failures = []
   rg_an_list.uniq.each do |pair|

@@ -74,15 +74,25 @@ control 'azure-foundations-cis-8.5' do
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/linux/disks-export-import-private-links-cli'
   ref 'https://learn.microsoft.com/en-us/azure/virtual-machines/disks-restrict-import-export-overview'
 
-  vm_script = 'Get-AzVM | ConvertTo-Json'
+  vm_script = 'Get-AzDisk | ConvertTo-Json'
   vm_output = powershell(vm_script).stdout.strip
-  all_vms = json(content: vm_output).params
+  all_disks = json(content: vm_output).params
 
-  only_if('N/A - No Virtual Machines found', impact: 0) do
-    !all_vms.empty?
+  only_if('N/A - No Disks found', impact: 0) do
+    !all_disks.empty?
   end
 
-  resource_group_and_disk_name = input('resource_group_and_disk_name')
+  exclusions_list = input('excluded_resource_groups_and_disks')
+
+  resource_group_and_disk_name = case all_disks
+                                 when Array
+                                   all_disks.map { |disk| "#{disk['ResourceGroupName']}.#{disk['Name']}" }
+                                 when Hash
+                                   ["#{all_disks['ResourceGroupName']}.#{all_disks['Name']}"]
+                                 else
+                                   []
+                                 end
+  resource_group_and_disk_name.reject! { |disk| exclusions_list.include?(disk) }
   rg_pattern = resource_group_and_disk_name.map { |rg_disk| "'#{rg_disk}'" }.join(', ')
   ensure_disks_not_public_access_script = %(
     $ErrorActionPreference = "Stop"

@@ -52,7 +52,19 @@ control 'azure-foundations-cis-7.5' do
     !all_nsgs.empty?
   end
 
-  rg_nsg_list = input('resource_group_and_network_watcher')
+  # rg_nsg_list = input('resource_group_and_network_watcher')
+
+  rg_nsg_list = case all_nsgs
+                when Array
+                  all_nsgs.map { |nsg| "#{nsg['resourceGroup']}.#{nsg['name']}" }
+                when Hash
+                  ["#{all_nsgs['resourceGroup']}.#{all_nsgs['name']}"]
+                else
+                  []
+                end
+  exclusions_list = input('excluded_resource_groups_and_network_watcher')
+  rg_nsg_list.reject! { |sa| exclusions_list.include?(sa) }
+
   failures = []
   rg_nsg_list.uniq.each do |pair|
     rg, nsg = pair.split('.')
