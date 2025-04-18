@@ -66,50 +66,73 @@ control 'azure-foundations-cis-8.9' do
     !all_vms.empty?
   end
 
-  only_approved_extensions_approved_script = %(
-    $ErrorActionPreference = "Stop"
-    $vms = Get-AzVM
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-    # Iterate over each VM
-    foreach ($vm in $vms) {
-        $vmName = $vm.Name
-        $resourceGroupName = $vm.ResourceGroupName
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
-        # Get all extensions for the current VM
-        $virtualMachine = Get-AzVM -Name $vmName -ResourceGroup $resourceGroupName | Select-Object -ExpandProperty StorageProfile
-        $osDisk = $virtualMachine.OsDisk
-        $dataDisk = $virtualMachine.DataDisks
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-        if ($osDisk.Vhd) {
-            # Get the VHD URI
-            $osDiskUri = $osDisk.Vhd.Uri
-            Write-Host "OS Disk VHD URI: $osDiskUri"
-
-            # Extract the VHD name from the URI
-            $osDiskVhdName = [System.IO.Path]::GetFileName($osDiskUri)
-            $storageAccount = Get-AzStorageAccount -Name $osDiskVhdName -ResourceGroupName $resourceGroupName
-
-            $blobEncryption = $storageAccount.Encryption.Services.Blob
-
-            # Check if blob encryption is enabled
-            if (-not $blobEncryption.Enabled) {
-                Write-Host "Blob encryption is NOT enabled for storage account $storageAccountName in $vmName VM and $resourceGroupName resource group."
-            }
-        }
-        else {
-            Write-Host "The $vmName VM and $resourceGroupName resource group does not have a OS Disk with VHD"
-        }
-    }
-  )
-
-  pwsh_output = powershell(only_approved_extensions_approved_script)
-  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
-
-  describe "Ensure the number of resource group/VMs that has storageAccount.Encryption.Services.Blob set to 'False'" do
-    subject { pwsh_output.stdout.strip }
-    it 'is 0' do
-      failure_message = "The following resource groups/VM do not have the the approved settings are: #{pwsh_output.stdout.strip}"
-      expect(subject).to be_empty, failure_message
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
-  end
+  else
+		only_approved_extensions_approved_script = %(
+			$ErrorActionPreference = "Stop"
+			$vms = Get-AzVM
+
+			# Iterate over each VM
+			foreach ($vm in $vms) {
+					$vmName = $vm.Name
+					$resourceGroupName = $vm.ResourceGroupName
+
+					# Get all extensions for the current VM
+					$virtualMachine = Get-AzVM -Name $vmName -ResourceGroup $resourceGroupName | Select-Object -ExpandProperty StorageProfile
+					$osDisk = $virtualMachine.OsDisk
+					$dataDisk = $virtualMachine.DataDisks
+
+					if ($osDisk.Vhd) {
+							# Get the VHD URI
+							$osDiskUri = $osDisk.Vhd.Uri
+							Write-Host "OS Disk VHD URI: $osDiskUri"
+
+							# Extract the VHD name from the URI
+							$osDiskVhdName = [System.IO.Path]::GetFileName($osDiskUri)
+							$storageAccount = Get-AzStorageAccount -Name $osDiskVhdName -ResourceGroupName $resourceGroupName
+
+							$blobEncryption = $storageAccount.Encryption.Services.Blob
+
+							# Check if blob encryption is enabled
+							if (-not $blobEncryption.Enabled) {
+									Write-Host "Blob encryption is NOT enabled for storage account $storageAccountName in $vmName VM and $resourceGroupName resource group."
+							}
+					}
+					else {
+							Write-Host "The $vmName VM and $resourceGroupName resource group does not have a OS Disk with VHD"
+					}
+			}
+		)
+
+		pwsh_output = powershell(only_approved_extensions_approved_script)
+		raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+
+		describe "Ensure the number of resource group/VMs that has storageAccount.Encryption.Services.Blob set to 'False'" do
+			subject { pwsh_output.stdout.strip }
+			it 'is 0' do
+				failure_message = "The following resource groups/VM do not have the the approved settings are: #{pwsh_output.stdout.strip}"
+				expect(subject).to be_empty, failure_message
+			end
+		end
+	end
 end
