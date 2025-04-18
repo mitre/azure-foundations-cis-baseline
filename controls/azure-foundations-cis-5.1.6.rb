@@ -78,70 +78,56 @@ control 'azure-foundations-cis-5.1.6' do
       skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
   else
-
-    rg_sa_list.each do |pair|
-      resource_group, = pair.split('.')
-
+    failures = []
+    resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+    resource_groups.each do |resource_group|
       sql_servers_script = <<-EOH
-      $ErrorActionPreference = "Stop"
-      Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+        $ErrorActionPreference = "Stop"
+        Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
       EOH
 
       sql_servers_output_pwsh = powershell(sql_servers_script)
       raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
 
-      sql_servers_output = sql_servers_output_pwsh.stdout.strip
-      sql_servers = json(content: sql_servers_output).params
+      sql_servers = json(content: sql_servers_output_pwsh.stdout.strip).params
       sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
       sql_servers.each do |server|
         resource_group_server = server['ResourceGroupName']
         server_name = server['ServerName']
+        next if resource_group_server.to_s.empty? || server_name.to_s.empty?
 
-        if resource_group_server.to_s.empty? || server_name.to_s.empty?
-          describe "Ensure that 'Auditing' Retention is 'greater than 90 days'" do
-            skip 'ResourceGroupName or ServerName is empty, skipping audit test'
-          end
-        else
-          describe "SQL Server Audit retention for '#{server_name}' (Resource Group: #{resource_group_server})" do
-            audit_script = <<-EOH
+        audit_script = <<-EOH
+          $ErrorActionPreference = "Stop"
+          Get-AzSqlServerAudit -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+        EOH
+
+        audit_output_pwsh = powershell(audit_script)
+        raise Inspec::Error, "The powershell output returned the following error:  #{audit_output_pwsh.stderr}" if audit_output_pwsh.exit_status != 0
+
+        audit = json(content: audit_output_pwsh.stdout.strip).params
+
+        if audit['LogAnalyticsTargetState'].to_i == 0 && audit['WorkspaceResourceId'] && !audit['WorkspaceResourceId'].empty?
+          workspace_script = <<-EOH
             $ErrorActionPreference = "Stop"
-            Get-AzSqlServerAudit -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
-            EOH
+            Get-AzOperationalInsightsWorkspace | Where-Object { $_.ResourceId -eq "#{audit['WorkspaceResourceId']}" } | ConvertTo-Json -Depth 10
+          EOH
 
-            audit_output_pwsh = powershell(audit_script)
-            audit_output = audit_output_pwsh.stdout.strip
-            raise Inspec::Error, "The powershell output returned the following error:  #{audit_output_pwsh.stderr}" if audit_output_pwsh.exit_status != 0
+          workspace_output_pwsh = powershell(workspace_script)
+          raise Inspec::Error, "The powershell output returned the following error:  #{workspace_output_pwsh.stderr}" if workspace_output_pwsh.exit_status != 0
 
-            audit = json(content: audit_output).params
-
-            if audit['LogAnalyticsTargetState'].to_i == 0 && audit['WorkspaceResourceId'] && !audit['WorkspaceResourceId'].empty?
-              describe "Operational Insights Workspace retention for SQL Server '#{server_name}'" do
-                workspace_script = <<-EOH
-                $ErrorActionPreference = "Stop"
-                Get-AzOperationalInsightsWorkspace | Where-Object { $_.ResourceId -eq "#{audit['WorkspaceResourceId']}" } | ConvertTo-Json -Depth 10
-                EOH
-
-                workspace_output_pwsh = powershell(workspace_script)
-                workspace_output = workspace_output_pwsh.stdout.strip
-                raise Inspec::Error, "The powershell output returned the following error:  #{workspace_output_pwsh.stderr}" if workspace_output_pwsh.exit_status != 0
-
-                workspace = json(content: workspace_output).params
-
-                it 'should have Workspace RetentionInDays set to more than 90 days' do
-                  workspace_retention = workspace['retentionInDays'].to_i
-                  expect(workspace_retention).to be > 90
-                end
-              end
-            else
-              it 'should have Audit RetentionInDays set to more than 90 days' do
-                retention = audit['RetentionInDays'].to_i
-                expect(retention).to be > 90
-              end
-            end
-          end
+          workspace = json(content: workspace_output_pwsh.stdout.strip).params
+          failures << "#{resource_group_server}/#{server_name}" unless workspace['retentionInDays'].to_i > 90
+        else
+          retention = audit['RetentionInDays'].to_i
+          failures << "#{resource_group_server}/#{server_name}" unless retention > 90
         end
       end
+    end
+
+    describe 'SQL Servers Audit retention compliance' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

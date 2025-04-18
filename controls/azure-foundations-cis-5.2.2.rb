@@ -78,48 +78,41 @@ control 'azure-foundations-cis-5.2.2' do
       skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
   else
-
-    rg_sa_list.each do |pair|
-      resource_group, = pair.split('.')
-
-      postgres_servers_script = <<-EOH
+    failures = []
+    resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+    resource_groups.each do |resource_group|
+      servers_script = <<-EOH
         $ErrorActionPreference = "Stop"
-				Get-AzPostgreSqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+        Get-AzPostgreSqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
       EOH
 
-      postgres_servers_output_pwsh = powershell(postgres_servers_script)
-      postgres_servers_output = postgres_servers_output_pwsh.stdout.strip
-      raise Inspec::Error, "The powershell output returned the following error:  #{postgres_servers_output_pwsh.stderr}" if postgres_servers_output_pwsh.exit_status != 0
+      servers_output_pwsh = powershell(servers_script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{servers_output_pwsh.stderr}" if servers_output_pwsh.exit_status != 0
 
-      postgres_servers = json(content: postgres_servers_output).params
-      postgres_servers = [postgres_servers] unless postgres_servers.is_a?(Array)
+      servers = json(content: servers_output_pwsh.stdout.strip).params
+      servers = [servers] unless servers.is_a?(Array)
 
-      postgres_servers.each do |server|
+      servers.each do |server|
         server_name = server['Name']
+        next if server_name.to_s.empty?
 
-        if server_name.to_s.empty?
-          describe "Ensure server parameter 'log_checkpoints' is set to 'ON' for PostgreSQL flexible server" do
-            skip 'Name is empty, skipping audit test'
-          end
-        else
-          describe "PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}' log_checkpoints configuration" do
-            config_script = <<-EOH
+        config_script = <<-EOH
           $ErrorActionPreference = "Stop"
-					Get-AzPostgreSqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name log_checkpoints | ConvertTo-Json -Depth 10
-            EOH
+          Get-AzPostgreSqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name log_checkpoints | ConvertTo-Json -Depth 10
+        EOH
 
-            config_output_pwsh = powershell(config_script)
-            config_output = config_output_pwsh.stdout.strip
-            raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
+        config_output_pwsh = powershell(config_script)
+        raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
 
-            configuration = json(content: config_output).params
+        configuration = json(content: config_output_pwsh.stdout.strip).params
 
-            it "should have log_checkpoints set to 'ON'" do
-              expect(configuration['Value']).to cmp 'on'
-            end
-          end
-        end
+        failures << "#{resource_group}/#{server_name}" unless configuration['Value'].casecmp('on').zero?
       end
+    end
+
+    describe 'PostgreSQL Flexible servers with log_checkpoints not set to ON' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

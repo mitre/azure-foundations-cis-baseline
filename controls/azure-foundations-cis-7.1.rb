@@ -52,7 +52,6 @@ control 'azure-foundations-cis-7.1' do
   query = command('az network nsg list --query "[*].[name,securityRules]" -o json').stdout
   query_results_json = JSON.parse(query) unless query.empty?
 
-  # Collect  NSGs with at least one insecure rule
   nsgs_with_insecure_rules = query_results_json.select do |nsg|
     nsg_name = nsg[0]
     security_rules = nsg[1]
@@ -97,7 +96,6 @@ control 'azure-foundations-cis-7.1' do
             )
         end
 
-        # Format the failure message for this NSG
         rules_messages = insecure_rules.map do |rule|
           <<~RULE_DETAILS
             Rule '#{rule['name']}' failed due to matched insecure configuration:

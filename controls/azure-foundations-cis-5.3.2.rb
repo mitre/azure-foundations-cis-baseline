@@ -91,48 +91,41 @@ control 'azure-foundations-cis-5.3.2' do
       skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
   else
-
-    rg_sa_list.each do |pair|
-      resource_group, = pair.split('.')
-
-      script = <<-EOH
-      $ErrorActionPreference = "Stop"
-			Get-AzMysqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+    failures = []
+    resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+    resource_groups.each do |resource_group|
+      servers_script = <<-EOH
+        $ErrorActionPreference = "Stop"
+        Get-AzMysqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
       EOH
 
-      server_output_pwsh = powershell(script)
-      server_output = server_output_pwsh.stdout.strip
-      raise Inspec::Error, "The powershell output returned the following error:  #{server_output_pwsh.stderr}" if server_output_pwsh.exit_status != 0
+      servers_output_pwsh = powershell(servers_script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{servers_output_pwsh.stderr}" if servers_output_pwsh.exit_status != 0
 
-      servers = json(content: server_output).params
+      servers = json(content: servers_output_pwsh.stdout.strip).params
       servers = [servers] unless servers.is_a?(Array)
 
       servers.each do |server|
         server_name = server['Name']
+        next if server_name.to_s.empty?
 
-        if server_name.to_s.empty?
-          describe "Ensure server parameter 'tls_version' is set to 'TLSv1.2' (or higher) for MySQL flexible server" do
-            skip 'Name is empty, skipping audit test'
-          end
-        else
-          describe "MySQL Flexible Server '#{server_name}' tls_version configuration" do
-            config_script = <<-EOH
+        config_script = <<-EOH
           $ErrorActionPreference = "Stop"
-					Get-AzMysqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name tls_version | ConvertTo-Json -Depth 10
-            EOH
+          Get-AzMysqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name tls_version | ConvertTo-Json -Depth 10
+        EOH
 
-            config_output_pwsh = powershell(config_script)
-            config_output = config_output_pwsh.stdout.strip
-            raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
+        config_output_pwsh = powershell(config_script)
+        raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
 
-            configuration = json(content: config_output).params
+        configuration = json(content: config_output_pwsh.stdout.strip).params
 
-            it 'should include TLSv1.2' do
-              expect(configuration['Value']).to match(/TLSv1\.2/)
-            end
-          end
-        end
+        failures << "#{resource_group}/#{server_name}" unless configuration['Value'] =~ /TLSv1\.2/
       end
+    end
+
+    describe 'MySQL Flexible servers with tls_version not set to TLSv1.2' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

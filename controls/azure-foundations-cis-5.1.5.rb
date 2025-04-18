@@ -73,60 +73,57 @@ control 'azure-foundations-cis-5.1.5' do
                end
 
   rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
-
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
-
+  failures = []
+  resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+  resource_groups.each do |resource_group|
     sql_servers_script = <<-EOH
-      $ErrorActionPreference = "Stop"
-      Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+        $ErrorActionPreference = "Stop"
+        Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
 
     sql_servers_output_pwsh = powershell(sql_servers_script)
     raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
 
-    sql_servers_output = sql_servers_output_pwsh.stdout.strip
-    sql_servers = json(content: sql_servers_output).params
+    sql_servers = json(content: sql_servers_output_pwsh.stdout.strip).params
     sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
     sql_servers.each do |server|
       resource_group_server = server['ResourceGroupName']
       server_name = server['ServerName']
+      next if resource_group_server.to_s.empty? || server_name.to_s.empty?
 
       databases_script = <<-EOH
-        $ErrorActionPreference = "Stop"
-        Get-AzSqlDatabase -ServerName "#{server_name}" -ResourceGroupName "#{resource_group_server}" | ConvertTo-Json -Depth 10
+          $ErrorActionPreference = "Stop"
+          Get-AzSqlDatabase -ServerName "#{server_name}" -ResourceGroupName "#{resource_group_server}" | ConvertTo-Json -Depth 10
       EOH
 
       databases_output_pwsh = powershell(databases_script)
-      databases_output = databases_output_pwsh.stdout.strip
       raise Inspec::Error, "The powershell output returned the following error:  #{databases_output_pwsh.stderr}" if databases_output_pwsh.exit_status != 0
 
-      databases = json(content: databases_output).params
+      databases = json(content: databases_output_pwsh.stdout.strip).params
       databases = [databases] unless databases.is_a?(Array)
 
       databases.each do |db|
         db_name = db['DatabaseName']
-
         next if db_name.downcase == 'master'
 
-        describe "Transparent Data Encryption for database '#{db_name}' on SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
-          tde_script = <<-EOH
+        tde_script = <<-EOH
             $ErrorActionPreference = "Stop"
             Get-AzSqlDatabaseTransparentDataEncryption -ServerName "#{server_name}" -ResourceGroupName "#{resource_group_server}" -DatabaseName "#{db_name}" | ConvertTo-Json -Depth 10
-          EOH
+        EOH
 
-          tde_output_pwsh = powershell(tde_script)
-          tde_output = tde_output_pwsh.stdout.strip
-          raise Inspec::Error, "The powershell output returned the following error:  #{tde_output_pwsh.stderr}" if tde_output_pwsh.exit_status != 0
+        tde_output_pwsh = powershell(tde_script)
+        raise Inspec::Error, "The powershell output returned the following error:  #{tde_output_pwsh.stderr}" if tde_output_pwsh.exit_status != 0
 
-          tde = json(content: tde_output).params
+        tde = json(content: tde_output_pwsh.stdout.strip).params
 
-          it 'should have DataEncryption (TDE) enabled' do
-            expect(tde['State']).to cmp 0
-          end
-        end
+        failures << "#{resource_group_server}/#{server_name}/#{db_name}" unless tde['State'] == 0
       end
     end
+  end
+
+  describe 'SQL Databases with TDE disabled' do
+    subject { failures }
+    it { should be_empty }
   end
 end

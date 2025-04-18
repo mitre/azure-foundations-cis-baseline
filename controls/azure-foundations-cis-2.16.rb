@@ -76,7 +76,7 @@ control 'azure-foundations-cis-2.16' do
   describe 'Ensure the output from AllowInvitesFrom setting' do
     subject { pwsh_output.stdout.strip }
     it 'is set to adminsAndGuestInviters' do
-      expect(subject).to eq('adminsAndGuestInviters')
+      expect(subject).to cmp 'adminsAndGuestInviters'
     end
   end
 end

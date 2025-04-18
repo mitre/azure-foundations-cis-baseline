@@ -72,43 +72,32 @@ control 'azure-foundations-cis-5.4.1' do
     !rg_sa_list.empty?
   end
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
-
+  failures = []
+  resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+  resource_groups.each do |resource_group|
     script = <<-EOH
       $ErrorActionPreference = "Stop"
       Get-AzCosmosDBAccount -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
 
     output_pwsh = powershell(script)
-    output = output_pwsh.stdout.strip
     raise Inspec::Error, "The powershell output returned the following error:  #{output_pwsh.stderr}" if output_pwsh.exit_status != 0
 
-    accounts = json(content: output).params
+    accounts = json(content: output_pwsh.stdout.strip).params
+    accounts = if accounts.is_a?(Hash)
+                 accounts.empty? ? [] : [accounts]
+               else
+                 Array(accounts)
+               end
 
-    if accounts.is_a?(Hash)
-      accounts = accounts.empty? ? [] : [accounts]
-    elsif !accounts.is_a?(Array)
-      accounts = [accounts]
-    end
-
-    all_cosmosdb_accounts.concat(accounts)
-
-    if accounts.empty?
-      describe "Cosmos DB Accounts in Resource Group #{resource_group}" do
-        skip "N/A - No Cosmos DB accounts found in Resource Group #{resource_group}"
-      end
-    else
-      accounts.each do |account|
-        account_name = account['Name']
-        describe "Cosmos DB Account '#{account_name}' in Resource Group '#{resource_group}' Virtual Network Filter configuration" do
-          it "should have IsVirtualNetworkFilterEnabled set to 'True'" do
-            expect(account['IsVirtualNetworkFilterEnabled']).to cmp true
-          end
-        end
-      end
+    accounts.each do |account|
+      account_name = account['Name']
+      failures << "#{resource_group}/#{account_name}" unless account['IsVirtualNetworkFilterEnabled']
     end
   end
 
-  impact 0.0 if all_cosmosdb_accounts.empty?
+  describe 'Cosmos DB accounts without virtual network filter enabled' do
+    subject { failures }
+    it { should be_empty }
+  end
 end

@@ -84,39 +84,20 @@ control 'azure-foundations-cis-6.1.3' do
       skip 'N/A - No storage accounts found or accounts have been manually excluded'
     end
   else
-
+    failures = []
     rg_sa_list.each do |pair|
       resource_group, storage_account = pair.split('.')
+      storage_accounts = json(command: "az storage account list --resource-group #{resource_group} --query \"[?name=='#{storage_account}']\" -o json").params || []
+      next unless storage_accounts.empty? ||
+                  storage_accounts.first['encryption']['keySource'] != 'Microsoft.Keyvault' ||
+                  storage_accounts.first['encryption']['keyVaultProperties'].to_s.strip.empty?
 
-      describe "Encryption settings for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-        storage_accounts = json(command: "az storage account list --resource-group #{resource_group} --query \"[?name=='#{storage_account}']\" -o json").params || []
+      failures << "#{resource_group}/#{storage_account}"
+    end
 
-        describe "Storage Account '#{storage_account}' existence" do
-          it 'should exist (storage account list should not be empty)' do
-            expect(storage_accounts).not_to be_empty
-          end
-        end
-
-        unless storage_accounts.empty?
-          encryption = storage_accounts.first['encryption']
-
-          describe "KeySource for '#{storage_account}'" do
-            it "should be set to 'Microsoft.Keyvault'" do
-              expect(encryption['keySource']).to cmp 'Microsoft.Keyvault'
-            end
-          end
-
-          describe "KeyVaultProperties for '#{storage_account}'" do
-            it 'should not be null' do
-              expect(encryption['keyVaultProperties']).not_to be_nil
-            end
-
-            it 'should not be empty' do
-              expect(encryption['keyVaultProperties'].to_s.strip).not_to eq ''
-            end
-          end
-        end
-      end
+    describe 'Storage accounts not encrypted with Customer Managed Key' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

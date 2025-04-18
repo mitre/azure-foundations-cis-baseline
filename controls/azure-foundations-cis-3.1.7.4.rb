@@ -82,7 +82,7 @@ control 'azure-foundations-cis-3.1.7.4' do
   describe 'Ensure That Microsoft Defender for SQL Servers on Machines' do
     subject { pwsh_output.stdout.strip }
     it "Is Set To 'On'" do
-      expect(subject).to eq('Standard')
+      expect(subject).to cmp 'Standard'
     end
   end
 end

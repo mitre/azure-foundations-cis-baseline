@@ -74,32 +74,17 @@ control 'azure-foundations-cis-9.2' do
 
   rg_an_list = input('resource_group_and_app_name')
 
-  rg_an_list.each do |pair|
+  failures = []
+  rg_an_list.uniq.each do |pair|
     resource_group, app_name = pair.split('.')
-    enabled_info = command("az webapp auth show --resource-group #{resource_group} --name #{app_name} --query enabled")
-    scm_info = command("az resource show --resource-group #{resource_group} --name scm --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/#{app_name} --query properties.allow")
-    ftp_info = command("az resource show --resource-group #{resource_group} --name ftp --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/#{app_name} --query properties.allow")
-    describe "Application Name '#{app_name}' in Resource Group '#{resource_group}'" do
-      describe 'App Service Authentication setting' do
-        subject { enabled_info.stdout.strip }
-        it "should be set to 'true'" do
-          expect(subject).to cmp(true)
-        end
-      end
+    enabled = command("az webapp auth show --resource-group #{resource_group} --name #{app_name} --query enabled").stdout.strip
+    scm_allow = command("az resource show --resource-group #{resource_group} --name scm --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/#{app_name} --query properties.allow").stdout.strip
+    ftp_allow = command("az resource show --resource-group #{resource_group} --name ftp --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/#{app_name} --query properties.allow").stdout.strip
+    failures << "#{resource_group}/#{app_name}" unless enabled == 'true' && scm_allow == 'false' && ftp_allow == 'false'
+  end
 
-      describe 'Properties.allow setting for SCM Basic Auth Publishing Credentials' do
-        subject { scm_info.stdout.strip }
-        it "should be set 'false'" do
-          expect(subject).to cmp(false)
-        end
-      end
-
-      describe 'Properties.allow setting for SCM Basic Auth Publishing Credentials' do
-        subject { ftp_info.stdout.strip }
-        it "should be set 'false'" do
-          expect(subject).to cmp(false)
-        end
-      end
-    end
+  describe 'App Service apps without authentication properly configured' do
+    subject { failures }
+    it { should be_empty }
   end
 end
