@@ -115,17 +115,17 @@ control 'azure-foundations-cis-6.1.1' do
   raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
   describe.one do
-    describe 'Diagnostic settings are configured for the subscription' do
+    describe 'Ensure Diagnostic settings for the subscription' do
       subject { diagnostic_settings_subscription_output.stdout.strip }
-      it 'has diagnostic settings configured' do
-        failure_message = 'Diagnostic settings are not configured for the subscription'
+      it 'does not return an empty array' do
+        failure_message = 'Diagnostic settings are not properly configured for the subscription'
         expect(subject).not_to eq('[]'), failure_message
       end
     end
-    describe 'No resources without diagnostic settings' do
+    describe 'Ensure each resource' do
       subject { pwsh_output.stdout.strip }
-      it 'has no resources without diagnostic settings' do
-        failure_message = "The following resources do not have a diagnostic setting: #{pwsh_output.stdout.strip}"
+      it 'have Diagnostic settings present' do
+        failure_message = "The following resources are missing diagnostic settings: #{pwsh_output.stdout.strip}"
         expect(subject).to be_empty, failure_message
       end
     end
