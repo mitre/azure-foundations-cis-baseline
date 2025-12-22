@@ -45,14 +45,7 @@ control 'azure-foundations-cis-6.5' do
   all_resources = json(content: resource_output).params
 
   only_if('N/A - No Resources found', impact: 0) do
-    case all_resources
-    when Array
-      !all_resources.empty?
-    when Hash
-      !all_resources.empty?
-    else
-      false
-    end
+    !all_resources.empty?
   end
 
   script = <<-EOH
@@ -63,7 +56,11 @@ control 'azure-foundations-cis-6.5' do
   pwsh_output = powershell(script)
   raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-  describe pwsh_output do
-    its('stdout.strip') { should eq '' }
+  describe 'Ensure the number of production artifacts with SKU Basic/Consumption' do
+    subject { pwsh_output.stdout.strip }
+    it 'is 0' do
+      failure_message = "The following resources have SKU Basic: #{pwsh_output.stdout}"
+      expect(subject).to be_empty, failure_message
+    end
   end
 end

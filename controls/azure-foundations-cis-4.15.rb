@@ -68,35 +68,48 @@ control 'azure-foundations-cis-4.15' do
   all_storage = json(content: storage_output).params
 
   only_if('N/A - No Storage Accounts found', impact: 0) do
-    case all_storage
-    when Array
-      !all_storage.empty?
-    when Hash
-      !all_storage.empty?
-    else
-      false
-    end
+    !all_storage.empty?
   end
 
   subscription_id = input('subscription_id')
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  rg_sa_list.each do |pair|
-    resource_group, storage_account = pair.split('.')
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
-    describe "Minimum TLS version for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
+    end
+  else
+    failures = []
+
+    rg_sa_list.each do |pair|
+      resource_group, storage_account = pair.split('.')
+
       script = <<-EOH
-                $ErrorActionPreference = "Stop"
-                Set-AzContext -Subscription #{subscription_id} | Out-Null
-                (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").MinimumTlsVersion
+        $ErrorActionPreference = "Stop"
+        (Get-AzStorageAccount -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").MinimumTlsVersion
       EOH
 
       pwsh_output = powershell(script)
       raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-      describe pwsh_output do
-        its('stdout.strip') { should cmp 'TLS1_2' }
-      end
+      failures << "#{resource_group}/#{storage_account}" unless pwsh_output.stdout.strip == 'TLS1_2'
     end
+  end
+
+  describe 'Storage Accounts with minimum TLS version not set to TLS1_2' do
+    subject { failures }
+    it { should be_empty }
   end
 end

@@ -59,52 +59,66 @@ control 'azure-foundations-cis-5.3.3' do
   all_servers = json(content: servers_output).params
 
   only_if('N/A - No MySQL Flexible Servers found', impact: 0) do
-    case all_servers
-    when Array
-      !all_servers.empty?
-    when Hash
-      !all_servers.empty?
-    else
-      false
-    end
+    !all_servers.empty?
   end
 
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
-    script = <<-EOH
-      $ErrorActionPreference = "Stop"
-			Get-AzMysqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
-    EOH
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-    server_output_pwsh = powershell(script)
-    server_output = server_output_pwsh.stdout.strip
-    raise Inspec::Error, "The powershell output returned the following error:  #{server_output_pwsh.stderr}" if server_output_pwsh.exit_status != 0
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
+    end
+  else
+    failures = []
+    resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+    resource_groups.each do |resource_group|
+      servers_script = <<-EOH
+        $ErrorActionPreference = "Stop"
+        Get-AzMysqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+      EOH
 
-    servers = json(content: server_output).params
-    servers = [servers] unless servers.is_a?(Array)
+      servers_output_pwsh = powershell(servers_script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{servers_output_pwsh.stderr}" if servers_output_pwsh.exit_status != 0
 
-    servers.each do |server|
-      server_name = server['Name']
+      servers = json(content: servers_output_pwsh.stdout.strip).params
+      servers = [servers] unless servers.is_a?(Array)
 
-      describe "MySQL Flexible Server '#{server_name}' audit_log_enabled configuration" do
+      servers.each do |server|
+        server_name = server['Name']
+        next if server_name.to_s.empty?
+
         config_script = <<-EOH
           $ErrorActionPreference = "Stop"
-					Get-AzMysqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name audit_log_enabled | ConvertTo-Json -Depth 10
+          Get-AzMysqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name audit_log_enabled | ConvertTo-Json -Depth 10
         EOH
 
         config_output_pwsh = powershell(config_script)
-        config_output = config_output_pwsh.stdout.strip
         raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
 
-        configuration = json(content: config_output).params
+        configuration = json(content: config_output_pwsh.stdout.strip).params
 
-        it "should have audit_log_enabled set to 'ON'" do
-          expect(configuration['Value']).to cmp 'on'
-        end
+        failures << "#{resource_group}/#{server_name}" unless configuration['Value'].casecmp('on').zero?
       end
+    end
+
+    describe 'MySQL Flexible servers with audit_log_enabled not set to ON' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

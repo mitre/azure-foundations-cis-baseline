@@ -34,52 +34,61 @@ control 'azure-foundations-cis-5.4.3' do
 
   all_cosmos_accounts = []
 
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
+    !rg_sa_list.empty?
+  end
+
+  failures = []
+  resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+  resource_groups.each do |resource_group|
     cosmos_accounts_script = <<-EOH
       $ErrorActionPreference = "Stop"
       Get-AzCosmosDBAccount -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
 
     cosmos_accounts_output_pwsh = powershell(cosmos_accounts_script)
-    cosmos_accounts_output = cosmos_accounts_output_pwsh.stdout.strip
     raise Inspec::Error, "The powershell output returned the following error:  #{cosmos_accounts_output_pwsh.stderr}" if cosmos_accounts_output_pwsh.exit_status != 0
 
-    cosmos_accounts = json(content: cosmos_accounts_output).params
+    cosmos_accounts = json(content: cosmos_accounts_output_pwsh.stdout.strip).params
+    cosmos_accounts = if cosmos_accounts.is_a?(Hash)
+                        cosmos_accounts.empty? ? [] : [cosmos_accounts]
+                      else
+                        Array(cosmos_accounts)
+                      end
 
-    if cosmos_accounts.is_a?(Hash)
-      cosmos_accounts = cosmos_accounts.empty? ? [] : [cosmos_accounts]
-    elsif !cosmos_accounts.is_a?(Array)
-      cosmos_accounts = [cosmos_accounts]
+    cosmos_accounts.each do |account|
+      cosmosdb_account = account['Name']
+
+      cosmosdb_show_script = <<-EOH
+        az cosmosdb show --name "#{cosmosdb_account}" --resource-group "#{resource_group}"
+      EOH
+
+      cosmosdb_output = powershell(cosmosdb_show_script).stdout.strip
+      cosmosdb_json = json(content: cosmosdb_output).params
+
+      failures << "#{resource_group}/#{cosmosdb_account}" unless cosmosdb_json['disableLocalAuth']
     end
+  end
 
-    all_cosmos_accounts.concat(cosmos_accounts)
-
-    if cosmos_accounts.empty?
-      describe "Cosmos DB Accounts in Resource Group #{resource_group}" do
-        skip "N/A - No Cosmos DB accounts found in Resource Group #{resource_group}"
-      end
-    else
-      cosmos_accounts.each do |account|
-        cosmosdb_account = account['Name']
-
-        cosmosdb_show_script = <<-EOH
-          az cosmosdb show --name "#{cosmosdb_account}" --resource-group "#{resource_group}"
-        EOH
-
-        cosmosdb_output = powershell(cosmosdb_show_script).stdout.strip
-        cosmosdb_json = json(content: cosmosdb_output).params
-
-        describe "Cosmos DB account '#{cosmosdb_account}' in Resource Group '#{resource_group}'" do
-          it "should have disableLocalAuth set to 'True'" do
-            expect(cosmosdb_json['disableLocalAuth']).to cmp true
-          end
-        end
-      end
-    end
+  describe 'Cosmos DB accounts with local authentication enabled' do
+    subject { failures }
+    it { should be_empty }
   end
 
   impact 0.0 if all_cosmos_accounts.empty?

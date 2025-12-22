@@ -64,14 +64,7 @@ control 'azure-foundations-cis-5.1.3' do
   all_servers = json(content: servers_output).params
 
   only_if('N/A - No Azure SQL Databases found', impact: 0) do
-    case all_servers
-    when Array
-      !all_servers.empty?
-    when Hash
-      !all_servers.empty?
-    else
-      false
-    end
+    !all_servers.empty?
   end
 
   expected_full_keys = input('key_vault_full_key_uri')
@@ -89,53 +82,72 @@ control 'azure-foundations-cis-5.1.3' do
     }
   end.compact
 
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
-    sql_servers_script = <<-EOH
-      $ErrorActionPreference = "Stop"
-      Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
-    EOH
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-    sql_servers_output_pwsh = powershell(sql_servers_script)
-    raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
+    end
+  else
+    failures = []
+    resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+    resource_groups.each do |resource_group|
+      sql_servers_script = <<-EOH
+        $ErrorActionPreference = "Stop"
+        Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+      EOH
 
-    sql_servers_output = sql_servers_output_pwsh.stdout.strip
-    sql_servers = json(content: sql_servers_output).params
-    sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+      sql_servers_output_pwsh = powershell(sql_servers_script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
 
-    sql_servers.each do |server|
-      server_name = server['ServerName']
-      resource_group_server = server['ResourceGroupName']
+      sql_servers_output = sql_servers_output_pwsh.stdout.strip
+      sql_servers = json(content: sql_servers_output).params
+      sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
-      describe "Transparent Data Encryption Protector for SQL Server #{server_name} (Resource Group: #{resource_group_server})" do
+      sql_servers.each do |server|
+        server_name = server['ServerName']
+        resource_group_server = server['ResourceGroupName']
+        next if resource_group_server.to_s.empty? || server_name.to_s.empty?
+
         tde_script = <<-EOH
           $ErrorActionPreference = "Stop"
-          Get-AzSqlServerTransparentDataEncryptionProtector -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+          Get-AzSqlServerTransparentDataEncryptionProtector -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json
         EOH
 
         tde_output_pwsh = powershell(tde_script)
-        tde_output = tde_output_pwsh.stdout.strip
         raise Inspec::Error, "The powershell output returned the following error:  #{tde_output_pwsh.stderr}" if tde_output_pwsh.exit_status != 0
 
-        tde = json(content: tde_output).params
+        tde = json(content: tde_output_pwsh.stdout.strip).params
 
-        it "should have Type set to 'AzureKeyVault'" do
-          expect(tde['Type']).to cmp 0
-        end
+        allowed_names = expected_values.map { |v| v['ServerKeyVaultKeyName'] }
+        allowed_ids   = expected_values.map { |v| v['KeyId'] }
 
-        it 'should have ServerKeyVaultKeyName in one of the allowed formats' do
-          allowed_names = expected_values.map { |v| v['ServerKeyVaultKeyName'] }
-          expect(allowed_names).to include(tde['ServerKeyVaultKeyName'])
-        end
+        next if tde['Type'] == 0 &&
+                allowed_names.include?(tde['ServerKeyVaultKeyName']) &&
+                allowed_ids.include?(tde['KeyId'])
 
-        it 'should have KeyId in one of the allowed formats' do
-          allowed_ids = expected_values.map { |v| v['KeyId'] }
-          expect(allowed_ids).to include(tde['KeyId'])
-        end
+        failures << "#{resource_group_server}/#{server_name}"
       end
+    end
+
+    describe 'SQL Servers with TDE protector not encrypted with a Customer-managed key' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

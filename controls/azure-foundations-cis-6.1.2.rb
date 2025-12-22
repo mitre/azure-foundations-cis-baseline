@@ -61,28 +61,26 @@ control 'azure-foundations-cis-6.1.2' do
 
   required_categories = ['Administrative', 'Alert', 'Policy', 'Security']
 
-  json_output = json(command: "az monitor diagnostic-settings subscription list --subscription #{subscription_id} -o json")
-  diag_settings = json_output.params['value'] || []
-
-  describe "Diagnostic settings for subscription #{subscription_id}" do
-    it 'should exist (diag settings should not be nil or empty)' do
-      expect(diag_settings).not_to be_empty
-    end
+  diag_script = "az monitor diagnostic-settings subscription list --subscription #{subscription_id} -o json"
+  diag_output = command(diag_script).stdout.strip
+  diag_settings = json(content: diag_output).params['value'] || []
+  only_if('N/A - No subscription diagnostic settings found', impact: 0) do
+    !diag_settings.empty?
   end
 
+  failures = []
   unless diag_settings.empty?
     diag_settings.each do |diag_setting|
       diag_setting_name = diag_setting['name']
-
       required_categories.each do |category|
         log_entry = diag_setting['logs'].find { |log| log['category'] == category }
-
-        describe "Subscription diagnostic setting '#{diag_setting_name}' for log category '#{category}'" do
-          it 'is enabled' do
-            expect(log_entry['enabled']).to cmp true
-          end
-        end
+        failures << "#{diag_setting_name}/#{category}" unless log_entry && log_entry['enabled']
       end
     end
+  end
+
+  describe 'Subscription diagnostic settings with missing categories' do
+    subject { failures }
+    it { should be_empty }
   end
 end

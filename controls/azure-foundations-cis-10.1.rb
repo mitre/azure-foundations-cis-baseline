@@ -53,14 +53,7 @@ control 'azure-foundations-cis-10.1' do
   all_resources = json(content: resource_output).params
 
   only_if('N/A - No Resources found', impact: 0) do
-    case all_resources
-    when Array
-      !all_resources.empty?
-    when Hash
-      !all_resources.empty?
-    else
-      false
-    end
+    !all_resources.empty?
   end
 
   ensure_resource_locks_set_script = %(

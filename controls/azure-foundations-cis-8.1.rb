@@ -65,23 +65,19 @@ control 'azure-foundations-cis-8.1' do
   all_vms = json(content: vm_output).params
 
   only_if('N/A - No Virtual Machines found', impact: 0) do
-    case all_vms
-    when Array
-      !all_vms.empty?
-    when Hash
-      !all_vms.empty?
-    else
-      false
-    end
+    !all_vms.empty?
   end
 
   subscription_id = input('subscription_id')
   bastion_list = command("az network bastion list --subscription #{subscription_id}")
 
+  raise Inspec::Error, "The command output returned the following error:  #{bastion_list.stderr}" if bastion_list.exit_status != 0
+
   describe 'Ensure the bastions for resource groups' do
-    subject { bastion_list.stdout.strip }
+    subject { JSON.parse(bastion_list.stdout.strip) }
     it 'are not empty' do
-      expect(subject).not_to eq('[]')
+      failure_message = 'No bastion hosts were found'
+      expect(subject).not_to be_empty, failure_message
     end
   end
 end

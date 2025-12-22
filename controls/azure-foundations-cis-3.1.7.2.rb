@@ -78,7 +78,7 @@ control 'azure-foundations-cis-3.1.7.2' do
   describe 'Ensure That Microsoft Defender for Open-Source Relational Databases' do
     subject { pwsh_output.stdout.strip }
     it "is set to 'On'" do
-      expect(subject).to eq('Standard')
+      expect(subject).to cmp 'Standard'
     end
   end
 end

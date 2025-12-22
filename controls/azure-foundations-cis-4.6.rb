@@ -76,19 +76,30 @@ control 'azure-foundations-cis-4.6' do
   all_storage = json(content: storage_output).params
 
   only_if('N/A - No Storage Accounts found', impact: 0) do
-    case all_storage
-    when Array
-      !all_storage.empty?
-    when Hash
-      !all_storage.empty?
-    else
-      false
-    end
+    !all_storage.empty?
   end
 
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  script = <<-EOH
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
+
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
+    end
+  else
+
+    script = <<-EOH
     $ErrorActionPreference = "Stop"
 		$rg_sa_list = ConvertFrom-Json '#{rg_sa_list.to_json}'
 
@@ -120,15 +131,16 @@ control 'azure-foundations-cis-4.6' do
 			else {
 				$nonCompliantResources -join ","
 			}
-  EOH
+    EOH
 
-  pwsh_output = powershell(script)
-  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+    pwsh_output = powershell(script)
+    raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-  describe 'Storage Accounts with non-disabled Public Network Access' do
-    subject { pwsh_output.stdout.strip.split(',').map(&:strip).reject(&:empty?) }
-    it 'should be empty (i.e. all storage accounts have PublicNetworkAccess set to Disabled)' do
-      expect(subject).to be_empty
+    describe 'Storage Accounts with non-disabled Public Network Access' do
+      subject { pwsh_output.stdout.strip.split(',').map(&:strip).reject(&:empty?) }
+      it 'should be empty (i.e. all storage accounts have PublicNetworkAccess set to Disabled)' do
+        expect(subject).to be_empty
+      end
     end
   end
 end

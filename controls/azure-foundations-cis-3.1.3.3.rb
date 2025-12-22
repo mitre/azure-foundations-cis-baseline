@@ -111,7 +111,7 @@ control 'azure-foundations-cis-3.1.3.3' do
   describe "Ensure that 'Endpoint protection' component status" do
     subject { pwsh_output.stdout.strip }
     it "is set to 'On'" do
-      expect(subject).to eq('True')
+      expect(subject).to cmp 'True'
     end
   end
 end

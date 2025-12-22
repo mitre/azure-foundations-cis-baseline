@@ -53,14 +53,7 @@ control 'azure-foundations-cis-9.5' do
   all_apps = json(content: app_output).params
 
   only_if('N/A - No Web Applications found', impact: 0) do
-    case all_apps
-    when Array
-      !all_apps.empty?
-    when Hash
-      !all_apps.empty?
-    else
-      false
-    end
+    !all_apps.empty?
   end
 
   ensure_register_entra_id_enabled_app_service_script = %(

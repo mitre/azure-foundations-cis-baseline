@@ -59,26 +59,20 @@ control 'azure-foundations-cis-4.16' do
   all_storage = json(content: storage_output).params
 
   only_if('N/A - No Storage Accounts found', impact: 0) do
-    case all_storage
-    when Array
-      !all_storage.empty?
-    when Hash
-      !all_storage.empty?
-    else
-      false
-    end
+    !all_storage.empty?
   end
 
   storage_accounts = json(command: 'az storage account list --query "[*].[name,allowCrossTenantReplication]" --output json').params
 
+  failures = []
   storage_accounts.each do |account|
-    account_name = account[0]
-    allow_replication = account[1]
+    account_name, allow_replication = account
 
-    describe "Storage Account: #{account_name}" do
-      it "should have allowCrossTenantReplication set to 'False'" do
-        expect(allow_replication).to cmp false
-      end
-    end
+    failures << account_name unless allow_replication == false
+  end
+
+  describe 'Storage Accounts with cross-tenant replication enabled' do
+    subject { failures }
+    it { should be_empty }
   end
 end

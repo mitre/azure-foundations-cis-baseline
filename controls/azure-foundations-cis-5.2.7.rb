@@ -56,55 +56,67 @@ control 'azure-foundations-cis-5.2.7' do
   servers_output = powershell(servers_script).stdout.strip
   all_servers = json(content: servers_output).params
 
-  only_if('Control applicable only if PostgreSQL Flexible Servers exist and using PostgreSQL single server', impact: 0) do
-    servers_exist = case all_servers
-                    when Array
-                      !all_servers.empty?
-                    when Hash
-                      !all_servers.empty?
-                    else
-                      false
-                    end
-
-    servers_exist && input('postgresql_single_server')
+  only_if('N/A - Control applicable only if PostgreSQL Flexible Servers exist and using PostgreSQL single server', impact: 0) do
+    !all_servers.empty? && input('postgresql_single_server')
   end
 
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
-    postgres_servers_script = <<-EOH
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
+    end
+  else
+    failures = []
+    resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+    resource_groups.each do |resource_group|
+      servers_script = <<-EOH
         $ErrorActionPreference = "Stop"
-				Get-AzPostgreSqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
-    EOH
+        Get-AzPostgreSqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+      EOH
 
-    postgres_servers_output_pwsh = powershell(postgres_servers_script)
-    postgres_servers_output = postgres_servers_output_pwsh.stdout.strip
-    raise Inspec::Error, "The powershell output returned the following error:  #{postgres_servers_output_pwsh.stderr}" if postgres_servers_output_pwsh.exit_status != 0
+      servers_output_pwsh = powershell(servers_script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{servers_output_pwsh.stderr}" if servers_output_pwsh.exit_status != 0
 
-    postgres_servers = json(content: postgres_servers_output).params
-    postgres_servers = [postgres_servers] unless postgres_servers.is_a?(Array)
+      servers = json(content: servers_output_pwsh.stdout.strip).params
+      servers = [servers] unless servers.is_a?(Array)
 
-    postgres_servers.each do |server|
-      server_name = server['Name']
+      servers.each do |server|
+        server_name = server['Name']
+        next if server_name.to_s.empty?
 
-      describe "PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}' require_secure_transport configuration" do
         config_script = <<-EOH
-            $ErrorActionPreference = "Stop"
-						Get-AzPostgreSqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name require_secure_transport | ConvertTo-Json -Depth 10
+          $ErrorActionPreference = "Stop"
+          Get-AzPostgreSqlFlexibleServerConfiguration -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" -Name log_disconnections | ConvertTo-Json -Depth 10
         EOH
 
         config_output_pwsh = powershell(config_script)
-        config_output = config_output_pwsh.stdout.strip
         raise Inspec::Error, "The powershell output returned the following error:  #{config_output_pwsh.stderr}" if config_output_pwsh.exit_status != 0
 
-        configuration = json(content: config_output).params
+        configuration = json(content: config_output_pwsh.stdout.strip).params
 
-        it "should have require_secure_transport set to 'ON'" do
-          expect(configuration['Value']).to cmp 'on'
-        end
+        failures << "#{resource_group}/#{server_name}" unless configuration['Value'].casecmp('on').zero?
       end
+    end
+
+    describe 'PostgreSQL single servers with log_disconnections not set to ON' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

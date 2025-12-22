@@ -57,30 +57,43 @@ control 'azure-foundations-cis-4.1' do
   all_storage = json(content: storage_output).params
 
   only_if('N/A - No Storage Accounts found', impact: 0) do
-    case all_storage
-    when Array
-      !all_storage.empty?
-    when Hash
-      !all_storage.empty?
-    else
-      false
-    end
+    !all_storage.empty?
   end
 
-  script = <<-EOH
-    az storage account list --query "[*].[name,enableHttpsTrafficOnly]"
-  EOH
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  output = powershell(script).stdout.strip
-  accounts = json(content: output).params
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
-  accounts.each do |account|
-    storage_name = account[0]
-    https_required = account[1]
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-    describe "Storage Account '#{storage_name}' secure transfer requirement" do
-      it 'should have secure transfer enabled (enableHttpsTrafficOnly is true)' do
-        expect(https_required).to cmp true
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
+    end
+  else
+
+    script = <<-EOH
+      az storage account list --query "[*].[name,enableHttpsTrafficOnly]"
+    EOH
+
+    output = powershell(script).stdout.strip
+    accounts = json(content: output).params
+
+    failed_accounts = accounts.reject do |account|
+      account[1] == true
+    end.map { |account| account[0] }
+
+    describe 'Storage Accounts secure transfer enforcement' do
+      it 'ensures that all storage accounts have secure transfer enabled' do
+        expect(failed_accounts).to be_empty, "The following storage accounts do not have secure transfer enabled: #{failed_accounts.join(', ')}"
       end
     end
   end

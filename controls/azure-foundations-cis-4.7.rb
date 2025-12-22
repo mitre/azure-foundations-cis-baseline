@@ -74,34 +74,45 @@ control 'azure-foundations-cis-4.7' do
   all_storage = json(content: storage_output).params
 
   only_if('N/A - No Storage Accounts found', impact: 0) do
-    case all_storage
-    when Array
-      !all_storage.empty?
-    when Hash
-      !all_storage.empty?
-    else
-      false
-    end
+    !all_storage.empty?
   end
 
   subscription_id = input('subscription_id')
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
+
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
+
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  failed_network_ruleset = []
 
   rg_sa_list.each do |pair|
     resource_group, storage_account = pair.split('.')
 
-    describe "Storage Account Network Ruleset for '#{storage_account}' in Resource Group '#{resource_group}'" do
-      script = <<-EOH
-                $ErrorActionPreference = "Stop"
-                Set-AzContext -Subscription #{subscription_id} | Out-Null
-                (Get-AzStorageAccountNetworkRuleset -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").DefaultAction
-      EOH
-      pwsh_output = powershell(script)
-      raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+    script = <<-EOH
+      $ErrorActionPreference = "Stop"
+      (Get-AzStorageAccountNetworkRuleset -ResourceGroupName "#{resource_group}" -Name "#{storage_account}").DefaultAction
+    EOH
 
-      describe pwsh_output do
-        its('stdout.strip') { should cmp 'Deny' }
-      end
+    pwsh_output = powershell(script)
+    if pwsh_output.exit_status != 0
+      failed_network_ruleset << "#{resource_group}.#{storage_account} (Error: #{pwsh_output.stderr.strip})"
+    else
+      default_action = pwsh_output.stdout.strip
+      failed_network_ruleset << "#{resource_group}.#{storage_account}" unless default_action == 'Deny'
+    end
+  end
+
+  describe 'Storage Accounts Default Network Action' do
+    it 'should be set to Deny for all storage accounts' do
+      expect(failed_network_ruleset).to be_empty, "The following storage accounts do not have DefaultAction set to Deny: #{failed_network_ruleset.join(', ')}"
     end
   end
 end

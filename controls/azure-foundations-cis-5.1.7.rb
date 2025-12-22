@@ -34,14 +34,7 @@ control 'azure-foundations-cis-5.1.7' do
   all_servers = json(content: servers_output).params
 
   only_if('N/A - No Azure SQL Databases found', impact: 0) do
-    case all_servers
-    when Array
-      !all_servers.empty?
-    when Hash
-      !all_servers.empty?
-    else
-      false
-    end
+    !all_servers.empty?
   end
 
   describe 'Ensure Public Network Access is Disabled' do

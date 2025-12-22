@@ -98,7 +98,7 @@ control 'azure-foundations-cis-2.15' do
   describe 'Ensure the output from GuestUserRoleId setting' do
     subject { pwsh_output.stdout.strip }
     it 'is set to 2af84b1e-32c8-42b7-82bc-daa82404023b' do
-      expect(subject).to eq('2af84b1e-32c8-42b7-82bc-daa82404023b')
+      expect(subject).to cmp '2af84b1e-32c8-42b7-82bc-daa82404023b'
     end
   end
 end
