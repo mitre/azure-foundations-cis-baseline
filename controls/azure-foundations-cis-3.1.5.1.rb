@@ -69,7 +69,7 @@ control 'azure-foundations-cis-3.1.5.1' do
   describe 'Ensure That Microsoft Defender for Storage' do
     subject { pwsh_output.stdout.strip }
     it "is set to 'On'" do
-      expect(subject).to eq('Standard')
+      expect(subject).to cmp 'Standard'
     end
   end
 end

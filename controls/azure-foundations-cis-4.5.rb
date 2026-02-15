@@ -39,17 +39,31 @@ control 'azure-foundations-cis-4.5' do
   all_storage = json(content: storage_output).params
 
   only_if('N/A - No Storage Accounts found', impact: 0) do
-    case all_storage
-    when Array
-      !all_storage.empty?
-    when Hash
-      !all_storage.empty?
-    else
-      false
-    end
+    !all_storage.empty?
   end
 
-  describe 'Ensure that Shared Access Signature Tokens Expire Within an Hour' do
-    skip 'The check for this control needs to be done manually'
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
+
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
+
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
+    end
+  else
+
+    describe 'Ensure that Shared Access Signature Tokens Expire Within an Hour' do
+      skip 'The check for this control needs to be done manually'
+    end
   end
 end

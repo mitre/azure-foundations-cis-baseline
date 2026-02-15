@@ -110,7 +110,7 @@ control 'azure-foundations-cis-2.2.1' do
     subject { pwsh_output.stdout.strip }
     it "has isTrusted set to 'True'" do
       failure_message = 'All locations are set to null'
-      expect(subject).to eq('Pass'), failure_message
+      expect(subject).to cmp 'Pass', failure_message
     end
   end
 end

@@ -73,59 +73,65 @@ control 'azure-foundations-cis-4.10' do
   all_storage = json(content: storage_output).params
 
   only_if('N/A - No Storage Accounts found', impact: 0) do
-    case all_storage
-    when Array
-      !all_storage.empty?
-    when Hash
-      !all_storage.empty?
-    else
-      false
-    end
+    !all_storage.empty?
   end
 
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  rg_sa_list.each do |pair|
-    resource_group, storage_account = pair.split('.')
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
-    storage_keys_script = <<-EOH
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
+    end
+  else
+    failures = []
+
+    rg_sa_list.each do |pair|
+      resource_group, storage_account = pair.split('.')
+
+      storage_keys_script = <<-EOH
       az storage account keys list --account-name "#{storage_account}" --resource-group "#{resource_group}" --query "[].value" -o tsv | ConvertTo-Json -Depth 10
-    EOH
+      EOH
 
-    storage_keys_output = powershell(storage_keys_script).stdout.strip
-    keys = json(content: storage_keys_output).params
-    keys = [keys] unless keys.is_a?(Array)
-    key = keys[0]
+      storage_keys_output = powershell(storage_keys_script).stdout.strip
+      keys = json(content: storage_keys_output).params
+      keys = [keys] unless keys.is_a?(Array)
+      key = keys[0]
 
-    delete_policy_script = <<-EOH
+      delete_policy_script = <<-EOH
       az storage blob service-properties delete-policy show --account-name "#{storage_account}" --account-key "#{key}"
-    EOH
+      EOH
 
-    delete_policy_output = powershell(delete_policy_script).stdout.strip
-    delete_policy = json(content: delete_policy_output).params
+      delete_policy_output = powershell(delete_policy_script).stdout.strip
+      delete_policy = json(content: delete_policy_output).params
 
-    blob_service_script = <<-EOH
+      blob_service_script = <<-EOH
       az storage account blob-service-properties show --account-name "#{storage_account}" --resource-group "#{resource_group}"
-    EOH
+      EOH
 
-    blob_service_output = powershell(blob_service_script).stdout.strip
-    blob_service = json(content: blob_service_output).params
+      blob_service_output = powershell(blob_service_script).stdout.strip
+      blob_service = json(content: blob_service_output).params
 
-    describe "Blob Storage delete policy for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-      it "should have 'enabled' set to true" do
-        expect(delete_policy['enabled']).to cmp true
-      end
+      failures << "#{resource_group}/#{storage_account} - soft delete not enabled" unless delete_policy['enabled']
+      failures << "#{resource_group}/#{storage_account} - retention days missing" if delete_policy['days'].nil? || delete_policy['days'].to_s.strip.empty?
 
-      it "should have a 'days' value that is not empty" do
-        expect(delete_policy['days']).not_to be_nil
-        expect(delete_policy['days'].to_s.strip).not_to cmp ''
-      end
+      failures << "#{resource_group}/#{storage_account} - container delete retention not enabled" unless blob_service['containerDeleteRetentionPolicy']['enabled']
     end
 
-    describe "Container delete retention policy for Storage Account '#{storage_account}' in Resource Group '#{resource_group}'" do
-      it "should have containerDeleteRetentionPolicy 'enabled' set to true" do
-        expect(blob_service['containerDeleteRetentionPolicy']['enabled']).to cmp true
-      end
+    describe 'Storage Accounts soft delete and container retention compliance' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

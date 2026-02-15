@@ -62,11 +62,16 @@ control 'azure-foundations-cis-2.13' do
      Connect-MgGraph -TenantId '#{tenant_id}' -ClientSecretCredential $ClientSecretCredential -NoWelcome
      $custom_policy_id = @(#{custom_policy_id_list})
      $acceptable_value = 'ManagePermissionGrantsForSelf.microsoft-user-default-low'
+     $containsKnownValue = $permissions -contains $acceptable_value
      $permissions = (Get-MgPolicyAuthorizationPolicy).DefaultUserRolePermissions | Select-Object -ExpandProperty PermissionGrantPoliciesAssigned
-     $containsCustomPolicyId = $custom_policy_id | ForEach-Object { $permissions -contains $_ } | Where-Object { $_ } | Measure-Object | Select-Object -ExpandProperty Count
-     if ($containsKnownValue -or $containsCustomPolicyId) {
-      } else {
-            Write-Host "Incorrect Policies Detected"
+     $permissionsJoined = $permissions -join ", "
+     $containsCustomPolicyId = $custom_policy_id | ForEach-Object { $permissions -contains $_ } | Where-Object { $_ } | Select-Object -First 1
+     $containsCustomPolicyId = $containsCustomPolicyId -ne $null
+
+      if ($containsCustomPolicyId -or $containsKnownValue) {
+      }
+      else {
+            Write-Host "The following incorrect policies are present: $permissionsJoined"
       }
    )
 

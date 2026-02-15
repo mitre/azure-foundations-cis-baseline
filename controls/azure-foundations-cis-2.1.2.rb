@@ -101,16 +101,16 @@ control 'azure-foundations-cis-2.1.2' do
   management_token = command(management_token_cmd).stdout.strip
 
   graph_users = http('https://graph.microsoft.com/v1.0/users',
-                    method: 'GET',
-                    headers: { 'Authorization' => "Bearer #{graph_token}" })
+                     method: 'GET',
+                     headers: { 'Authorization' => "Bearer #{graph_token}" })
 
   role_defs = http("https://management.azure.com/subscriptions/#{subscription_id}/providers/Microsoft.Authorization/roleDefinitions?api-version=2017-05-01",
-                    method: 'GET',
-                    headers: { 'Authorization' => "Bearer #{management_token}" })
+                   method: 'GET',
+                   headers: { 'Authorization' => "Bearer #{management_token}" })
 
   role_assignments = http("https://management.azure.com/subscriptions/#{subscription_id}/providers/Microsoft.Authorization/roleassignments?api-version=2017-10-01-preview",
-                            method: 'GET',
-                            headers: { 'Authorization' => "Bearer #{management_token}" })
+                          method: 'GET',
+                          headers: { 'Authorization' => "Bearer #{management_token}" })
 
   users = JSON.parse(graph_users.body)['value']
 

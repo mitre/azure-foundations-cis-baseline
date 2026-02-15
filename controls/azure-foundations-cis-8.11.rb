@@ -41,14 +41,7 @@ control 'azure-foundations-cis-8.11' do
   all_vms = json(content: vm_output).params
 
   only_if('N/A - No Virtual Machines found', impact: 0) do
-    case all_vms
-    when Array
-      !all_vms.empty?
-    when Hash
-      !all_vms.empty?
-    else
-      false
-    end
+    !all_vms.empty?
   end
 
   describe 'Ensure Trusted Launch is enabled on Virtual Machines' do

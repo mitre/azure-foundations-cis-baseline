@@ -73,34 +73,41 @@ control 'azure-foundations-cis-4.13' do
   all_storage = json(content: storage_output).params
 
   only_if('N/A - No Storage Accounts found', impact: 0) do
-    case all_storage
-    when Array
-      !all_storage.empty?
-    when Hash
-      !all_storage.empty?
-    else
-      false
-    end
+    !all_storage.empty?
   end
 
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  rg_sa_list.each do |pair|
-    resource_group, storage_account = pair.split('.')
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
-    output = json(command: "az storage logging show --services b --account-name #{storage_account}").params
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-    describe 'Storage Queue Logging Settings' do
-      subject { output['blob'] }
-      it 'has delete logging enabled' do
-        expect(subject['delete']).to cmp true
-      end
-      it 'has read logging enabled' do
-        expect(subject['read']).to cmp true
-      end
-      it 'has write logging enabled' do
-        expect(subject['write']).to cmp true
-      end
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
+    end
+  else
+    failures = []
+
+    rg_sa_list.each do |pair|
+      resource_group, storage_account = pair.split('.')
+
+      output = json(command: "az storage logging show --services b --account-name #{storage_account}").params
+      blob = output['blob']
+      failures << "#{resource_group}/#{storage_account}" unless blob['delete'] && blob['read'] && blob['write']
+    end
+
+    describe 'Storage Blob Logging Settings compliance' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

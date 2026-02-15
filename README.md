@@ -112,6 +112,8 @@ To successfully authenticate your application with Azure, you need to obtain the
 
 To configure your **Azure App Registration Service Principal** with the correct permissions, follow these steps. Note that you must be assigned at least the **Owner** role to perform these changes.
 
+**Failure to set the proper permissions may result in InSpec profile errors.**
+
 #### Verify Owner Role
 
 - **Subscriptions**

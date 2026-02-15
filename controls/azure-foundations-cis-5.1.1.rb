@@ -57,56 +57,71 @@ control 'azure-foundations-cis-5.1.1' do
   all_servers = json(content: servers_output).params
 
   only_if('N/A - No Azure SQL Databases found', impact: 0) do
-    case all_servers
-    when Array
-      !all_servers.empty?
-    when Hash
-      !all_servers.empty?
-    else
-      false
-    end
+    !all_servers.empty?
   end
 
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
-    sql_servers_script = <<-EOH
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
+    end
+  else
+    failures = []
+    resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+    resource_groups.each do |resource_group|
+      sql_servers_script = <<-EOH
       $ErrorActionPreference = "Stop"
       Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
-    EOH
+      EOH
 
-    sql_servers_output_pwsh = powershell(sql_servers_script)
-    raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
+      sql_servers_output_pwsh = powershell(sql_servers_script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
 
-    sql_servers_output = sql_servers_output_pwsh.stdout.strip
+      sql_servers_output = sql_servers_output_pwsh.stdout.strip
+      sql_servers = json(content: sql_servers_output).params
+      sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
-    sql_servers = json(content: sql_servers_output).params
-    sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+      sql_servers.each do |server|
+        resource_group_server = server['ResourceGroupName']
+        server_name = server['ServerName']
+        next if resource_group_server.to_s.empty? || server_name.to_s.empty?
 
-    sql_servers.each do |server|
-      server_name = server['ServerName']
-
-      describe "SQL Server Audit Settings for #{server_name} (Resource Group: #{resource_group})" do
         audit_script = <<-EOH
-          $ErrorActionPreference = "Stop"
-          Get-AzSqlServerAudit -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+        $ErrorActionPreference = "Stop"
+        Get-AzSqlServerAudit -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
         EOH
 
         audit_output_pwsh = powershell(audit_script)
-        audit_output = audit_output_pwsh.stdout.strip
         raise Inspec::Error, "The powershell output returned the following error:  #{audit_output_pwsh.stderr}" if audit_output_pwsh.exit_status != 0
 
-        audit = json(content: audit_output).params
+        audit = json(content: audit_output_pwsh.stdout.strip).params
 
-        it 'has at least one audit target enabled' do
-          blob_enabled = audit['BlobStorageTargetState'] == 'Enabled'
-          eventhub_enabled = audit['EventHubTargetState'] == 'Enabled'
-          loganalytics_enabled = audit['LogAnalyticsTargetState'] == 'Enabled'
-          expect(blob_enabled || eventhub_enabled || loganalytics_enabled).to cmp true
-        end
+        blob_enabled = audit['BlobStorageTargetState'] == 'Enabled'
+        eventhub_enabled = audit['EventHubTargetState'] == 'Enabled'
+        loganalytics_enabled = audit['LogAnalyticsTargetState'] == 'Enabled'
+        failures << "#{resource_group}/#{server_name}" unless blob_enabled || eventhub_enabled || loganalytics_enabled
       end
+    end
+
+    describe 'SQL Servers with no audit targets enabled' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

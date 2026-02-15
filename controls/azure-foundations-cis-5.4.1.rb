@@ -52,45 +52,52 @@ control 'azure-foundations-cis-5.4.1' do
 
   all_cosmosdb_accounts = []
 
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  only_if('N/A - No Storage Accounts found (accounts may have been manually excluded)', impact: 0) do
+    !rg_sa_list.empty?
+  end
+
+  failures = []
+  resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+  resource_groups.each do |resource_group|
     script = <<-EOH
       $ErrorActionPreference = "Stop"
       Get-AzCosmosDBAccount -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
     EOH
 
     output_pwsh = powershell(script)
-    output = output_pwsh.stdout.strip
     raise Inspec::Error, "The powershell output returned the following error:  #{output_pwsh.stderr}" if output_pwsh.exit_status != 0
 
-    accounts = json(content: output).params
+    accounts = json(content: output_pwsh.stdout.strip).params
+    accounts = if accounts.is_a?(Hash)
+                 accounts.empty? ? [] : [accounts]
+               else
+                 Array(accounts)
+               end
 
-    if accounts.is_a?(Hash)
-      accounts = accounts.empty? ? [] : [accounts]
-    elsif !accounts.is_a?(Array)
-      accounts = [accounts]
-    end
-
-    all_cosmosdb_accounts.concat(accounts)
-
-    if accounts.empty?
-      describe "Cosmos DB Accounts in Resource Group #{resource_group}" do
-        skip "N/A - No Cosmos DB accounts found in Resource Group #{resource_group}"
-      end
-    else
-      accounts.each do |account|
-        account_name = account['Name']
-        describe "Cosmos DB Account '#{account_name}' in Resource Group '#{resource_group}' Virtual Network Filter configuration" do
-          it "should have IsVirtualNetworkFilterEnabled set to 'True'" do
-            expect(account['IsVirtualNetworkFilterEnabled']).to cmp true
-          end
-        end
-      end
+    accounts.each do |account|
+      account_name = account['Name']
+      failures << "#{resource_group}/#{account_name}" unless account['IsVirtualNetworkFilterEnabled']
     end
   end
 
-  impact 0.0 if all_cosmosdb_accounts.empty?
+  describe 'Cosmos DB accounts without virtual network filter enabled' do
+    subject { failures }
+    it { should be_empty }
+  end
 end

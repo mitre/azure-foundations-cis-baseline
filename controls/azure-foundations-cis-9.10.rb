@@ -60,14 +60,7 @@ control 'azure-foundations-cis-9.10' do
   all_apps = json(content: app_output).params
 
   only_if('N/A - No Web Applications found', impact: 0) do
-    case all_apps
-    when Array
-      !all_apps.empty?
-    when Hash
-      !all_apps.empty?
-    else
-      false
-    end
+    !all_apps.empty?
   end
 
   ensure_http20_set_to_true_script = %(

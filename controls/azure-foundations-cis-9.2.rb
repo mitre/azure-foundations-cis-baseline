@@ -64,49 +64,37 @@ control 'azure-foundations-cis-9.2' do
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-privileged-access#pa-3-manage-lifecycle-of-identities-and-entitlements'
   ref 'https://learn.microsoft.com/en-us/security/benchmark/azure/mcsb-governance-strategy#gs-6-define-and-implement-identity-and-privileged-access-strategy'
 
-  app_script = 'Get-AzKeyVault | ConvertTo-Json'
+  app_script = 'Get-AzWebApp | ConvertTo-Json'
   app_output = powershell(app_script).stdout.strip
   all_apps = json(content: app_output).params
 
   only_if('N/A - No Web Applications found', impact: 0) do
-    case all_apps
-    when Array
-      !all_apps.empty?
-    when Hash
-      !all_apps.empty?
-    else
-      false
-    end
+    !all_apps.empty?
   end
 
-  rg_an_list = input('resource_group_and_app_name')
+  exclusions_list = input('excluded_resource_groups_and_web_apps')
 
-  rg_an_list.each do |pair|
+  rg_an_list = case all_apps
+               when Array
+                 all_apps.map { |webapp| "#{webapp['ResourceGroup']}.#{webapp['Name']}" }
+               when Hash
+                 ["#{all_apps['ResourceGroup']}.#{all_apps['Name']}"]
+               else
+                 []
+               end
+  rg_an_list.reject! { |an| exclusions_list.include?(an) }
+
+  failures = []
+  rg_an_list.uniq.each do |pair|
     resource_group, app_name = pair.split('.')
-    enabled_info = command("az webapp auth show --resource-group #{resource_group} --name #{app_name} --query enabled")
-    scm_info = command("az resource show --resource-group #{resource_group} --name scm --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/#{app_name} --query properties.allow")
-    ftp_info = command("az resource show --resource-group #{resource_group} --name ftp --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/#{app_name} --query properties.allow")
-    describe "Application Name '#{app_name}' in Resource Group '#{resource_group}'" do
-      describe 'App Service Authentication setting' do
-        subject { enabled_info.stdout.strip }
-        it "should be set to 'true'" do
-          expect(subject).to cmp(true)
-        end
-      end
+    enabled = command("az webapp auth show --resource-group #{resource_group} --name #{app_name} --query enabled").stdout.strip
+    scm_allow = command("az resource show --resource-group #{resource_group} --name scm --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/#{app_name} --query properties.allow").stdout.strip
+    ftp_allow = command("az resource show --resource-group #{resource_group} --name ftp --namespace Microsoft.Web --resource-type basicPublishingCredentialsPolicies --parent sites/#{app_name} --query properties.allow").stdout.strip
+    failures << "#{resource_group}/#{app_name}" unless enabled == 'true' && scm_allow == 'false' && ftp_allow == 'false'
+  end
 
-      describe 'Properties.allow setting for SCM Basic Auth Publishing Credentials' do
-        subject { scm_info.stdout.strip }
-        it "should be set 'false'" do
-          expect(subject).to cmp(false)
-        end
-      end
-
-      describe 'Properties.allow setting for SCM Basic Auth Publishing Credentials' do
-        subject { ftp_info.stdout.strip }
-        it "should be set 'false'" do
-          expect(subject).to cmp(false)
-        end
-      end
-    end
+  describe 'App Service apps without authentication properly configured' do
+    subject { failures }
+    it { should be_empty }
   end
 end

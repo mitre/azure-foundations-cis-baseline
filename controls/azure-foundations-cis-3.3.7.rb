@@ -115,14 +115,7 @@ control 'azure-foundations-cis-3.3.7' do
   all_vaults = json(content: vault_output).params
 
   only_if('N/A - No Key Vaults found', impact: 0) do
-    case all_vaults
-    when Array
-      !all_vaults.empty?
-    when Hash
-      !all_vaults.empty?
-    else
-      false
-    end
+    !all_vaults.empty?
   end
 
   subscription_id = input('subscription_id')

@@ -80,20 +80,20 @@ control 'azure-foundations-cis-3.3.4' do
   all_vaults = json(content: vault_output).params
 
   only_if('N/A - No Key Vaults found', impact: 0) do
-    case all_vaults
-    when Array
-      !all_vaults.empty?
-    when Hash
-      !all_vaults.empty?
-    else
-      false
-    end
+    !all_vaults.empty?
   end
 
   non_rbac_secrets_appropriate_expiry_date = input('non_rbac_secrets_appropriate_expiry_date')
-  non_rbac_secrets_dates_list = non_rbac_secrets_appropriate_expiry_date.map { |secret_date| "'#{secret_date}'" }.join(', ')
 
-  expiration_date_set_all_secrets_script = %(
+  if non_rbac_secrets_appropriate_expiry_date.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No expiration date provided for keys in RBAC key vaults'
+    end
+  else
+    non_rbac_secrets_dates_list = non_rbac_secrets_appropriate_expiry_date.map { |secret_date| "'#{secret_date}'" }.join(', ')
+
+    expiration_date_set_all_secrets_script = %(
       $ErrorActionPreference = "Stop"
       $dateStrings = @(#{non_rbac_secrets_dates_list})
       $dateObjects = $dateStrings | ForEach-Object {
@@ -130,14 +130,15 @@ control 'azure-foundations-cis-3.3.4' do
       }
   )
 
-  pwsh_output = powershell(expiration_date_set_all_secrets_script)
-  raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
+    pwsh_output = powershell(expiration_date_set_all_secrets_script)
+    raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-  describe 'Ensure the the number of Non-RBAC vault/secret combinations with incorrect expiration dates' do
-    subject { pwsh_output.stdout.strip }
-    it 'is 0' do
-      failure_message = "Error: #{pwsh_output.stdout.strip}"
-      expect(subject).to be_empty, failure_message
+    describe 'Ensure the the number of Non-RBAC vault/secret combinations with incorrect expiration dates' do
+      subject { pwsh_output.stdout.strip }
+      it 'is 0' do
+        failure_message = "Error: #{pwsh_output.stdout.strip}"
+        expect(subject).to be_empty, failure_message
+      end
     end
   end
 end

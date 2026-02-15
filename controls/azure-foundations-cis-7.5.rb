@@ -49,31 +49,34 @@ control 'azure-foundations-cis-7.5' do
   all_nsgs = json(content: nsg_output).params
 
   only_if('N/A - No Network Security Groups found', impact: 0) do
-    case all_nsgs
-    when Array
-      !all_nsgs.empty?
-    when Hash
-      !all_nsgs.empty?
-    else
-      false
-    end
+    !all_nsgs.empty?
   end
 
-  rg_nsg_list = input('resource_group_and_network_watcher')
-  rg_nsg_list.each do |pair|
+  # rg_nsg_list = input('resource_group_and_network_watcher')
+
+  rg_nsg_list = case all_nsgs
+                when Array
+                  all_nsgs.map { |nsg| "#{nsg['resourceGroup']}.#{nsg['name']}" }
+                when Hash
+                  ["#{all_nsgs['resourceGroup']}.#{all_nsgs['name']}"]
+                else
+                  []
+                end
+  exclusions_list = input('excluded_resource_groups_and_network_watcher')
+  rg_nsg_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  failures = []
+  rg_nsg_list.uniq.each do |pair|
     rg, nsg = pair.split('.')
-
     query = command("az network watcher flow-log show --resource-group #{rg} --nsg #{nsg} --query 'retentionPolicy'").stdout
-    query_results_json = JSON.parse(query) unless query.empty?
-    describe "Ensure the NSG #{nsg}" do
-      subject { query_results_json }
-      it "has 'enabled' setting set to 'true'" do
-        expect(subject['enabled']).to cmp true
-      end
+    next if query.empty?
 
-      it "has 'days' set to >= 90" do
-        expect(subject['days']).to be >= 90
-      end
-    end
+    data = JSON.parse(query)
+    failures << "#{rg}/#{nsg}" unless data['enabled'] == true && data['days'] >= 90
+  end
+
+  describe 'NSGs with flow logs disabled or retention < 90 days' do
+    subject { failures }
+    it { should be_empty }
   end
 end

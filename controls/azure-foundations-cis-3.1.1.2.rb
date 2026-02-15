@@ -101,7 +101,7 @@ control 'azure-foundations-cis-3.1.1.2' do
   describe 'Ensure that MCAS' do
     subject { pwsh_output.stdout.strip }
     it "is set to 'True'" do
-      expect(subject).to eq('True')
+      expect(subject).to cmp 'True'
     end
   end
 end

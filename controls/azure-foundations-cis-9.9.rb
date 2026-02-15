@@ -68,14 +68,7 @@ control 'azure-foundations-cis-9.9' do
   all_apps = json(content: app_output).params
 
   only_if('N/A - No Web Applications found', impact: 0) do
-    case all_apps
-    when Array
-      !all_apps.empty?
-    when Hash
-      !all_apps.empty?
-    else
-      false
-    end
+    !all_apps.empty?
   end
 
   java_version_unsupported_web_app = input('java_version_unsupported_web_app')
@@ -125,15 +118,19 @@ control 'azure-foundations-cis-9.9' do
   pwsh_output = powershell(ensure_web_app_java_version_supported_script)
   raise Inspec::Error, "The powershell output returned the following error:  #{pwsh_output.stderr}" if pwsh_output.exit_status != 0
 
-  only_if('N/A - No Java detected in any Web Applications', impact: 0) do
-    pwsh_output.stdout.strip != "N/A"
-  end
-  
-  describe 'Ensure that the number of Web Applications/Resource Group combinations with unsupported SiteConfig.LinuxFXVersion for Java' do
-    subject { pwsh_output.stdout.strip }
-    it 'is 0' do
-      failure_message = "The following web apps have an unsupported version of Java: #{pwsh_output.stdout.strip}"
-      expect(subject).to be_empty, failure_message
+  if pwsh_output.stdout.strip == 'N/A'
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No Java detected in any Web Applications'
+    end
+  else
+
+    describe 'Ensure that the number of Web Applications/Resource Group combinations with unsupported SiteConfig.LinuxFXVersion for Java' do
+      subject { pwsh_output.stdout.strip }
+      it 'is 0' do
+        failure_message = "The following web apps have an unsupported version of Java: #{pwsh_output.stdout.strip}"
+        expect(subject).to be_empty, failure_message
+      end
     end
   end
 end

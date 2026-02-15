@@ -190,7 +190,7 @@ control 'azure-foundations-cis-2.2.2' do
   describe 'Ensure at least one Conditional Access Policy' do
     subject { pwsh_output.stdout.strip }
     it 'has Built In Grant Controls setting set to "block" and Included Locations/Excluded Location IDs settings set to appropriate values' do
-      expect(subject).to eq('Pass')
+      expect(subject).to cmp 'Pass'
     end
   end
 end

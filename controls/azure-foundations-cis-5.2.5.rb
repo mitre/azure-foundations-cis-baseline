@@ -51,57 +51,73 @@ control 'azure-foundations-cis-5.2.5' do
   all_servers = json(content: servers_output).params
 
   only_if('N/A - No PostgreSQL Flexible Servers found', impact: 0) do
-    case all_servers
-    when Array
-      !all_servers.empty?
-    when Hash
-      !all_servers.empty?
-    else
-      false
-    end
+    !all_servers.empty?
   end
 
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
-    postgres_servers_script = <<-EOH
-      $ErrorActionPreference = "Stop"
-      Get-AzPostgreSqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
-    EOH
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
 
-    postgres_servers_output_pwsh = powershell(postgres_servers_script)
-    postgres_servers_output = postgres_servers_output_pwsh.stdout.strip
-    raise Inspec::Error, "The powershell output returned the following error:  #{postgres_servers_output_pwsh.stderr}" if postgres_servers_output_pwsh.exit_status != 0
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
+    end
+  else
+    failures = []
+    resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+    resource_groups.each do |resource_group|
+      servers_script = <<-EOH
+        $ErrorActionPreference = "Stop"
+        Get-AzPostgreSqlFlexibleServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
+      EOH
 
-    postgres_servers = json(content: postgres_servers_output).params
-    postgres_servers = [postgres_servers] unless postgres_servers.is_a?(Array)
+      servers_output_pwsh = powershell(servers_script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{servers_output_pwsh.stderr}" if servers_output_pwsh.exit_status != 0
 
-    postgres_servers.each do |server|
-      server_name = server['Name']
+      servers = json(content: servers_output_pwsh.stdout.strip).params
+      servers = [servers] unless servers.is_a?(Array)
 
-      describe "Firewall rules for PostgreSQL Flexible Server '#{server_name}' in Resource Group '#{resource_group}'" do
+      servers.each do |server|
+        server_name = server['Name']
+        next if server_name.to_s.empty?
+
         firewall_script = <<-EOH
           $ErrorActionPreference = "Stop"
           Get-AzPostgreSqlFlexibleServerFirewallRule -ResourceGroupName "#{resource_group}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
         EOH
 
-        firewall_output_pwsh = powershell(firewall_script)
-        firewall_output = firewall_output_pwsh.stdout.strip
-        raise Inspec::Error, "The powershell output returned the following error:  #{firewall_output_pwsh.stderr}" if firewall_output_pwsh.exit_status != 0
+        fw_pwsh = powershell(firewall_script)
+        raise Inspec::Error, "The powershell output returned the following error:  #{fw_pwsh.stderr}" if fw_pwsh.exit_status != 0
 
-        firewall_rules = json(content: firewall_output).params
-        firewall_rules = [firewall_rules] unless firewall_rules.is_a?(Array)
+        rules = json(content: fw_pwsh.stdout.strip).params
+        rules = [rules] unless rules.is_a?(Array)
 
-        firewall_rules.each do |rule|
-          describe "Firewall rule '#{rule['Name']}'" do
-            it "should not have a name starting with 'AllowAllAzureServicesAndResourcesWithinAzureIps'" do
-              expect(rule['Name']).not_to match(/^AllowAllAzureServicesAndResourcesWithinAzureIps/)
-            end
-          end
+        rules.each do |rule|
+          name = rule['Name'].to_s
+          start_ip = rule['StartIpAddress'].to_s
+          end_ip   = rule['EndIpAddress'].to_s
+
+          failures << "#{resource_group}/#{server_name}/#{name}" if name.match(/^AllowAllAzureServicesAndResourcesWithinAzureIps/) || start_ip == '0.0.0.0' || end_ip == '0.0.0.0'
         end
       end
+    end
+
+    describe 'PostgreSQL Flexible servers with overly permissive firewall rules' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end

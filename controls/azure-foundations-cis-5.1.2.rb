@@ -81,64 +81,73 @@ control 'azure-foundations-cis-5.1.2' do
   all_servers = json(content: servers_output).params
 
   only_if('N/A - No Azure SQL Databases found', impact: 0) do
-    case all_servers
-    when Array
-      !all_servers.empty?
-    when Hash
-      !all_servers.empty?
-    else
-      false
-    end
+    !all_servers.empty?
   end
 
-  rg_sa_list = input('resource_groups_and_storage_accounts')
+  storage_script = 'Get-AzStorageAccount | ConvertTo-Json'
+  storage_output = powershell(storage_script).stdout.strip
+  all_storage = json(content: storage_output).params
+  exclusions_list = input('excluded_resource_groups_and_storage_accounts')
 
-  rg_sa_list.each do |pair|
-    resource_group, = pair.split('.')
+  rg_sa_list = case all_storage
+               when Array
+                 all_storage.map { |account| "#{account['ResourceGroupName']}.#{account['StorageAccountName']}" }
+               when Hash
+                 ["#{all_storage['ResourceGroupName']}.#{all_storage['StorageAccountName']}"]
+               else
+                 []
+               end
 
-    sql_servers_script = <<-EOH
+  rg_sa_list.reject! { |sa| exclusions_list.include?(sa) }
+
+  if rg_sa_list.empty?
+    impact 0.0
+    describe 'N/A' do
+      skip 'N/A - No storage accounts found or accounts have been manually excluded'
+    end
+  else
+    failures = []
+    resource_groups = rg_sa_list.map { |pair| pair.split('.').first }.uniq
+    resource_groups.each do |resource_group|
+      sql_servers_script = <<-EOH
       $ErrorActionPreference = "Stop"
       Get-AzSqlServer -ResourceGroupName "#{resource_group}" | ConvertTo-Json -Depth 10
-    EOH
+      EOH
 
-    sql_servers_output_pwsh = powershell(sql_servers_script)
-    raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
+      sql_servers_output_pwsh = powershell(sql_servers_script)
+      raise Inspec::Error, "The powershell output returned the following error:  #{sql_servers_output_pwsh.stderr}" if sql_servers_output_pwsh.exit_status != 0
 
-    sql_servers_output = sql_servers_output_pwsh.stdout.strip
-    sql_servers = json(content: sql_servers_output).params
-    sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
+      sql_servers_output = sql_servers_output_pwsh.stdout.strip
+      sql_servers = json(content: sql_servers_output).params
+      sql_servers = [sql_servers] unless sql_servers.is_a?(Array)
 
-    sql_servers.each do |server|
-      server_name = server['ServerName']
-      resource_group_server = server['ResourceGroupName']
+      sql_servers.each do |server|
+        server_name = server['ServerName']
+        resource_group_server = server['ResourceGroupName']
+        next if resource_group_server.to_s.empty? || server_name.to_s.empty?
 
-      describe "Firewall rules for SQL Server '#{server_name}' (Resource Group: #{resource_group_server})" do
         firewall_rules_script = <<-EOH
-          $ErrorActionPreference = "Stop"
-          Get-AzSqlServerFirewallRule -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
+        $ErrorActionPreference = "Stop"
+        Get-AzSqlServerFirewallRule -ResourceGroupName "#{resource_group_server}" -ServerName "#{server_name}" | ConvertTo-Json -Depth 10
         EOH
 
         firewall_rules_output_pwsh = powershell(firewall_rules_script)
-        firewall_rules_output = firewall_rules_output_pwsh.stdout.strip
         raise Inspec::Error, "The powershell output returned the following error:  #{firewall_rules_output_pwsh.stderr}" if firewall_rules_output_pwsh.exit_status != 0
 
+        firewall_rules_output = firewall_rules_output_pwsh.stdout.strip
         firewall_rules = json(content: firewall_rules_output).params
         firewall_rules = [firewall_rules] unless firewall_rules.is_a?(Array)
 
         firewall_rules.each do |rule|
-          describe "Firewall Rule '#{rule['FirewallRuleName']}' on SQL Server '#{server_name}'" do
-            it 'should not allow overly permissive access via StartIpAddress' do
-              start_ip = rule['StartIpAddress']
-              expect(start_ip).not_to match(%r{^0\.0\.0\.0(/0)?$})
-            end
-
-            it "should not be named 'AllowAllWindowsAzureIps'" do
-              rule_name = rule['FirewallRuleName']
-              expect(rule_name).not_to match(/AllowAllWindowsAzureIps/i)
-            end
-          end
+          start_ip = rule['StartIpAddress']
+          rule_name = rule['FirewallRuleName']
+          failures << "#{resource_group_server}/#{server_name}/#{rule_name}" if start_ip.to_s.match(%r{^0\.0\.0\.0(/0)?$}) || rule_name.to_s =~ /AllowAllWindowsAzureIps/i
         end
       end
+    end
+    describe 'Firewall rules allowing overly permissive access' do
+      subject { failures }
+      it { should be_empty }
     end
   end
 end
